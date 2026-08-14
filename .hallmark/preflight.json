@@ -1,0 +1,9 @@
+{
+  "date": "2026-08-14",
+  "framework": "Flask 3 + Jinja2 (tanpa npm, tanpa Tailwind)",
+  "font_stack": "tidak ada font web sebelumnya",
+  "palette": "6 hex ad-hoc di static/gaya.css, sisanya Bootstrap 3 + Ace",
+  "motion": "tidak ada pustaka animasi",
+  "spacing": "grid Bootstrap 3, tanpa skala token",
+  "design_md": "dibuat pada run ini"
+}

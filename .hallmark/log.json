@@ -1,0 +1,12 @@
+[
+  {
+    "date": "2026-08-14",
+    "scope": "app",
+    "genre": "modern-minimal",
+    "macrostructure": "Index-First",
+    "theme": "Cobalt",
+    "theme_axes": "light-cool / grotesk-sans / cool-accent",
+    "enrichment": "none",
+    "brief": "Sistem Absensi FK Unhas - aplikasi admin data akademik, nada utilitarian/technical"
+  }
+]

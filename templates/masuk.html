@@ -1,74 +1,40 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-<meta charset="utf-8" />
-<title>Masuk - ABSENSI FK UNHAS</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Masuk · Absensi FK Unhas</title>
 <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='font-awesome/css/font-awesome.min.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='css/ace.min.css') }}" class="ace-main-stylesheet" />
-<link rel="stylesheet" href="{{ url_for('static', filename='gaya.css') }}" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
-<body class="login-layout light-login">
-<div class="main-container"><div class="main-content"><div class="row">
-  <div class="col-sm-10 col-sm-offset-1">
-    <div class="login-container">
+<body>
+<div class="masuk">
+  <form class="masuk__box" method="post">
+    <span class="masuk__mark eyebrow">Absensi FK · Universitas Hasanuddin</span>
+    <h1 class="masuk__title">Masuk</h1>
 
-      <div class="center">
-        <h1>
-          <img src="{{ url_for('static', filename='img/unhas.png') }}" alt="Unhas" style="height:70px">
-        </h1>
-        <h4 class="blue" style="margin-bottom:18px">ABSENSI FAKULTAS KEDOKTERAN</h4>
+    {% if galat %}
+      <div class="note note--bad" role="alert">
+        <span class="note__mark">Galat</span><span>{{ galat }}</span>
       </div>
+    {% endif %}
 
-      <div class="position-relative">
-        <div class="login-box visible widget-box no-border">
-          <div class="widget-body">
-            <div class="widget-main">
-              <h4 class="header blue lighter bigger">
-                <i class="ace-icon fa fa-coffee green"></i> Masuk ke aplikasi
-              </h4>
-
-              {% if galat %}
-                <div class="alert alert-danger">
-                  <i class="ace-icon fa fa-exclamation-triangle"></i> {{ galat }}
-                </div>
-              {% endif %}
-
-              <form method="post">
-                <fieldset>
-                  <label class="block clearfix">
-                    <span class="block input-icon input-icon-right">
-                      <input type="text" name="username" class="form-control" placeholder="Username"
-                             autofocus required autocomplete="username" />
-                      <i class="ace-icon fa fa-user"></i>
-                    </span>
-                  </label>
-
-                  <label class="block clearfix">
-                    <span class="block input-icon input-icon-right">
-                      <input type="password" name="sandi" class="form-control" placeholder="Sandi"
-                             required autocomplete="current-password" />
-                      <i class="ace-icon fa fa-lock"></i>
-                    </span>
-                  </label>
-
-                  <div class="clearfix">
-                    <button type="submit" class="width-100 pull-right btn btn-sm btn-primary">
-                      <i class="ace-icon fa fa-key"></i>
-                      <span class="bigger-110">Masuk</span>
-                    </button>
-                  </div>
-                </fieldset>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div class="field">
+      <label class="field__label" for="username">Username</label>
+      <input id="username" name="username" autocomplete="username" autofocus required>
     </div>
-  </div>
-</div></div></div>
+
+    <div class="field">
+      <label class="field__label" for="sandi">Sandi</label>
+      <input id="sandi" type="password" name="sandi" autocomplete="current-password" required>
+    </div>
+
+    <button class="btn btn--primary">Masuk</button>
+  </form>
+</div>
 </body>
 </html>

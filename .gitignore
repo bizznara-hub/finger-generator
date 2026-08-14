@@ -14,3 +14,7 @@ __pycache__/
 # Basis data lokal
 *.db
 *.sqlite3
+
+# Skill desain terpasang lewat npx (bukan kode aplikasi)
+.agents/
+.claude/skills/

@@ -1,50 +1,60 @@
 {% extends "layout.html" %}
 {% block judul %}{{ obj.label }}{% endblock %}
+{% block eyebrow %}Kegiatan · blok{% endblock %}
 {% block tajuk %}{{ obj.mata_kuliah.nama if obj.mata_kuliah else 'Blok' }}{% endblock %}
-{% block subtajuk %}kelas peserta{% endblock %}
+{% block aksi %}
+<div class="page__actions">
+  <a class="btn" href="{{ url_for('jadwal.daftar') }}">Semua blok</a>
+</div>
+{% endblock %}
 {% block isi %}
 
-<div style="margin-bottom:12px">
-  <a class="btn btn-sm btn-default" href="{{ url_for('jadwal.daftar') }}">
-    <i class="ace-icon fa fa-arrow-left"></i> Semua blok
-  </a>
-</div>
-
-<div class="widget-box">
-  <div class="widget-header"><h4 class="widget-title">Tambah kelas</h4></div>
-  <div class="widget-body"><div class="widget-main">
-    <p class="redup">Menambahkan kelas otomatis mendaftarkan seluruh mahasiswa kelas itu sebagai peserta.</p>
-    <form method="post" action="{{ url_for('jadwal.tambah_kelas', id_jadwal=obj.id) }}" class="form-inline">
-      <select name="kelas_id" class="form-control input-sm" style="min-width:220px">
-        <option value="">— pilih kelas —</option>
-        {% for k in kelas_tersedia %}<option value="{{ k.id }}">{{ k.label }}</option>{% endfor %}
-      </select>
-      <button class="btn btn-sm btn-primary"><i class="ace-icon fa fa-plus"></i> Tambahkan</button>
+<section class="panel">
+  <div class="panel__head"><h2 class="panel__title">Tambah kelas peserta</h2></div>
+  <div class="panel__body">
+    <p class="hint">Menambahkan kelas otomatis mendaftarkan seluruh mahasiswa kelas itu
+      sebagai peserta.</p>
+    <form method="post" action="{{ url_for('jadwal.tambah_kelas', id_jadwal=obj.id) }}" class="toolbar">
+      <div class="field" style="flex:1 1 16rem">
+        <label class="field__label" for="kls">Kelas</label>
+        <select id="kls" name="kelas_id" style="width:100%">
+          <option value="">— pilih —</option>
+          {% for k in kelas_tersedia %}<option value="{{ k.id }}">{{ k.label }}</option>{% endfor %}
+        </select>
+      </div>
+      <button class="btn btn--primary">Tambahkan</button>
     </form>
-  </div></div>
-</div>
+  </div>
+</section>
 
-<table class="table table-striped table-bordered table-hover">
-  <thead><tr><th>Kelas</th><th>Peserta</th><th>Tanggal</th><th style="width:200px"></th></tr></thead>
-  <tbody>
-  {% for jk in obj.kelas_jadwal %}
-    <tr>
-      <td><b>{{ jk.kelas.label if jk.kelas else '?' }}</b></td>
-      <td>{{ jk.peserta|length }} mahasiswa</td>
-      <td>{{ jk.hari|length }} tanggal</td>
-      <td class="no-wrap">
-        <a class="btn btn-xs btn-primary" href="{{ url_for('jadwal.kelas', id_jk=jk.id) }}">
-          <i class="ace-icon fa fa-calendar"></i> Atur sesi
-        </a>
-        <form method="post" action="{{ url_for('jadwal.hapus_kelas', id_jk=jk.id) }}" style="display:inline"
-              onsubmit="return confirm('Keluarkan kelas ini beserta tanggal dan sesinya?')">
-          <button class="btn btn-xs btn-danger"><i class="ace-icon fa fa-trash-o"></i> Hapus</button>
-        </form>
-      </td>
-    </tr>
-  {% else %}
-    <tr><td colspan="4" class="kosong">Belum ada kelas.</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
+<section class="panel">
+  <div class="panel__head"><h2 class="panel__title">Kelas pada blok ini</h2></div>
+  <div class="panel__body panel__flush">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Kelas</th><th>Peserta</th><th>Tanggal</th><th class="col-aksi"></th></tr></thead>
+        <tbody>
+        {% for jk in obj.kelas_jadwal %}
+          <tr>
+            <td><b>{{ jk.kelas.label if jk.kelas else '?' }}</b></td>
+            <td class="num">{{ jk.peserta|length }}</td>
+            <td class="num">{{ jk.hari|length }}</td>
+            <td class="col-aksi">
+              <div class="btn-row">
+                <a class="btn btn--sm" href="{{ url_for('jadwal.kelas', id_jk=jk.id) }}">Atur sesi</a>
+                <form method="post" action="{{ url_for('jadwal.hapus_kelas', id_jk=jk.id) }}"
+                      onsubmit="return confirm('Keluarkan kelas ini beserta tanggal dan sesinya?')">
+                  <button class="btn btn--sm btn--danger">Keluarkan</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="4" class="kosong">Belum ada kelas.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 {% endblock %}

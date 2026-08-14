@@ -1,53 +1,56 @@
 {% extends "layout.html" %}
 {% block judul %}{{ judul }}{% endblock %}
+{% block eyebrow %}Data master{% endblock %}
 {% block tajuk %}{{ judul }}{% endblock %}
-{% block subtajuk %}daftar data{% endblock %}
+{% block aksi %}
+<div class="page__actions">
+  <a class="btn btn--primary" href="{{ url_for('master.tambah', kunci=spek.kunci) }}">Tambah {{ judul|lower }}</a>
+  <form method="get" class="toolbar">
+    <div class="field">
+      <label class="sr-only" for="cari">Cari {{ judul|lower }}</label>
+      <input id="cari" name="cari" value="{{ kata }}" placeholder="Cari…">
+    </div>
+    <button class="btn">Cari</button>
+  </form>
+</div>
+{% endblock %}
 {% block isi %}
 
-<div class="row" style="margin-bottom:12px">
-  <div class="col-sm-6">
-    <a class="btn btn-sm btn-primary" href="{{ url_for('master.tambah', kunci=spek.kunci) }}">
-      <i class="ace-icon fa fa-plus"></i> Tambah {{ judul }}
-    </a>
+<section class="panel">
+  <div class="panel__head">
+    <h2 class="panel__title">{{ baris|length }} baris</h2>
   </div>
-  <div class="col-sm-6">
-    <form method="get" class="form-inline pull-right">
-      <div class="input-group">
-        <input name="cari" value="{{ kata }}" class="form-control input-sm" placeholder="Cari...">
-        <span class="input-group-btn">
-          <button class="btn btn-sm btn-default"><i class="ace-icon fa fa-search"></i></button>
-        </span>
-      </div>
-    </form>
+  <div class="panel__body panel__flush">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th class="col-no">#</th>
+          {% for label, _ in spek.kolom %}<th>{{ label }}</th>{% endfor %}
+          <th class="col-aksi"></th>
+        </tr></thead>
+        <tbody>
+        {% for baris_data in baris %}
+          <tr>
+            <td class="col-no">{{ loop.index }}</td>
+            {% for label, ambil in spek.kolom %}
+              <td {% if label in ['NIM','ID Finger','Serial','Kapasitas','SKS','Angkatan','Jumlah mahasiswa','IP'] %}class="num"{% endif %}>{{ ambil(baris_data) }}</td>
+            {% endfor %}
+            <td class="col-aksi">
+              <div class="btn-row">
+                <a class="btn btn--sm" href="{{ url_for('master.ubah', kunci=spek.kunci, id_baris=baris_data.id) }}">Ubah</a>
+                <form method="post" action="{{ url_for('master.hapus', kunci=spek.kunci, id_baris=baris_data.id) }}"
+                      onsubmit="return confirm('Hapus data ini?')">
+                  <button class="btn btn--sm btn--danger">Hapus</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="{{ spek.kolom|length + 2 }}" class="kosong">Belum ada data.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
-</div>
-
-<table class="table table-striped table-bordered table-hover">
-  <thead class="thin-border-bottom">
-    <tr>
-      <th style="width:44px">#</th>
-      {% for label, _ in spek.kolom %}<th>{{ label }}</th>{% endfor %}
-      <th style="width:150px"></th>
-    </tr>
-  </thead>
-  <tbody>
-  {% for baris_data in baris %}
-    <tr>
-      <td class="redup">{{ loop.index }}</td>
-      {% for _, ambil in spek.kolom %}<td>{{ ambil(baris_data) }}</td>{% endfor %}
-      <td class="no-wrap">
-        <a class="btn btn-xs btn-info" href="{{ url_for('master.ubah', kunci=spek.kunci, id_baris=baris_data.id) }}">
-          <i class="ace-icon fa fa-pencil"></i> Ubah
-        </a>
-        <form method="post" action="{{ url_for('master.hapus', kunci=spek.kunci, id_baris=baris_data.id) }}"
-              style="display:inline" onsubmit="return confirm('Hapus data ini?')">
-          <button class="btn btn-xs btn-danger"><i class="ace-icon fa fa-trash-o"></i> Hapus</button>
-        </form>
-      </td>
-    </tr>
-  {% else %}
-    <tr><td colspan="{{ spek.kolom|length + 2 }}" class="kosong">Belum ada data.</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
+</section>
 {% endblock %}

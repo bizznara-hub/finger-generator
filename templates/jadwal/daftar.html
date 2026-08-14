@@ -1,51 +1,59 @@
 {% extends "layout.html" %}
 {% block judul %}Jadwal Kuliah{% endblock %}
+{% block eyebrow %}Kegiatan{% endblock %}
 {% block tajuk %}Jadwal Kuliah{% endblock %}
-{% block subtajuk %}daftar blok{% endblock %}
+{% block aksi %}
+<div class="page__actions">
+  <a class="btn btn--primary" href="{{ url_for('jadwal.sunting') }}">Tambah blok</a>
+</div>
+{% endblock %}
 {% block isi %}
 
-<div style="margin-bottom:12px">
-  <a class="btn btn-sm btn-primary" href="{{ url_for('jadwal.sunting') }}">
-    <i class="ace-icon fa fa-plus"></i> Tambah blok
-  </a>
+<div class="note note--info">
+  <span class="note__mark">Alur</span>
+  <span>Susun dari atas ke bawah: <b>blok</b> → <b>kelas peserta</b> → <b>tanggal</b> →
+    <b>sesi</b>. Sesi dibuat manual dan bisa diubah kapan saja.</span>
 </div>
 
-<div class="alert alert-info">
-  <i class="ace-icon fa fa-info-circle"></i>
-  Susun dari atas ke bawah: <b>blok</b> &rarr; <b>kelas peserta</b> &rarr; <b>tanggal</b> &rarr; <b>sesi</b>.
-  Sesi dibuat manual dan bisa diubah kapan saja.
-</div>
-
-<table class="table table-striped table-bordered table-hover">
-  <thead><tr><th style="width:44px">#</th><th>Blok</th><th>Semester</th><th>Tahun ajaran</th><th>Kelas</th><th style="width:190px"></th></tr></thead>
-  <tbody>
-  {% for j in baris %}
-    <tr>
-      <td class="redup">{{ loop.index }}</td>
-      <td><b>{{ j.mata_kuliah.nama if j.mata_kuliah else '-' }}</b></td>
-      <td>{{ j.semester or '-' }}</td>
-      <td>{{ j.tahun_ajaran or '-' }}</td>
-      <td>
-        {% for jk in j.kelas_jadwal %}
-          <a class="label label-info" href="{{ url_for('jadwal.kelas', id_jk=jk.id) }}">{{ jk.kelas.nama if jk.kelas else '?' }}</a>
-        {% else %}<span class="redup">belum ada</span>{% endfor %}
-      </td>
-      <td class="no-wrap">
-        <a class="btn btn-xs btn-primary" href="{{ url_for('jadwal.rinci', id_jadwal=j.id) }}">
-          <i class="ace-icon fa fa-cog"></i> Atur
-        </a>
-        <a class="btn btn-xs btn-info" href="{{ url_for('jadwal.sunting', id_jadwal=j.id) }}">
-          <i class="ace-icon fa fa-pencil"></i> Ubah
-        </a>
-        <form method="post" action="{{ url_for('jadwal.hapus', id_jadwal=j.id) }}" style="display:inline"
-              onsubmit="return confirm('Hapus blok ini beserta seluruh tanggal dan sesinya?')">
-          <button class="btn btn-xs btn-danger"><i class="ace-icon fa fa-trash-o"></i></button>
-        </form>
-      </td>
-    </tr>
-  {% else %}
-    <tr><td colspan="6" class="kosong">Belum ada blok terjadwal.</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
+<section class="panel">
+  <div class="panel__body panel__flush">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th class="col-no">#</th><th>Blok</th><th>Semester</th><th>Tahun ajaran</th>
+          <th>Kelas</th><th class="col-aksi"></th>
+        </tr></thead>
+        <tbody>
+        {% for j in baris %}
+          <tr>
+            <td class="col-no">{{ loop.index }}</td>
+            <td><b>{{ j.mata_kuliah.nama if j.mata_kuliah else '—' }}</b></td>
+            <td>{{ j.semester or '—' }}</td>
+            <td class="num">{{ j.tahun_ajaran or '—' }}</td>
+            <td>
+              <div class="btn-row">
+              {% for jk in j.kelas_jadwal %}
+                <a class="tag tag--accent" href="{{ url_for('jadwal.kelas', id_jk=jk.id) }}">{{ jk.kelas.nama if jk.kelas else '?' }}</a>
+              {% else %}<span class="redup kecil">belum ada</span>{% endfor %}
+              </div>
+            </td>
+            <td class="col-aksi">
+              <div class="btn-row">
+                <a class="btn btn--sm" href="{{ url_for('jadwal.rinci', id_jadwal=j.id) }}">Atur</a>
+                <a class="btn btn--sm" href="{{ url_for('jadwal.sunting', id_jadwal=j.id) }}">Ubah</a>
+                <form method="post" action="{{ url_for('jadwal.hapus', id_jadwal=j.id) }}"
+                      onsubmit="return confirm('Hapus blok ini beserta seluruh tanggal dan sesinya?')">
+                  <button class="btn btn--sm btn--danger">Hapus</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="kosong">Belum ada blok terjadwal.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 {% endblock %}

@@ -1,0 +1,105 @@
+/* Hallmark · tokens · genre: modern-minimal · theme: Cobalt · design-system: design.md
+ * Setiap warna dan setiap font harus lewat token di bawah.
+ */
+
+:root {
+  /* ---------- permukaan: cool near-white, tidak pernah #fff ---------- */
+  --color-paper:       oklch(98.6% 0.003 250);
+  --color-paper-2:     oklch(96.8% 0.005 251);
+  --color-paper-3:     oklch(94.4% 0.007 252);
+
+  /* ---------- tinta: charcoal dingin, tidak pernah #000 ---------- */
+  --color-ink:         oklch(21% 0.021 259);
+  --color-ink-2:       oklch(33% 0.018 257);
+  --color-muted:       oklch(50% 0.015 256);
+
+  /* ---------- garis rambut: struktur dibawa border ---------- */
+  --color-rule:        oklch(90.5% 0.006 252);
+  --color-rule-2:      oklch(84% 0.009 253);
+
+  /* ---------- satu sinyal kobalt (kontras terverifikasi) ---------- */
+  --color-accent:       oklch(50% 0.2 256);
+  --color-accent-hover: oklch(43% 0.2 256);
+  --color-accent-ink:   oklch(99% 0.004 250);
+  --color-accent-soft:  oklch(95.5% 0.03 256);
+  --color-focus:        oklch(50% 0.2 256);
+
+  /* ---------- satu pita gelap: rail ---------- */
+  --color-graphite:    oklch(20.5% 0.017 261);
+  --color-graphite-2:  oklch(26% 0.017 260);
+  --color-graphite-3:  oklch(31% 0.017 259);
+  --color-on-graphite: oklch(88% 0.011 254);
+  --color-on-graphite-muted: oklch(62% 0.014 256);
+
+  /* ---------- status kehadiran ---------- */
+  --color-hadir:       oklch(50% 0.2 256);
+  --color-hadir-soft:  oklch(95.5% 0.03 256);
+  --color-alpa:        oklch(51% 0.19 27);
+  --color-alpa-soft:   oklch(95.5% 0.028 27);
+  --color-sakit:       oklch(49% 0.12 75);
+  --color-sakit-soft:  oklch(95.5% 0.033 75);
+  --color-izin:        oklch(50% 0.16 310);
+  --color-izin-soft:   oklch(95.5% 0.026 310);
+
+  --color-ok:          oklch(46% 0.13 155);
+  --color-ok-soft:     oklch(95.5% 0.033 155);
+
+  /* ---------- tipografi: tiga muka, batas maksimum ---------- */
+  --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body:    "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* skala rasio 1.25 (major third) dari 16px */
+  --text-2xs:  0.6875rem;   /* 11px  label mono */
+  --text-xs:   0.8125rem;   /* 13px  meta */
+  --text-sm:   0.875rem;    /* 14px  tabel */
+  --text-base: 1rem;        /* 16px  tubuh */
+  --text-md:   1.25rem;     /* 20px  judul panel */
+  --text-lg:   1.5625rem;   /* 25px  */
+  --text-xl:   1.9531rem;   /* 31px  judul halaman */
+  --text-2xl:  2.4414rem;   /* 39px  angka utama */
+
+  /* bobot: heading berjarak 300 unit dari tubuh */
+  --w-body:    400;
+  --w-medium:  500;
+  --w-display: 700;
+
+  --lh-display: 1.08;
+  --lh-tight:   1.25;
+  --lh-body:    1.6;
+  --track-display: -0.025em;
+  --track-mono:     0.08em;
+
+  /* ---------- ruang: skala 4pt, sembilan langkah ---------- */
+  --space-3xs: 0.125rem;   /*   2px */
+  --space-2xs: 0.25rem;    /*   4px */
+  --space-xs:  0.5rem;     /*   8px */
+  --space-sm:  0.75rem;    /*  12px */
+  --space-md:  1rem;       /*  16px */
+  --space-lg:  1.5rem;     /*  24px */
+  --space-xl:  2.5rem;     /*  40px */
+  --space-2xl: 4rem;       /*  64px */
+  --space-3xl: 6rem;       /*  96px */
+
+  /* ---------- gerak ---------- */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+
+  /* ---------- bentuk ---------- */
+  --radius-control: 6px;
+  --radius-panel:   10px;
+  --rule-hair: 1px;
+
+  /* ---------- kerangka ---------- */
+  --rail-w: 236px;
+  --control-h: 36px;
+
+  /* ---------- z: enam tingkat bernama ---------- */
+  --z-base:     1;
+  --z-raised:   10;
+  --z-dropdown: 100;
+  --z-sticky:   200;
+  --z-modal:    400;
+  --z-toast:    500;
+}

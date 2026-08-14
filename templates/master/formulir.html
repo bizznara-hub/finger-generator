@@ -1,38 +1,38 @@
 {% extends "layout.html" %}
 {% block judul %}{{ judul }}{% endblock %}
-{% block tajuk %}{{ spek.judul }}{% endblock %}
-{% block subtajuk %}{{ 'ubah data' if obj.id else 'tambah data' }}{% endblock %}
+{% block eyebrow %}Data master · {{ spek.judul }}{% endblock %}
+{% block tajuk %}{{ judul }}{% endblock %}
 {% block isi %}
-<form method="post" class="form-horizontal">
-  {% for b in spek.bidang %}
-    <div class="form-group">
-      <label class="col-sm-3 control-label no-padding-right">
-        {{ b.label }}{% if b.wajib %} <span class="red">*</span>{% endif %}
-      </label>
-      <div class="col-sm-6">
-        {% if b.tipe == 'select' %}
-          <select name="{{ b.nama }}" class="form-control">
-            <option value="">— pilih —</option>
-            {% for nilai, label in b.daftar_pilihan() %}
-              <option value="{{ nilai }}" {{ 'selected' if obj[b.nama]|string == nilai }}>{{ label }}</option>
-            {% endfor %}
-          </select>
-        {% else %}
-          <input type="{{ b.tipe }}" name="{{ b.nama }}" class="form-control"
-                 value="{{ obj[b.nama] if obj[b.nama] is not none else '' }}">
-        {% endif %}
-        {% if b.bantuan %}<span class="help-block redup">{{ b.bantuan }}</span>{% endif %}
+
+<form method="post">
+  <section class="panel" style="max-width:44rem">
+    <div class="panel__body">
+      <div class="grid">
+      {% for b in spek.bidang %}
+        <div class="field {{ 'field--mono' if b.nama in ['nim','id_finger','serial','ip_address','port'] }}">
+          <label class="field__label" for="f-{{ b.nama }}">
+            {{ b.label }}{% if b.wajib %} <span class="field__req">*</span>{% endif %}
+          </label>
+          {% if b.tipe == 'select' %}
+            <select id="f-{{ b.nama }}" name="{{ b.nama }}">
+              <option value="">— pilih —</option>
+              {% for nilai, label in b.daftar_pilihan() %}
+                <option value="{{ nilai }}" {{ 'selected' if obj[b.nama]|string == nilai }}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          {% else %}
+            <input id="f-{{ b.nama }}" type="{{ b.tipe }}" name="{{ b.nama }}"
+                   value="{{ obj[b.nama] if obj[b.nama] is not none else '' }}">
+          {% endif %}
+          <span class="field__hint">{{ b.bantuan or '' }}</span>
+        </div>
+      {% endfor %}
+      </div>
+      <div class="btn-row">
+        <button class="btn btn--primary">Simpan</button>
+        <a class="btn" href="{{ url_for('master.daftar', kunci=spek.kunci) }}">Batal</a>
       </div>
     </div>
-  {% endfor %}
-
-  <div class="clearfix form-actions">
-    <div class="col-md-offset-3 col-md-9">
-      <button class="btn btn-sm btn-primary"><i class="ace-icon fa fa-check"></i> Simpan</button>
-      <a class="btn btn-sm" href="{{ url_for('master.daftar', kunci=spek.kunci) }}">
-        <i class="ace-icon fa fa-undo"></i> Batal
-      </a>
-    </div>
-  </div>
+  </section>
 </form>
 {% endblock %}

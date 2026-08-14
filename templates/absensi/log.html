@@ -1,59 +1,60 @@
 {% extends "layout.html" %}
 {% block judul %}Log scan{% endblock %}
+{% block eyebrow %}Data mesin · {{ total }} baris{% endblock %}
 {% block tajuk %}Log scan{% endblock %}
-{% block subtajuk %}{{ total }} baris tersimpan{% endblock %}
+{% block aksi %}
+<div class="page__actions">
+  <a class="btn" href="{{ url_for('absensi.index') }}">Kembali ke Finger Print</a>
+  <form method="get" class="toolbar">
+    <div class="field">
+      <label class="sr-only" for="cari">Cari ID Finger</label>
+      <input id="cari" name="cari" value="{{ kata }}" placeholder="Cari ID Finger…" class="mono">
+    </div>
+    <button class="btn">Cari</button>
+  </form>
+</div>
+{% endblock %}
 {% block isi %}
 
-<div class="row" style="margin-bottom:12px">
-  <div class="col-sm-6">
-    <a class="btn btn-sm btn-default" href="{{ url_for('absensi.index') }}">
-      <i class="ace-icon fa fa-arrow-left"></i> Finger Print
-    </a>
+<section class="panel">
+  <div class="panel__body panel__flush">
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th>ID Finger</th><th>Nama di mesin</th><th>Tanggal</th><th>Jam</th>
+          <th>Serial mesin</th><th>Sumber</th>
+        </tr></thead>
+        <tbody>
+        {% for s in baris %}
+          <tr>
+            <td class="num">{{ s.id_finger }}</td>
+            <td class="redup">{{ s.nama_mesin or '—' }}</td>
+            <td class="num">{{ s.tanggal.strftime('%d/%m/%Y') }}</td>
+            <td class="num">{{ s.jam.strftime('%H:%M') }}</td>
+            <td class="num redup">{{ s.serial or '—' }}</td>
+            <td><span class="tag">{{ s.sumber }}</span></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="6" class="kosong">Belum ada data scan.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
-  <div class="col-sm-6">
-    <form method="get" class="form-inline pull-right">
-      <div class="input-group">
-        <input name="cari" value="{{ kata }}" class="form-control input-sm" placeholder="Cari ID Finger...">
-        <span class="input-group-btn"><button class="btn btn-sm btn-default"><i class="ace-icon fa fa-search"></i></button></span>
-      </div>
-    </form>
-  </div>
-</div>
-
-<table class="table table-striped table-bordered table-hover">
-  <thead><tr><th>ID Finger</th><th>Nama di mesin</th><th>Tanggal</th><th>Jam</th><th>Serial mesin</th><th>Sumber</th></tr></thead>
-  <tbody>
-  {% for s in baris %}
-    <tr>
-      <td><b>{{ s.id_finger }}</b></td>
-      <td class="redup">{{ s.nama_mesin or '-' }}</td>
-      <td>{{ s.tanggal.strftime('%d/%m/%Y') }}</td>
-      <td>{{ s.jam.strftime('%H:%M') }}</td>
-      <td class="redup">{{ s.serial or '-' }}</td>
-      <td><span class="label label-info">{{ s.sumber }}</span></td>
-    </tr>
-  {% else %}
-    <tr><td colspan="6" class="kosong">Belum ada data scan.</td></tr>
-  {% endfor %}
-  </tbody>
-</table>
+</section>
 
 {% if halaman_akhir > 1 %}
-  <ul class="pagination">
-    {% if hal > 1 %}
-      <li><a href="{{ url_for('absensi.log', hal=hal-1, cari=kata) }}">&laquo; Sebelumnya</a></li>
-    {% endif %}
-    <li class="active"><a href="#">Halaman {{ hal }} dari {{ halaman_akhir }}</a></li>
-    {% if hal < halaman_akhir %}
-      <li><a href="{{ url_for('absensi.log', hal=hal+1, cari=kata) }}">Berikutnya &raquo;</a></li>
-    {% endif %}
-  </ul>
+  <div class="pager">
+    {% if hal > 1 %}<a class="btn btn--sm" href="{{ url_for('absensi.log', hal=hal-1, cari=kata) }}">Sebelumnya</a>{% endif %}
+    <span class="num">Halaman {{ hal }} dari {{ halaman_akhir }}</span>
+    {% if hal < halaman_akhir %}<a class="btn btn--sm" href="{{ url_for('absensi.log', hal=hal+1, cari=kata) }}">Berikutnya</a>{% endif %}
+  </div>
 {% endif %}
 
 {% if total %}
-  <form method="post" action="{{ url_for('absensi.kosongkan') }}"
+  <form method="post" action="{{ url_for('absensi.kosongkan') }}" style="margin-block-start:var(--space-md)"
         onsubmit="return confirm('Hapus SEMUA {{ total }} baris log scan? Tindakan ini tidak bisa dibatalkan.')">
-    <button class="btn btn-sm btn-danger"><i class="ace-icon fa fa-trash-o"></i> Kosongkan seluruh log</button>
+    <button class="btn btn--danger">Kosongkan seluruh log</button>
   </form>
 {% endif %}
 {% endblock %}

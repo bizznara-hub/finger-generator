@@ -1,151 +1,89 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-<meta charset="utf-8" />
-<title>{% block judul %}Absensi{% endblock %} - ABSENSI FK UNHAS</title>
-<meta name="description" content="Absensi Fakultas Kedokteran Universitas Hasanuddin" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block judul %}Absensi{% endblock %} · Absensi FK Unhas</title>
 <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='font-awesome/css/font-awesome.min.css') }}" />
-<link rel="stylesheet" href="{{ url_for('static', filename='css/ace.min.css') }}" class="ace-main-stylesheet" id="main-ace-style" />
-<!--[if lte IE 9]>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/ace-part2.min.css') }}" class="ace-main-stylesheet" />
-<![endif]-->
-<link rel="stylesheet" href="{{ url_for('static', filename='gaya.css') }}" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
 </head>
+<body>
 
-<body class="no-skin">
+<div class="shell">
 
-<div id="navbar" class="navbar navbar-default">
-  <div class="navbar-container" id="navbar-container">
-    <button type="button" class="navbar-toggle menu-toggler pull-left" id="menu-toggler" data-target="#sidebar">
-      <span class="sr-only">Toggle sidebar</span>
-      <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
-    </button>
-
-    <div class="navbar-header pull-left">
-      <a href="{{ url_for('beranda.index') }}" class="navbar-brand">
-        <small>
-          <img src="{{ url_for('static', filename='img/logo.png') }}" alt="logo" class="logo">
-          ABSENSI FK UNHAS
-        </small>
+  <aside class="rail">
+    <div class="rail__brand">
+      <a href="{{ url_for('beranda.index') }}">
+        <span class="rail__mark">Absensi FK</span>
+        <span class="rail__sub">Universitas Hasanuddin</span>
       </a>
     </div>
 
-    <div class="navbar-buttons navbar-header pull-right" role="navigation">
-      <ul class="nav ace-nav">
-        <li class="light-blue">
-          <a data-toggle="dropdown" href="#" class="dropdown-toggle">
-            <img class="nav-user-photo" src="{{ url_for('static', filename='img/user.png') }}" alt="Avatar" />
-            <span class="user-info">
-              <small>Selamat Datang,</small>
-              {{ pengguna.nama if pengguna }}
-            </span>
-            <i class="ace-icon fa fa-caret-down"></i>
-          </a>
-          <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
-            <li><a href="{{ url_for('akun.index') }}"><i class="ace-icon fa fa-user"></i> Profil</a></li>
-            <li class="divider"></li>
-            <li><a href="{{ url_for('auth.keluar') }}"><i class="ace-icon fa fa-power-off"></i> Logout</a></li>
-          </ul>
-        </li>
-      </ul>
-    </div>
-  </div>
-</div>
-
-<div class="main-container" id="main-container">
-
-  <div id="sidebar" class="sidebar responsive">
     {% set menu = [
-      ('beranda',           'beranda.index',  {},                        'fa-home',       'Beranda'),
-      ('finger',            'absensi.index',  {},                        'fa-calculator', 'Finger Print'),
-      ('departemen',        'master.daftar',  {'kunci':'departemen'},    'fa-university', 'Departemen'),
-      ('kelas',             'master.daftar',  {'kunci':'kelas'},         'fa-th-large',   'Kelas'),
-      ('dosen',             'master.daftar',  {'kunci':'dosen'},         'fa-user-md',    'Dosen'),
-      ('mahasiswa',         'master.daftar',  {'kunci':'mahasiswa'},     'fa-user',       'Mahasiswa'),
-      ('mata-kuliah',       'master.daftar',  {'kunci':'mata-kuliah'},   'fa-book',       'Mata Kuliah'),
-      ('ruangan',           'master.daftar',  {'kunci':'ruangan'},       'fa-building-o', 'Ruang Kuliah'),
-      ('jadwal',            'jadwal.daftar',  {},                        'fa-calendar',   'Jadwal Kuliah'),
-      ('ketidakhadiran-S',  'izin.daftar',    {'kunci':'S'},             'fa-medkit',     'Sakit'),
-      ('ketidakhadiran-I',  'izin.daftar',    {'kunci':'I'},             'fa-envelope-o', 'Izin'),
-      ('laporan',           'laporan.index',  {},                        'fa-copy',       'Laporan'),
-      ('pengaturan',        'pengaturan.index', {},                      'fa-cogs',       'Pengaturan'),
-      ('akun',              'akun.index',     {},                        'fa-key',        'Akun'),
+      ('__g', 'Ikhtisar', None, None),
+      ('beranda',          'Beranda',       'beranda.index',    {}),
+      ('finger',           'Finger Print',  'absensi.index',    {}),
+      ('__g', 'Data master', None, None),
+      ('departemen',       'Departemen',    'master.daftar',    {'kunci':'departemen'}),
+      ('kelas',            'Kelas',         'master.daftar',    {'kunci':'kelas'}),
+      ('dosen',            'Dosen',         'master.daftar',    {'kunci':'dosen'}),
+      ('mahasiswa',        'Mahasiswa',     'master.daftar',    {'kunci':'mahasiswa'}),
+      ('mata-kuliah',      'Mata Kuliah',   'master.daftar',    {'kunci':'mata-kuliah'}),
+      ('ruangan',          'Ruang Kuliah',  'master.daftar',    {'kunci':'ruangan'}),
+      ('__g', 'Kegiatan', None, None),
+      ('jadwal',           'Jadwal Kuliah', 'jadwal.daftar',    {}),
+      ('ketidakhadiran-S', 'Sakit',         'izin.daftar',      {'kunci':'S'}),
+      ('ketidakhadiran-I', 'Izin',          'izin.daftar',      {'kunci':'I'}),
+      ('laporan',          'Laporan',       'laporan.index',    {}),
+      ('__g', 'Sistem', None, None),
+      ('pengaturan',       'Pengaturan',    'pengaturan.index', {}),
+      ('akun',             'Akun',          'akun.index',       {}),
     ] %}
 
-    <ul class="nav nav-list">
-      {% for kunci, rute, arg, ikon, label in menu %}
-        <li class="{{ 'active' if menu_aktif == kunci }}">
-          <a href="{{ url_for(rute, **arg) }}">
-            <i class="menu-icon fa {{ ikon }}"></i>
-            <span class="menu-text"> {{ label }} </span>
-          </a>
-          <b class="arrow"></b>
-        </li>
+    <nav class="rail__nav" aria-label="Menu utama">
+      {% for kunci, label, rute, arg in menu %}
+        {% if kunci == '__g' %}
+          <p class="rail__group">{{ label }}</p>
+        {% else %}
+          <a class="rail__link" href="{{ url_for(rute, **arg) }}"
+             {% if menu_aktif == kunci %}aria-current="page"{% endif %}>{{ label }}</a>
+        {% endif %}
       {% endfor %}
-    </ul>
+    </nav>
 
-    <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
-      <i class="ace-icon fa fa-angle-double-left" data-icon1="ace-icon fa fa-angle-double-left"
-         data-icon2="ace-icon fa fa-angle-double-right"></i>
+    <div class="rail__foot">
+      <span class="rail__who">{{ pengguna.nama if pengguna }}</span>
+      <a class="rail__out" href="{{ url_for('auth.keluar') }}">Keluar</a>
     </div>
-  </div>
+  </aside>
 
-  <div class="main-content">
-    <div class="main-content-inner">
-
-      <div class="breadcrumbs" id="breadcrumbs">
-        <ul class="breadcrumb">
-          <li>
-            <i class="ace-icon fa fa-home home-icon"></i>
-            <a href="{{ url_for('beranda.index') }}">Beranda</a>
-          </li>
-          {% block remah %}<li class="active">{{ self.judul() }}</li>{% endblock %}
-        </ul>
+  <main class="main">
+    <header class="page__head">
+      <div class="page__id">
+        <span class="page__eyebrow eyebrow">{% block eyebrow %}{% endblock %}</span>
+        <h1 class="page__title">{% block tajuk %}{% endblock %}</h1>
       </div>
+      {% block aksi %}{% endblock %}
+    </header>
 
-      <div class="page-content">
-        <div class="page-header">
-          <h1>
-            {% block tajuk %}{% endblock %}
-            <small><i class="ace-icon fa fa-angle-double-right"></i> {% block subtajuk %}{% endblock %}</small>
-          </h1>
+    {% with pesan = get_flashed_messages(with_categories=true) %}
+      {% for jenis, teks in pesan %}
+        <div class="note note--{{ 'ok' if jenis == 'sukses' else 'bad' }}" role="status">
+          <span class="note__mark">{{ 'OK' if jenis == 'sukses' else 'GALAT' }}</span>
+          <span>{{ teks }}</span>
         </div>
+      {% endfor %}
+    {% endwith %}
 
-        <div class="row">
-          <div class="col-xs-12">
+    {% block isi %}{% endblock %}
+  </main>
 
-            {% with pesan = get_flashed_messages(with_categories=true) %}
-              {% for jenis, teks in pesan %}
-                <div class="alert alert-{{ 'success' if jenis == 'sukses' else 'danger' }}">
-                  <button class="close" data-dismiss="alert"><i class="ace-icon fa fa-times"></i></button>
-                  <i class="ace-icon fa {{ 'fa-check' if jenis == 'sukses' else 'fa-exclamation-triangle' }}"></i>
-                  {{ teks }}
-                </div>
-              {% endfor %}
-            {% endwith %}
-
-            {% block isi %}{% endblock %}
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
-    <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
-  </a>
 </div>
 
-<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-<script src="{{ url_for('static', filename='js/ace.min.js') }}"></script>
 <script src="{{ url_for('static', filename='aplikasi.js') }}"></script>
-{% block skrip %}{% endblock %}
 </body>
 </html>
