@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generator Rekap Absensi Fingerprint</title>
+<link rel="stylesheet" href="/static/gaya.css">
+</head>
+<body>
+<header>
+  <h1>Generator Rekap Absensi</h1>
+  <p>Ubah data mentah mesin fingerprint menjadi rekap absensi siap cetak.</p>
+</header>
+
+<main>
+  <!-- LANGKAH 1 -->
+  <section class="kartu" id="langkah1">
+    <h2><span class="nomor">1</span> Unggah data mentah</h2>
+    <p class="bantuan">Terima hasil ekspor <b>Catatan Kehadiran Karyawan</b> (paling lengkap),
+      <b>Laporan Kehadiran</b>, atau <b>Kehadiran Tidak Normal</b>. Boleh pilih beberapa file sekaligus.</p>
+    <div id="jatuhkan" class="jatuhkan">
+      <input type="file" id="berkas" accept=".xls,.xlsx" multiple hidden>
+      <p><b>Klik di sini</b> atau seret file ke area ini</p>
+      <p class="kecil">Format .xls / .xlsx</p>
+    </div>
+    <div id="ringkasan" class="ringkasan sembunyi"></div>
+  </section>
+
+  <!-- LANGKAH 2 -->
+  <section class="kartu sembunyi" id="langkah2">
+    <h2><span class="nomor">2</span> Tentukan sesi</h2>
+    <p class="bantuan">Tanggal sesi diambil dari data mentah, tetapi <b>jam mulai ditetapkan oleh
+      jadwal pembelajaran</b> — bukan oleh jam scan paling awal. Jam selesai mengikuti scan terakhir
+      pada rumpun pertama hari itu.</p>
+    <div class="baris-kontrol">
+      <label>Pembelajaran mulai
+        <input id="jamMulai" value="07.30" size="5" style="width:60px">
+      </label>
+      <label>Pola sesi
+        <select id="mode">
+          <option value="harian" selected>Satu sesi per hari</option>
+          <option value="rumpun">Setiap rumpun scan jadi sesi</option>
+        </select>
+      </label>
+      <label>Jeda antar rumpun
+        <input type="number" id="jeda" value="45" min="5" max="240"> menit
+      </label>
+      <label>Minimal peserta
+        <input type="number" id="minPeserta" value="4" min="1" max="200">
+      </label>
+      <button class="tombol-samar" id="deteksiUlang">Terapkan</button>
+      <button class="tombol-samar" id="tambahSesi">+ Tambah sesi manual</button>
+    </div>
+    <div class="gulir">
+      <table id="tabelSesi">
+        <thead><tr>
+          <th style="width:34px"></th><th>Tanggal</th><th>Nama sesi</th>
+          <th>Mulai</th><th>Selesai</th>
+          <th title="Rentang jam scan sebenarnya di data mentah">Jam asli di data</th>
+          <th title="Jumlah orang yang scan pada rumpun ini">Peserta</th><th></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="baris-kontrol">
+      <label>Toleransi datang awal <input type="number" id="tolAwal" value="15" min="0" max="120"> menit</label>
+      <label>Toleransi terlambat <input type="number" id="tolAkhir" value="15" min="0" max="120"> menit</label>
+    </div>
+  </section>
+
+  <!-- LANGKAH 3 -->
+  <section class="kartu sembunyi" id="langkah3">
+    <h2><span class="nomor">3</span> Daftar peserta</h2>
+    <p class="bantuan">Mesin hanya menyimpan User ID dan nama pendek. Isi NIM dan nama lengkap di sini,
+      atau unduh template lalu unggah kembali setelah diisi.</p>
+    <div class="baris-kontrol">
+      <button class="tombol-samar" id="unduhTemplate">Unduh template roster (CSV)</button>
+      <input type="file" id="berkasRoster" accept=".csv,.xls,.xlsx" hidden>
+      <button class="tombol-samar" id="pilihRoster">Unggah roster terisi</button>
+      <label class="cek"><input type="checkbox" id="sembunyikanTanpaNim"> Sembunyikan yang belum ber-NIM</label>
+    </div>
+    <div class="gulir tinggi">
+      <table id="tabelPeserta">
+        <thead><tr>
+          <th style="width:34px"></th><th>User ID</th><th>Nama di mesin</th>
+          <th>NIM</th><th>Nama lengkap</th><th>Scan</th><th></th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- LANGKAH 4 -->
+  <section class="kartu sembunyi" id="langkah4">
+    <h2><span class="nomor">4</span> Judul laporan</h2>
+    <div class="kisi">
+      <label>Baris judul 1<input id="judul1" value="LAPORAN ABSEN MAHASISWA SEMESTER AKHIR 2025/2026"></label>
+      <label>Baris judul 2<input id="judul2" value="FAKULTAS KEDOKTERAN"></label>
+      <label>Baris judul 3<input id="judul3" value="UNIVERSITAS HASANUDDIN"></label>
+      <label>Keterangan 1<input id="meta1" value="Blok:  NEUROLOGI"></label>
+      <label>Keterangan 2<input id="meta2" value="Kelas: A"></label>
+      <label>Nama file hasil<input id="namaFile" value="Rekapan Absensi"></label>
+    </div>
+  </section>
+
+  <!-- LANGKAH 5 -->
+  <section class="kartu sembunyi" id="langkah5">
+    <h2><span class="nomor">5</span> Pratinjau &amp; unduh</h2>
+    <div class="baris-kontrol">
+      <button class="tombol" id="pratinjau">Muat pratinjau</button>
+      <button class="tombol utama" id="unduh">Unduh hasil (.xlsx)</button>
+      <span id="statistik" class="statistik"></span>
+    </div>
+    <div class="gulir tinggi" id="wadahPratinjau"></div>
+  </section>
+</main>
+
+<div id="notifikasi"></div>
+<script src="/static/aplikasi.js"></script>
+</body>
+</html>

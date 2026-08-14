@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.vercel/
+.DS_Store
+
+# Data absensi bersifat pribadi - jangan pernah ikut ter-commit
+*.xls
+*.xlsx
+*.csv
