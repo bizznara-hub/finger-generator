@@ -1,27 +1,33 @@
 {% extends "layout.html" %}
 {% block judul %}Blok{% endblock %}
-{% block tajuk %}{{ 'Ubah blok' if obj.id else 'Tambah blok' }}{% endblock %}
+{% block tajuk %}Jadwal Kuliah{% endblock %}
+{% block subtajuk %}{{ 'ubah blok' if obj.id else 'tambah blok' }}{% endblock %}
 {% block isi %}
-<form method="post" class="kartu" style="max-width:560px">
-  <div class="kisi">
-    <label class="bidang"><b>Mata kuliah / blok *</b>
-      <select name="mata_kuliah_id">
+<form method="post" class="form-horizontal">
+  <div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">Mata kuliah / blok <span class="red">*</span></label>
+    <div class="col-sm-5">
+      <select name="mata_kuliah_id" class="form-control">
         <option value="">— pilih —</option>
         {% for mk in mata_kuliah %}
           <option value="{{ mk.id }}" {{ 'selected' if obj.mata_kuliah_id == mk.id }}>{{ mk.nama }}</option>
         {% endfor %}
       </select>
-    </label>
-    <label class="bidang"><b>Semester</b>
-      <input name="semester" value="{{ obj.semester or '' }}" placeholder="Akhir">
-    </label>
-    <label class="bidang"><b>Tahun ajaran</b>
-      <input name="tahun_ajaran" value="{{ obj.tahun_ajaran or '' }}" placeholder="2025/2026">
-    </label>
+    </div>
   </div>
-  <div class="baris-aksi">
-    <button class="tombol">Simpan</button>
-    <a class="tombol-samar" href="{{ url_for('jadwal.daftar') }}">Batal</a>
+  <div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">Semester</label>
+    <div class="col-sm-5"><input name="semester" class="form-control" value="{{ obj.semester or '' }}" placeholder="Akhir"></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-3 control-label no-padding-right">Tahun ajaran</label>
+    <div class="col-sm-5"><input name="tahun_ajaran" class="form-control" value="{{ obj.tahun_ajaran or '' }}" placeholder="2025/2026"></div>
+  </div>
+  <div class="clearfix form-actions">
+    <div class="col-md-offset-3 col-md-9">
+      <button class="btn btn-sm btn-primary"><i class="ace-icon fa fa-check"></i> Simpan</button>
+      <a class="btn btn-sm" href="{{ url_for('jadwal.daftar') }}"><i class="ace-icon fa fa-undo"></i> Batal</a>
+    </div>
   </div>
 </form>
 {% endblock %}

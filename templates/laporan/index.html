@@ -1,13 +1,15 @@
 {% extends "layout.html" %}
 {% block judul %}Laporan{% endblock %}
-{% block tajuk %}Laporan Absensi{% endblock %}
+{% block tajuk %}Laporan Absen Mahasiswa{% endblock %}
+{% block subtajuk %}per blok dan kelas{% endblock %}
 {% block isi %}
 
-<div class="kartu">
-  <form method="get" class="sebaris">
-    <label class="bidang" style="min-width:320px"><b>Blok dan kelas</b>
-      <select name="kelas" onchange="this.form.submit()">
-        <option value="">— pilih —</option>
+<div class="widget-box">
+  <div class="widget-header"><h4 class="widget-title">Pilih laporan</h4></div>
+  <div class="widget-body"><div class="widget-main">
+    <form method="get" class="form-inline">
+      <select name="kelas" class="form-control input-sm" onchange="this.form.submit()" style="min-width:320px">
+        <option value="">— pilih blok dan kelas —</option>
         {% for p in pilihan %}
           <option value="{{ p.id }}" {{ 'selected' if jk and jk.id == p.id }}>
             {{ p.jadwal.mata_kuliah.nama if p.jadwal.mata_kuliah else 'Blok' }} —
@@ -16,86 +18,100 @@
           </option>
         {% endfor %}
       </select>
-    </label>
-    <label class="bidang"><b>Bentuk kolom</b>
-      <select name="bentuk" onchange="this.form.submit()">
+
+      <select name="bentuk" class="form-control input-sm" onchange="this.form.submit()">
         <option value="ringkas" {{ 'selected' if bentuk == 'ringkas' }}>Ringkas — Status + Waktu</option>
         <option value="lengkap" {{ 'selected' if bentuk == 'lengkap' }}>Lengkap — Ceklog 1, 2, Durasi</option>
       </select>
-    </label>
-    <label class="bidang"><b>Cocokkan ruangan</b>
-      <select name="ruangan" onchange="this.form.submit()">
-        <option value="0" {{ 'selected' if not cocokkan }}>Tidak</option>
-        <option value="1" {{ 'selected' if cocokkan }}>Ya</option>
-      </select>
-    </label>
-    {% if jk and sesi and baris %}
-      <a class="tombol" href="{{ url_for('laporan.unduh', kelas=jk.id, bentuk=bentuk, ruangan='1' if cocokkan else '0') }}">
-        Unduh .xlsx
-      </a>
-    {% endif %}
-  </form>
 
-  {% if angka %}
-    <p class="bantuan" style="margin:14px 0 0">
-      <b>{{ angka.peserta }}</b> mahasiswa &times; <b>{{ angka.sesi }}</b> sesi —
-      kehadiran <b>{{ angka.persen_hadir }}%</b>.
-      {% if angka.tanpa_finger %}
-        <span class="lencana awas">{{ angka.tanpa_finger }} mahasiswa belum punya ID Finger</span>
+      <select name="ruangan" class="form-control input-sm" onchange="this.form.submit()">
+        <option value="0" {{ 'selected' if not cocokkan }}>Ruangan: tidak dicocokkan</option>
+        <option value="1" {{ 'selected' if cocokkan }}>Ruangan: dicocokkan</option>
+      </select>
+
+      {% if jk and sesi and baris %}
+        <a class="btn btn-sm btn-success"
+           href="{{ url_for('laporan.unduh', kelas=jk.id, bentuk=bentuk, ruangan='1' if cocokkan else '0') }}">
+          <i class="ace-icon fa fa-download"></i> Unduh .xlsx
+        </a>
       {% endif %}
-    </p>
-  {% endif %}
+    </form>
+
+    {% if angka %}
+      <div style="margin-top:12px">
+        <span class="label label-info">{{ angka.peserta }} mahasiswa</span>
+        <span class="label label-info">{{ angka.sesi }} sesi</span>
+        <span class="label label-success">kehadiran {{ angka.persen_hadir }}%</span>
+        {% if angka.tanpa_finger %}
+          <span class="label label-warning">{{ angka.tanpa_finger }} mahasiswa belum punya ID Finger</span>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div></div>
 </div>
 
 {% if baris %}
-<div class="kartu">
-  <h2>Pratinjau</h2>
-  <p class="bantuan">Menampilkan {{ pratinjau|length }} dari {{ baris|length }} baris.
-    Berkas yang diunduh berisi seluruhnya, lengkap dengan rumus.</p>
-  <div class="gulir tinggi">
-    <table>
-      <thead>
-        <tr>
-          <th rowspan="2">No</th><th rowspan="2">NIM</th><th rowspan="2">Nama</th>
-          {% for s in sesi %}
-            <th colspan="{{ 4 if bentuk == 'lengkap' else 2 }}" class="tengah">
-              {{ s.nama }}<br><span class="kecil redup">{{ s.label_tanggal }} &middot; {{ s.jam_mulai }}-{{ s.jam_selesai }}</span>
-            </th>
-          {% endfor %}
-        </tr>
-        <tr>
-          {% for s in sesi %}
-            <th class="tengah">Status</th>
-            {% if bentuk == 'lengkap' %}
-              <th class="tengah">Ceklog 1</th><th class="tengah">Ceklog 2</th><th class="tengah">Durasi</th>
-            {% else %}
-              <th class="tengah">Waktu</th>
-            {% endif %}
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-      {% for b in pratinjau %}
-        <tr>
-          <td class="redup">{{ b.no }}</td><td>{{ b.nim }}</td><td>{{ b.nama }}</td>
-          {% for sel in b.sel %}
-            <td class="sel-{{ sel.status }}">{{ sel.status }}</td>
-            {% if bentuk == 'lengkap' %}
-              <td class="tengah">{{ sel.ceklog[0] if sel.ceklog else (sel.waktu if sel.status in ['S','I'] else '-') }}</td>
-              <td class="tengah">{{ sel.ceklog[1] if sel.ceklog|length > 1 else (sel.waktu if sel.status in ['S','I'] else '-') }}</td>
-              <td class="tengah">—</td>
-            {% else %}
-              <td class="tengah">{{ sel.waktu }}</td>
-            {% endif %}
-          {% endfor %}
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+<div class="widget-box">
+  <div class="widget-header">
+    <h4 class="widget-title">Pratinjau</h4>
+    <div class="widget-toolbar redup" style="padding-right:12px">
+      {{ pratinjau|length }} dari {{ baris|length }} baris
+    </div>
   </div>
+  <div class="widget-body"><div class="widget-main no-padding">
+    <div class="tabel-lebar tabel-tinggi">
+      <table class="table table-bordered table-hover" style="font-size:12px">
+        <thead>
+          <tr>
+            <th rowspan="2" class="center">No</th>
+            <th rowspan="2" class="center">NIM</th>
+            <th rowspan="2">Nama</th>
+            {% for s in sesi %}
+              <th colspan="{{ 4 if bentuk == 'lengkap' else 2 }}" class="center">
+                {{ s.nama }}<br>
+                <small class="redup">{{ s.label_tanggal }} &middot; {{ s.jam_mulai }}-{{ s.jam_selesai }}</small>
+              </th>
+            {% endfor %}
+          </tr>
+          <tr>
+            {% for s in sesi %}
+              <th class="center">Status</th>
+              {% if bentuk == 'lengkap' %}
+                <th class="center">Ceklog 1</th><th class="center">Ceklog 2</th><th class="center">Durasi</th>
+              {% else %}
+                <th class="center">Waktu</th>
+              {% endif %}
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+        {% for b in pratinjau %}
+          <tr>
+            <td class="center redup">{{ b.no }}</td>
+            <td class="center">{{ b.nim }}</td>
+            <td class="no-wrap">{{ b.nama }}</td>
+            {% for sel in b.sel %}
+              <td class="sel-{{ sel.status }}">{{ sel.status }}</td>
+              {% if bentuk == 'lengkap' %}
+                <td class="center">{{ sel.ceklog[0] if sel.ceklog else (sel.waktu if sel.status in ['S','I'] else '-') }}</td>
+                <td class="center">{{ sel.ceklog[1] if sel.ceklog|length > 1 else (sel.waktu if sel.status in ['S','I'] else '-') }}</td>
+                <td class="center redup">&mdash;</td>
+              {% else %}
+                <td class="center">{{ sel.waktu }}</td>
+              {% endif %}
+            {% endfor %}
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div></div>
 </div>
 {% elif jk %}
-  <div class="kartu"><p class="kosong">Tidak ada yang bisa ditampilkan. Periksa sesi dan peserta pada blok ini.</p></div>
+  <div class="alert alert-warning">
+    <i class="ace-icon fa fa-exclamation-triangle"></i>
+    Tidak ada yang bisa ditampilkan. Periksa sesi dan peserta pada blok ini.
+  </div>
 {% endif %}
 
 {% endblock %}

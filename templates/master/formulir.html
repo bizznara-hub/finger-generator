@@ -1,29 +1,38 @@
 {% extends "layout.html" %}
 {% block judul %}{{ judul }}{% endblock %}
-{% block tajuk %}{{ judul }}{% endblock %}
+{% block tajuk %}{{ spek.judul }}{% endblock %}
+{% block subtajuk %}{{ 'ubah data' if obj.id else 'tambah data' }}{% endblock %}
 {% block isi %}
-<form method="post" class="kartu" style="max-width:640px">
-  <div class="kisi">
+<form method="post" class="form-horizontal">
   {% for b in spek.bidang %}
-    <label class="bidang">
-      <b>{{ b.label }}{% if b.wajib %} *{% endif %}</b>
-      {% if b.tipe == 'select' %}
-        <select name="{{ b.nama }}">
-          <option value="">— pilih —</option>
-          {% for nilai, label in b.daftar_pilihan() %}
-            <option value="{{ nilai }}" {{ 'selected' if obj[b.nama]|string == nilai }}>{{ label }}</option>
-          {% endfor %}
-        </select>
-      {% else %}
-        <input type="{{ b.tipe }}" name="{{ b.nama }}" value="{{ obj[b.nama] if obj[b.nama] is not none else '' }}">
-      {% endif %}
-      {% if b.bantuan %}<small>{{ b.bantuan }}</small>{% endif %}
-    </label>
+    <div class="form-group">
+      <label class="col-sm-3 control-label no-padding-right">
+        {{ b.label }}{% if b.wajib %} <span class="red">*</span>{% endif %}
+      </label>
+      <div class="col-sm-6">
+        {% if b.tipe == 'select' %}
+          <select name="{{ b.nama }}" class="form-control">
+            <option value="">— pilih —</option>
+            {% for nilai, label in b.daftar_pilihan() %}
+              <option value="{{ nilai }}" {{ 'selected' if obj[b.nama]|string == nilai }}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        {% else %}
+          <input type="{{ b.tipe }}" name="{{ b.nama }}" class="form-control"
+                 value="{{ obj[b.nama] if obj[b.nama] is not none else '' }}">
+        {% endif %}
+        {% if b.bantuan %}<span class="help-block redup">{{ b.bantuan }}</span>{% endif %}
+      </div>
+    </div>
   {% endfor %}
-  </div>
-  <div class="baris-aksi">
-    <button class="tombol">Simpan</button>
-    <a class="tombol-samar" href="{{ url_for('master.daftar', kunci=spek.kunci) }}">Batal</a>
+
+  <div class="clearfix form-actions">
+    <div class="col-md-offset-3 col-md-9">
+      <button class="btn btn-sm btn-primary"><i class="ace-icon fa fa-check"></i> Simpan</button>
+      <a class="btn btn-sm" href="{{ url_for('master.daftar', kunci=spek.kunci) }}">
+        <i class="ace-icon fa fa-undo"></i> Batal
+      </a>
+    </div>
   </div>
 </form>
 {% endblock %}

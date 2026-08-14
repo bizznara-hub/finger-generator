@@ -1,52 +1,73 @@
 {% extends "layout.html" %}
 {% block judul %}Beranda{% endblock %}
 {% block tajuk %}Beranda{% endblock %}
+{% block subtajuk %}ringkasan keadaan data{% endblock %}
 {% block isi %}
 
-<div class="angka-tumpuk">
+<div class="row">
   {% for label, nilai, rute, arg in angka %}
-    <a class="angka" href="{{ url_for(rute, **arg) }}" style="color:inherit">
-      <b>{{ nilai }}</b><span>{{ label }}</span>
-    </a>
+    <div class="col-sm-3 col-xs-6">
+      <a href="{{ url_for(rute, **arg) }}" class="infobox-tautan">
+        <div class="infobox infobox-blue">
+          <div class="infobox-icon"><i class="ace-icon fa fa-database"></i></div>
+          <div class="infobox-data">
+            <span class="infobox-data-number">{{ nilai }}</span>
+            <div class="infobox-content">{{ label }}</div>
+          </div>
+        </div>
+      </a>
+    </div>
   {% endfor %}
 </div>
 
-<div class="kartu" style="margin-top:16px">
-  <h2>Data mentah tersimpan</h2>
-  {% if rentang[0] %}
-    <p class="bantuan">Scan tercatat dari <b>{{ rentang[0].strftime('%d/%m/%Y') }}</b>
+<div class="widget-box">
+  <div class="widget-header"><h4 class="widget-title">Data mentah tersimpan</h4></div>
+  <div class="widget-body"><div class="widget-main">
+    {% if rentang[0] %}
+      Scan tercatat dari <b>{{ rentang[0].strftime('%d/%m/%Y') }}</b>
       sampai <b>{{ rentang[1].strftime('%d/%m/%Y') }}</b>.
-      Catatan sakit/izin: {{ jumlah_izin }}.</p>
-  {% else %}
-    <p class="bantuan">Belum ada data mentah. Tarik dari att_log atau impor berkas ekspor mesin
-      lewat menu <a href="{{ url_for('absensi.index') }}">Finger Print</a>.</p>
-  {% endif %}
+      Catatan sakit/izin: <b>{{ jumlah_izin }}</b>.
+    {% else %}
+      Belum ada data mentah. Tarik dari att_log atau impor berkas ekspor mesin lewat menu
+      <a href="{{ url_for('absensi.index') }}">Finger Print</a>.
+    {% endif %}
+  </div></div>
 </div>
 
-<div class="kartu">
-  <h2>Mahasiswa tanpa ID Finger
-    {% if tanpa_finger %}<span class="lencana awas">{{ tanpa_finger|length }}</span>{% endif %}
-  </h2>
-  <p class="bantuan">Tanpa ID Finger, mesin tidak bisa mengenali mahasiswa dan statusnya
-    selalu menjadi Alpa.</p>
-  {% if tanpa_finger %}
-    <div class="gulir tinggi">
-      <table>
-        <thead><tr><th>NIM</th><th>Nama</th><th>Kelas</th><th></th></tr></thead>
-        <tbody>
-        {% for m in tanpa_finger %}
-          <tr>
-            <td>{{ m.nim }}</td><td>{{ m.nama }}</td>
-            <td class="redup">{{ m.kelas.label if m.kelas else '-' }}</td>
-            <td><a class="tombol-samar mini" href="{{ url_for('master.ubah', kunci='mahasiswa', id_baris=m.id) }}">Isi ID Finger</a></td>
-          </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  {% else %}
-    <p class="kecil redup">Semua mahasiswa sudah punya ID Finger.</p>
-  {% endif %}
+<div class="widget-box">
+  <div class="widget-header">
+    <h4 class="widget-title">
+      Mahasiswa tanpa ID Finger
+      {% if tanpa_finger %}<span class="badge badge-danger">{{ tanpa_finger|length }}</span>{% endif %}
+    </h4>
+  </div>
+  <div class="widget-body"><div class="widget-main">
+    <p class="redup">Tanpa ID Finger, mesin tidak mengenali mahasiswa dan statusnya selalu menjadi Alpa.</p>
+    {% if tanpa_finger %}
+      <div class="tabel-tinggi">
+        <table class="table table-striped table-bordered table-hover">
+          <thead><tr><th>NIM</th><th>Nama</th><th>Kelas</th><th class="no-wrap"></th></tr></thead>
+          <tbody>
+          {% for m in tanpa_finger %}
+            <tr>
+              <td>{{ m.nim }}</td><td>{{ m.nama }}</td>
+              <td class="redup">{{ m.kelas.label if m.kelas else '-' }}</td>
+              <td class="no-wrap">
+                <a class="btn btn-xs btn-info" href="{{ url_for('master.ubah', kunci='mahasiswa', id_baris=m.id) }}">
+                  <i class="ace-icon fa fa-pencil"></i> Isi ID Finger
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="alert alert-success" style="margin-bottom:0">
+        <i class="ace-icon fa fa-check"></i> Semua mahasiswa sudah punya ID Finger.
+      </div>
+    {% endif %}
+  </div></div>
 </div>
 
 {% endblock %}

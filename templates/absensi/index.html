@@ -1,69 +1,118 @@
 {% extends "layout.html" %}
 {% block judul %}Finger Print{% endblock %}
 {% block tajuk %}Finger Print{% endblock %}
-{% block aksi %}<a class="tombol-samar" href="{{ url_for('absensi.log') }}">Lihat log scan</a>{% endblock %}
+{% block subtajuk %}mesin dan pengambilan data mentah{% endblock %}
 {% block isi %}
 
-<div class="angka-tumpuk">
-  <div class="angka"><b>{{ jumlah }}</b><span>scan tersimpan</span></div>
+<div class="row">
+  <div class="col-sm-3 col-xs-6">
+    <div class="infobox infobox-green">
+      <div class="infobox-icon"><i class="ace-icon fa fa-database"></i></div>
+      <div class="infobox-data">
+        <span class="infobox-data-number">{{ jumlah }}</span>
+        <div class="infobox-content">scan tersimpan</div>
+      </div>
+    </div>
+  </div>
   {% for sumber, n in per_sumber %}
-    <div class="angka"><b>{{ n }}</b><span>dari {{ sumber }}</span></div>
+    <div class="col-sm-3 col-xs-6">
+      <div class="infobox infobox-blue">
+        <div class="infobox-icon"><i class="ace-icon fa fa-download"></i></div>
+        <div class="infobox-data">
+          <span class="infobox-data-number">{{ n }}</span>
+          <div class="infobox-content">dari {{ sumber }}</div>
+        </div>
+      </div>
+    </div>
   {% endfor %}
-  <div class="angka">
-    <b style="font-size:15px">{{ terakhir.tanggal.strftime('%d/%m/%Y') if terakhir else '—' }}</b>
-    <span>scan terakhir</span>
+  <div class="col-sm-3 col-xs-6">
+    <div class="infobox infobox-orange">
+      <div class="infobox-icon"><i class="ace-icon fa fa-clock-o"></i></div>
+      <div class="infobox-data">
+        <span class="infobox-data-number" style="font-size:16px">
+          {{ terakhir.tanggal.strftime('%d/%m/%Y') if terakhir else '—' }}
+        </span>
+        <div class="infobox-content">scan terakhir</div>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="kartu" style="margin-top:16px">
-  <h2>Jalur A — tarik dari att_log</h2>
-  <p class="bantuan">Menyambung baca-saja ke basis data software Fingerspot.
-    {% if not attlog_siap %}
-      Koneksi belum diatur — isi dulu di <a href="{{ url_for('pengaturan.index') }}">Pengaturan</a>.
-    {% else %}
-      Tersambung ke <b>{{ pengaturan.attlog_nama_db }}</b> di {{ pengaturan.attlog_host }}.
-    {% endif %}
-  </p>
-  <form method="post" action="{{ url_for('absensi.tarik') }}" class="sebaris">
-    <label class="bidang"><b>Dari tanggal</b><input type="date" name="tanggal_awal" required></label>
-    <label class="bidang"><b>Sampai tanggal</b><input type="date" name="tanggal_akhir" required></label>
-    <button class="tombol" {{ 'disabled' if not attlog_siap }}>Tarik data</button>
-  </form>
-  <form method="post" action="{{ url_for('absensi.uji_koneksi') }}" style="margin-top:10px">
-    <button class="tombol-samar">Uji koneksi</button>
-  </form>
+<div class="row">
+  <div class="col-md-6">
+    <div class="widget-box">
+      <div class="widget-header"><h4 class="widget-title">Jalur A &mdash; tarik dari att_log</h4></div>
+      <div class="widget-body"><div class="widget-main">
+        {% if not attlog_siap %}
+          <div class="alert alert-warning">
+            <i class="ace-icon fa fa-exclamation-triangle"></i>
+            Koneksi belum diatur. Isi dulu di <a href="{{ url_for('pengaturan.index') }}">Pengaturan</a>.
+          </div>
+        {% else %}
+          <p class="redup">Tersambung ke <b>{{ pengaturan.attlog_nama_db }}</b> di {{ pengaturan.attlog_host }}.</p>
+        {% endif %}
+
+        <form method="post" action="{{ url_for('absensi.tarik') }}" class="form-inline">
+          <label>Dari <input type="date" name="tanggal_awal" class="form-control input-sm" required></label>
+          <label>Sampai <input type="date" name="tanggal_akhir" class="form-control input-sm" required></label>
+          <button class="btn btn-sm btn-primary" {{ 'disabled' if not attlog_siap }}>
+            <i class="ace-icon fa fa-download"></i> Tarik data
+          </button>
+        </form>
+
+        <form method="post" action="{{ url_for('absensi.uji_koneksi') }}" style="margin-top:10px">
+          <button class="btn btn-sm btn-default"><i class="ace-icon fa fa-plug"></i> Uji koneksi</button>
+        </form>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="widget-box">
+      <div class="widget-header"><h4 class="widget-title">Jalur B &mdash; impor berkas ekspor mesin</h4></div>
+      <div class="widget-body"><div class="widget-main">
+        <p class="redup">Tiga format dikenali. Paling lengkap: <b>Catatan Kehadiran Karyawan</b>.
+          Boleh beberapa berkas sekaligus &mdash; scan kembar otomatis dilewati.</p>
+        <form method="post" action="{{ url_for('absensi.impor') }}" enctype="multipart/form-data">
+          <input type="file" name="berkas" accept=".xls,.xlsx" multiple required class="form-control" style="margin-bottom:10px">
+          <button class="btn btn-sm btn-primary"><i class="ace-icon fa fa-upload"></i> Impor</button>
+        </form>
+      </div></div>
+    </div>
+  </div>
 </div>
 
-<div class="kartu">
-  <h2>Jalur B — impor berkas ekspor mesin</h2>
-  <p class="bantuan">Tiga format dikenali. Paling lengkap: <b>Catatan Kehadiran Karyawan</b>.
-    Boleh pilih beberapa berkas sekaligus — scan kembar otomatis dilewati.</p>
-  <form method="post" action="{{ url_for('absensi.impor') }}" enctype="multipart/form-data" class="sebaris">
-    <label class="bidang" style="min-width:280px"><b>Berkas .xls / .xlsx</b>
-      <input type="file" name="berkas" accept=".xls,.xlsx" multiple required>
-    </label>
-    <button class="tombol">Impor</button>
-  </form>
-</div>
-
-<div class="kartu">
-  <h2>Mesin terdaftar</h2>
-  <p class="bantuan">Serial harus sama dengan kolom <code>sn</code> pada att_log agar
-    pencocokan ruangan bisa bekerja.</p>
-  <div class="gulir">
-    <table>
+<div class="widget-box">
+  <div class="widget-header">
+    <h4 class="widget-title">Mesin terdaftar</h4>
+    <div class="widget-toolbar">
+      <a href="{{ url_for('master.tambah', kunci='mesin') }}" class="btn btn-xs btn-primary">
+        <i class="ace-icon fa fa-plus"></i> Tambah mesin
+      </a>
+      <a href="{{ url_for('absensi.log') }}" class="btn btn-xs btn-default">
+        <i class="ace-icon fa fa-list"></i> Log scan
+      </a>
+    </div>
+  </div>
+  <div class="widget-body"><div class="widget-main no-padding">
+    <p class="redup" style="padding:10px 12px 0">Serial harus sama dengan kolom <code>sn</code> pada att_log
+      agar pencocokan ruangan bisa bekerja.</p>
+    <table class="table table-striped table-bordered table-hover">
       <thead><tr><th>Serial</th><th>Nama</th><th>Ruangan</th><th>IP</th><th style="width:150px"></th></tr></thead>
       <tbody>
       {% for m in mesin %}
         <tr>
           <td>{{ m.serial }}</td><td>{{ m.nama or '-' }}</td>
-          <td>{% if m.ruangan %}{{ m.ruangan.nama }}{% else %}<span class="lencana awas">belum dipetakan</span>{% endif %}</td>
+          <td>{% if m.ruangan %}{{ m.ruangan.nama }}
+              {% else %}<span class="label label-warning">belum dipetakan</span>{% endif %}</td>
           <td class="redup">{{ m.ip_address or '-' }}</td>
-          <td>
-            <a class="tombol-samar mini" href="{{ url_for('master.ubah', kunci='mesin', id_baris=m.id) }}">Ubah</a>
-            <form method="post" action="{{ url_for('master.hapus', kunci='mesin', id_baris=m.id) }}" style="display:inline"
-                  onsubmit="return confirm('Hapus mesin ini?')">
-              <button class="tombol-bahaya mini">Hapus</button>
+          <td class="no-wrap">
+            <a class="btn btn-xs btn-info" href="{{ url_for('master.ubah', kunci='mesin', id_baris=m.id) }}">
+              <i class="ace-icon fa fa-pencil"></i> Ubah
+            </a>
+            <form method="post" action="{{ url_for('master.hapus', kunci='mesin', id_baris=m.id) }}"
+                  style="display:inline" onsubmit="return confirm('Hapus mesin ini?')">
+              <button class="btn btn-xs btn-danger"><i class="ace-icon fa fa-trash-o"></i></button>
             </form>
           </td>
         </tr>
@@ -72,10 +121,6 @@
       {% endfor %}
       </tbody>
     </table>
-  </div>
-  <div class="baris-aksi">
-    <a class="tombol-samar" href="{{ url_for('master.tambah', kunci='mesin') }}">+ Tambah mesin</a>
-  </div>
+  </div></div>
 </div>
-
 {% endblock %}

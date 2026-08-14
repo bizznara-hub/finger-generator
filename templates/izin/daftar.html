@@ -1,56 +1,56 @@
 {% extends "layout.html" %}
 {% block judul %}{{ judul }}{% endblock %}
 {% block tajuk %}{{ judul }}{% endblock %}
-{% block aksi %}
-  <form method="get" class="sebaris">
-    <input name="cari" value="{{ kata }}" placeholder="Cari NIM / nama..." style="width:200px">
-    <button class="tombol-samar">Cari</button>
-  </form>
-{% endblock %}
+{% block subtajuk %}catatan ketidakhadiran{% endblock %}
 {% block isi %}
 
-<div class="kartu">
-  <h2>Catat {{ judul|lower }}</h2>
-  <p class="bantuan">Kosongkan pilihan sesi bila berlaku untuk <b>seluruh sesi</b> pada tanggal itu.
-    Catatan ini menimpa hasil pembacaan mesin.</p>
-  <form method="post" action="{{ url_for('izin.tambah', kunci=jenis) }}" class="sebaris">
-    <label class="bidang" style="min-width:260px"><b>Mahasiswa</b>
-      <select name="mahasiswa_id" id="pilihMahasiswa" required>
-        <option value="">— pilih —</option>
+<div class="widget-box">
+  <div class="widget-header"><h4 class="widget-title">Catat {{ judul|lower }}</h4></div>
+  <div class="widget-body"><div class="widget-main">
+    <p class="redup">Kosongkan pilihan sesi bila berlaku untuk <b>seluruh sesi</b> pada tanggal itu.
+      Catatan ini menimpa hasil pembacaan mesin.</p>
+    <form method="post" action="{{ url_for('izin.tambah', kunci=jenis) }}" class="form-inline">
+      <select name="mahasiswa_id" id="pilihMahasiswa" class="form-control input-sm" required style="min-width:240px">
+        <option value="">— pilih mahasiswa —</option>
         {% for m in mahasiswa %}<option value="{{ m.id }}">{{ m.nim }} — {{ m.nama }}</option>{% endfor %}
       </select>
-    </label>
-    <label class="bidang"><b>Tanggal</b><input type="date" name="tanggal" id="pilihTanggal" required></label>
-    <label class="bidang" style="min-width:200px"><b>Sesi (opsional)</b>
-      <select name="jadwal_jam_id" id="pilihSesi"><option value="">seluruh sesi hari itu</option></select>
-    </label>
-    <label class="bidang" style="min-width:200px"><b>Keterangan</b><input name="keterangan"></label>
-    <button class="tombol">Simpan</button>
-  </form>
+      <input type="date" name="tanggal" id="pilihTanggal" class="form-control input-sm" required>
+      <select name="jadwal_jam_id" id="pilihSesi" class="form-control input-sm" style="min-width:180px">
+        <option value="">seluruh sesi hari itu</option>
+      </select>
+      <input name="keterangan" class="form-control input-sm" placeholder="Keterangan" style="min-width:180px">
+      <button class="btn btn-sm btn-primary"><i class="ace-icon fa fa-plus"></i> Simpan</button>
+    </form>
+  </div></div>
 </div>
 
-<div class="gulir">
-  <table>
-    <thead><tr><th style="width:44px">#</th><th>NIM</th><th>Nama</th><th>Tanggal</th><th>Sesi</th><th>Keterangan</th><th style="width:80px"></th></tr></thead>
-    <tbody>
-    {% for k in baris %}
-      <tr>
-        <td class="redup">{{ loop.index }}</td>
-        <td>{{ k.mahasiswa.nim }}</td>
-        <td>{{ k.mahasiswa.nama }}</td>
-        <td>{{ k.tanggal.strftime('%d/%m/%Y') }}</td>
-        <td>{{ k.sesi.kegiatan if k.sesi else 'seluruh sesi' }}</td>
-        <td class="redup">{{ k.keterangan or '-' }}</td>
-        <td>
-          <form method="post" action="{{ url_for('izin.hapus', id_baris=k.id) }}" onsubmit="return confirm('Hapus catatan ini?')">
-            <button class="tombol-bahaya mini">Hapus</button>
-          </form>
-        </td>
-      </tr>
-    {% else %}
-      <tr><td colspan="7" class="kosong">Belum ada catatan {{ judul|lower }}.</td></tr>
-    {% endfor %}
-    </tbody>
-  </table>
-</div>
+<form method="get" class="form-inline" style="margin-bottom:12px">
+  <div class="input-group">
+    <input name="cari" value="{{ kata }}" class="form-control input-sm" placeholder="Cari NIM / nama...">
+    <span class="input-group-btn"><button class="btn btn-sm btn-default"><i class="ace-icon fa fa-search"></i></button></span>
+  </div>
+</form>
+
+<table class="table table-striped table-bordered table-hover">
+  <thead><tr><th style="width:44px">#</th><th>NIM</th><th>Nama</th><th>Tanggal</th><th>Sesi</th><th>Keterangan</th><th style="width:90px"></th></tr></thead>
+  <tbody>
+  {% for k in baris %}
+    <tr>
+      <td class="redup">{{ loop.index }}</td>
+      <td>{{ k.mahasiswa.nim }}</td>
+      <td>{{ k.mahasiswa.nama }}</td>
+      <td>{{ k.tanggal.strftime('%d/%m/%Y') }}</td>
+      <td>{{ k.sesi.kegiatan if k.sesi else 'seluruh sesi' }}</td>
+      <td class="redup">{{ k.keterangan or '-' }}</td>
+      <td>
+        <form method="post" action="{{ url_for('izin.hapus', id_baris=k.id) }}" onsubmit="return confirm('Hapus catatan ini?')">
+          <button class="btn btn-xs btn-danger"><i class="ace-icon fa fa-trash-o"></i> Hapus</button>
+        </form>
+      </td>
+    </tr>
+  {% else %}
+    <tr><td colspan="7" class="kosong">Belum ada catatan {{ judul|lower }}.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
 {% endblock %}

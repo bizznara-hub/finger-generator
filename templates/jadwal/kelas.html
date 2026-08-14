@@ -1,144 +1,163 @@
 {% extends "layout.html" %}
-{% block judul %}Sesi {{ jk.kelas.nama if jk.kelas }}{% endblock %}
-{% block tajuk %}
-  {{ jk.jadwal.mata_kuliah.nama if jk.jadwal.mata_kuliah else 'Blok' }} —
-  Kelas {{ jk.kelas.nama if jk.kelas else '?' }}
-{% endblock %}
-{% block aksi %}
-  <a class="tombol-samar" href="{{ url_for('jadwal.rinci', id_jadwal=jk.jadwal_id) }}">← Blok</a>
-  <a class="tombol" href="{{ url_for('laporan.index', kelas=jk.id) }}">Lihat laporan</a>
-{% endblock %}
+{% block judul %}Sesi Kelas {{ jk.kelas.nama if jk.kelas }}{% endblock %}
+{% block tajuk %}{{ jk.jadwal.mata_kuliah.nama if jk.jadwal.mata_kuliah else 'Blok' }}{% endblock %}
+{% block subtajuk %}kelas {{ jk.kelas.nama if jk.kelas else '?' }} &mdash; tanggal dan sesi{% endblock %}
 {% block isi %}
 
-<div class="kartu">
-  <h2>Tambah tanggal</h2>
-  <p class="bantuan">Isi satu tanggal, atau isi keduanya untuk membuat rentang sekaligus.</p>
-  <form method="post" action="{{ url_for('jadwal.tambah_hari', id_jk=jk.id) }}" class="sebaris">
-    <label class="bidang"><b>Tanggal</b><input type="date" name="tanggal" required></label>
-    <label class="bidang"><b>Sampai (opsional)</b><input type="date" name="tanggal_akhir"></label>
-    <button class="tombol">Tambahkan</button>
-  </form>
+<div style="margin-bottom:12px">
+  <a class="btn btn-sm btn-default" href="{{ url_for('jadwal.rinci', id_jadwal=jk.jadwal_id) }}">
+    <i class="ace-icon fa fa-arrow-left"></i> Blok
+  </a>
+  <a class="btn btn-sm btn-success" href="{{ url_for('laporan.index', kelas=jk.id) }}">
+    <i class="ace-icon fa fa-file-text-o"></i> Lihat laporan
+  </a>
+</div>
+
+<div class="alert alert-info">
+  <i class="ace-icon fa fa-info-circle"></i>
+  Jam selesai dihitung dari <b>{{ pengaturan.menit_perjam }}</b> menit per jam dan
+  <b>{{ pengaturan.menit_pergantian }}</b> menit pergantian, kecuali diisi manual.
+  Toleransi {{ pengaturan.toleransi_awal }} menit lebih awal dan
+  {{ pengaturan.toleransi_akhir }} menit terlambat.
+</div>
+
+<div class="widget-box">
+  <div class="widget-header"><h4 class="widget-title">Tambah tanggal</h4></div>
+  <div class="widget-body"><div class="widget-main">
+    <p class="redup">Isi satu tanggal, atau isi keduanya untuk membuat rentang sekaligus.</p>
+    <form method="post" action="{{ url_for('jadwal.tambah_hari', id_jk=jk.id) }}" class="form-inline">
+      <label>Tanggal <input type="date" name="tanggal" class="form-control input-sm" required></label>
+      <label>Sampai <input type="date" name="tanggal_akhir" class="form-control input-sm"></label>
+      <button class="btn btn-sm btn-primary"><i class="ace-icon fa fa-plus"></i> Tambahkan</button>
+    </form>
+  </div></div>
 </div>
 
 {% for h in hari %}
-  <div class="kartu">
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-      <h2 style="flex:1;min-width:200px">{{ label_tanggal(h.tanggal) }}</h2>
-      <form method="post" action="{{ url_for('jadwal.hapus_hari', id_hari=h.id) }}"
-            onsubmit="return confirm('Hapus tanggal ini beserta seluruh sesinya?')">
-        <button class="tombol-bahaya mini">Hapus tanggal</button>
-      </form>
+  <div class="widget-box">
+    <div class="widget-header">
+      <h4 class="widget-title">{{ label_tanggal(h.tanggal) }}</h4>
+      <div class="widget-toolbar">
+        <form method="post" action="{{ url_for('jadwal.hapus_hari', id_hari=h.id) }}"
+              onsubmit="return confirm('Hapus tanggal ini beserta seluruh sesinya?')">
+          <button class="btn btn-xs btn-danger"><i class="ace-icon fa fa-trash-o"></i> Hapus tanggal</button>
+        </form>
+      </div>
     </div>
-
-    <div class="gulir" style="margin-top:10px">
-      <table>
-        <thead><tr>
-          <th style="width:200px">Kegiatan</th><th>Jam masuk</th><th>Jumlah jam</th>
-          <th>Selesai</th><th>Ruangan</th><th>Pengajar</th><th style="width:150px"></th>
-        </tr></thead>
-        <tbody>
-        {% for s in h.sesi|sort(attribute='jam_masuk') %}
-          <tr>
-            <form method="post" action="{{ url_for('jadwal.ubah_sesi', id_sesi=s.id) }}" id="sesi{{ s.id }}"></form>
-            <td><input form="sesi{{ s.id }}" name="kegiatan" value="{{ s.kegiatan }}"></td>
-            <td><input form="sesi{{ s.id }}" name="jam_masuk" value="{{ s.jam_masuk.strftime('%H:%M') }}" style="width:88px"></td>
-            <td><input form="sesi{{ s.id }}" name="jml_jam" type="number" min="1" max="12" value="{{ s.jml_jam }}" style="width:70px"></td>
-            <td>
-              <input form="sesi{{ s.id }}" name="jam_selesai_manual" style="width:88px"
-                     value="{{ s.jam_selesai_manual.strftime('%H:%M') if s.jam_selesai_manual else '' }}"
-                     placeholder="{{ s.jam_selesai(pengaturan).strftime('%H:%M') }}">
-            </td>
-            <td>
-              <select form="sesi{{ s.id }}" name="ruangan_id" style="min-width:130px">
-                <option value="">—</option>
-                {% for r in ruangan %}<option value="{{ r.id }}" {{ 'selected' if s.ruangan_id == r.id }}>{{ r.nama }}</option>{% endfor %}
-              </select>
-            </td>
-            <td>
-              <select form="sesi{{ s.id }}" name="dosen_id" multiple size="1" style="min-width:150px">
+    <div class="widget-body"><div class="widget-main no-padding">
+      <div class="tabel-lebar">
+        <table class="table table-bordered table-hover rapat">
+          <thead><tr>
+            <th style="min-width:180px">Kegiatan</th><th style="width:100px">Jam masuk</th>
+            <th style="width:90px">Jml jam</th><th style="width:110px">Selesai</th>
+            <th style="min-width:140px">Ruangan</th><th style="min-width:160px">Pengajar</th>
+            <th style="width:150px"></th>
+          </tr></thead>
+          <tbody>
+          {% for s in h.sesi|sort(attribute='jam_masuk') %}
+            <tr>
+              <form method="post" action="{{ url_for('jadwal.ubah_sesi', id_sesi=s.id) }}" id="sesi{{ s.id }}"></form>
+              <td><input form="sesi{{ s.id }}" name="kegiatan" class="form-control input-sm" value="{{ s.kegiatan }}"></td>
+              <td><input form="sesi{{ s.id }}" name="jam_masuk" class="form-control input-sm" value="{{ s.jam_masuk.strftime('%H:%M') }}"></td>
+              <td><input form="sesi{{ s.id }}" name="jml_jam" type="number" min="1" max="12" class="form-control input-sm" value="{{ s.jml_jam }}"></td>
+              <td>
+                <input form="sesi{{ s.id }}" name="jam_selesai_manual" class="form-control input-sm"
+                       value="{{ s.jam_selesai_manual.strftime('%H:%M') if s.jam_selesai_manual else '' }}"
+                       placeholder="{{ s.jam_selesai(pengaturan).strftime('%H:%M') }}">
+              </td>
+              <td>
+                <select form="sesi{{ s.id }}" name="ruangan_id" class="form-control input-sm">
+                  <option value="">—</option>
+                  {% for r in ruangan %}<option value="{{ r.id }}" {{ 'selected' if s.ruangan_id == r.id }}>{{ r.nama }}</option>{% endfor %}
+                </select>
+              </td>
+              <td>
                 {% set terpilih = s.pengajar|map(attribute='dosen_id')|list %}
-                {% for d in dosen %}<option value="{{ d.id }}" {{ 'selected' if d.id in terpilih }}>{{ d.nama }}</option>{% endfor %}
+                <select form="sesi{{ s.id }}" name="dosen_id" class="form-control input-sm" multiple size="2">
+                  {% for d in dosen %}<option value="{{ d.id }}" {{ 'selected' if d.id in terpilih }}>{{ d.nama }}</option>{% endfor %}
+                </select>
+              </td>
+              <td class="no-wrap">
+                <button form="sesi{{ s.id }}" class="btn btn-xs btn-info"><i class="ace-icon fa fa-check"></i> Simpan</button>
+                <form method="post" action="{{ url_for('jadwal.hapus_sesi', id_sesi=s.id) }}" style="display:inline"
+                      onsubmit="return confirm('Hapus sesi ini?')">
+                  <button class="btn btn-xs btn-danger"><i class="ace-icon fa fa-trash-o"></i></button>
+                </form>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="7" class="kosong">Belum ada sesi pada tanggal ini.</td></tr>
+          {% endfor %}
+
+          <tr class="success">
+            <form method="post" action="{{ url_for('jadwal.tambah_sesi', id_hari=h.id) }}" id="baru{{ h.id }}"></form>
+            <td><input form="baru{{ h.id }}" name="kegiatan" class="form-control input-sm" placeholder="PBL 1 (MODUL 1)" required></td>
+            <td><input form="baru{{ h.id }}" name="jam_masuk" class="form-control input-sm" placeholder="08:00" required></td>
+            <td><input form="baru{{ h.id }}" name="jml_jam" type="number" min="1" max="12" class="form-control input-sm" value="2"></td>
+            <td><input form="baru{{ h.id }}" name="jam_selesai_manual" class="form-control input-sm" placeholder="otomatis"></td>
+            <td>
+              <select form="baru{{ h.id }}" name="ruangan_id" class="form-control input-sm">
+                <option value="">—</option>
+                {% for r in ruangan %}<option value="{{ r.id }}">{{ r.nama }}</option>{% endfor %}
               </select>
             </td>
             <td>
-              <button form="sesi{{ s.id }}" class="tombol-samar mini">Simpan</button>
-              <form method="post" action="{{ url_for('jadwal.hapus_sesi', id_sesi=s.id) }}" style="display:inline"
-                    onsubmit="return confirm('Hapus sesi ini?')">
-                <button class="tombol-bahaya mini">Hapus</button>
+              <select form="baru{{ h.id }}" name="dosen_id" class="form-control input-sm" multiple size="2">
+                {% for d in dosen %}<option value="{{ d.id }}">{{ d.nama }}</option>{% endfor %}
+              </select>
+            </td>
+            <td><button form="baru{{ h.id }}" class="btn btn-xs btn-primary"><i class="ace-icon fa fa-plus"></i> Tambah sesi</button></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div></div>
+  </div>
+{% else %}
+  <div class="alert alert-warning">
+    <i class="ace-icon fa fa-exclamation-triangle"></i>
+    Belum ada tanggal. Tambahkan lewat formulir di atas.
+  </div>
+{% endfor %}
+
+<div class="widget-box">
+  <div class="widget-header">
+    <h4 class="widget-title">Peserta <span class="badge badge-info">{{ jk.peserta|length }}</span></h4>
+  </div>
+  <div class="widget-body"><div class="widget-main">
+    <form method="post" action="{{ url_for('jadwal.tambah_peserta', id_jk=jk.id) }}" class="form-inline">
+      <select name="mahasiswa_id" class="form-control input-sm" multiple size="4" style="min-width:320px">
+        {% for m in belum_terdaftar %}<option value="{{ m.id }}">{{ m.nim }} — {{ m.nama }}</option>{% endfor %}
+      </select>
+      <button class="btn btn-sm btn-primary"><i class="ace-icon fa fa-plus"></i> Tambahkan</button>
+      <span class="redup">Tahan Ctrl (atau Cmd) untuk memilih beberapa sekaligus.</span>
+    </form>
+  </div></div>
+
+  <div class="widget-main no-padding">
+    <div class="tabel-tinggi">
+      <table class="table table-striped table-bordered table-hover">
+        <thead><tr><th style="width:44px">#</th><th>NIM</th><th>Nama</th><th>ID Finger</th><th style="width:110px"></th></tr></thead>
+        <tbody>
+        {% for p in jk.peserta|sort(attribute='mahasiswa.nim') %}
+          <tr>
+            <td class="redup">{{ loop.index }}</td>
+            <td>{{ p.mahasiswa.nim }}</td>
+            <td>{{ p.mahasiswa.nama }}</td>
+            <td>{% if p.mahasiswa.id_finger %}{{ p.mahasiswa.id_finger }}
+                {% else %}<span class="label label-warning">belum diisi</span>{% endif %}</td>
+            <td>
+              <form method="post" action="{{ url_for('jadwal.hapus_peserta', id_peserta=p.id) }}">
+                <button class="btn btn-xs btn-danger"><i class="ace-icon fa fa-times"></i> Keluarkan</button>
               </form>
             </td>
           </tr>
         {% else %}
-          <tr><td colspan="7" class="kosong">Belum ada sesi pada tanggal ini.</td></tr>
+          <tr><td colspan="5" class="kosong">Belum ada peserta.</td></tr>
         {% endfor %}
-
-        <tr>
-          <form method="post" action="{{ url_for('jadwal.tambah_sesi', id_hari=h.id) }}" id="baru{{ h.id }}"></form>
-          <td><input form="baru{{ h.id }}" name="kegiatan" placeholder="PBL 1 (MODUL 1)" required></td>
-          <td><input form="baru{{ h.id }}" name="jam_masuk" placeholder="08:00" style="width:88px" required></td>
-          <td><input form="baru{{ h.id }}" name="jml_jam" type="number" min="1" max="12" value="2" style="width:70px"></td>
-          <td><input form="baru{{ h.id }}" name="jam_selesai_manual" placeholder="otomatis" style="width:88px"></td>
-          <td>
-            <select form="baru{{ h.id }}" name="ruangan_id" style="min-width:130px">
-              <option value="">—</option>
-              {% for r in ruangan %}<option value="{{ r.id }}">{{ r.nama }}</option>{% endfor %}
-            </select>
-          </td>
-          <td>
-            <select form="baru{{ h.id }}" name="dosen_id" multiple size="1" style="min-width:150px">
-              {% for d in dosen %}<option value="{{ d.id }}">{{ d.nama }}</option>{% endfor %}
-            </select>
-          </td>
-          <td><button form="baru{{ h.id }}" class="tombol mini">+ Tambah sesi</button></td>
-        </tr>
         </tbody>
       </table>
     </div>
-  </div>
-{% else %}
-  <div class="kartu"><p class="kosong">Belum ada tanggal. Tambahkan lewat formulir di atas.</p></div>
-{% endfor %}
-
-<div class="kartu">
-  <h2>Peserta <span class="lencana">{{ jk.peserta|length }}</span></h2>
-  <p class="bantuan">Jam selesai dihitung dari
-    <b>{{ pengaturan.menit_perjam }}</b> menit per jam dan
-    <b>{{ pengaturan.menit_pergantian }}</b> menit pergantian, kecuali diisi manual.
-    Toleransi {{ pengaturan.toleransi_awal }} menit lebih awal dan
-    {{ pengaturan.toleransi_akhir }} menit terlambat.</p>
-
-  <form method="post" action="{{ url_for('jadwal.tambah_peserta', id_jk=jk.id) }}" class="sebaris">
-    <label class="bidang" style="min-width:280px"><b>Tambah mahasiswa</b>
-      <select name="mahasiswa_id" multiple size="4">
-        {% for m in belum_terdaftar %}<option value="{{ m.id }}">{{ m.nim }} — {{ m.nama }}</option>{% endfor %}
-      </select>
-      <small>Tahan Ctrl (atau Cmd) untuk memilih beberapa sekaligus.</small>
-    </label>
-    <button class="tombol">Tambahkan</button>
-  </form>
-
-  <div class="gulir tinggi" style="margin-top:14px">
-    <table>
-      <thead><tr><th style="width:44px">#</th><th>NIM</th><th>Nama</th><th>ID Finger</th><th style="width:80px"></th></tr></thead>
-      <tbody>
-      {% for p in jk.peserta|sort(attribute='mahasiswa.nim') %}
-        <tr>
-          <td class="redup">{{ loop.index }}</td>
-          <td>{{ p.mahasiswa.nim }}</td>
-          <td>{{ p.mahasiswa.nama }}</td>
-          <td>{% if p.mahasiswa.id_finger %}{{ p.mahasiswa.id_finger }}
-              {% else %}<span class="lencana awas">belum diisi</span>{% endif %}</td>
-          <td>
-            <form method="post" action="{{ url_for('jadwal.hapus_peserta', id_peserta=p.id) }}">
-              <button class="tombol-bahaya mini">Keluarkan</button>
-            </form>
-          </td>
-        </tr>
-      {% else %}
-        <tr><td colspan="5" class="kosong">Belum ada peserta.</td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
   </div>
 </div>
 

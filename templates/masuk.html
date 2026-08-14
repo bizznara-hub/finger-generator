@@ -1,25 +1,74 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Masuk &middot; Absensi FK</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='gaya.css') }}">
+<meta charset="utf-8" />
+<title>Masuk - ABSENSI FK UNHAS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='font-awesome/css/font-awesome.min.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ace.min.css') }}" class="ace-main-stylesheet" />
+<link rel="stylesheet" href="{{ url_for('static', filename='gaya.css') }}" />
 </head>
-<body>
-<div class="masuk-latar">
-  <form class="masuk-kotak" method="post">
-    <h1>Sistem Absensi</h1>
-    <p>Fakultas Kedokteran Universitas Hasanuddin</p>
-    {% if galat %}<div class="pesan galat" style="margin-bottom:14px">{{ galat }}</div>{% endif %}
-    <label class="bidang"><b>Username</b>
-      <input name="username" autofocus required autocomplete="username">
-    </label>
-    <label class="bidang"><b>Sandi</b>
-      <input type="password" name="sandi" required autocomplete="current-password">
-    </label>
-    <button class="tombol" style="width:100%;margin-top:6px">Masuk</button>
-  </form>
-</div>
+<body class="login-layout light-login">
+<div class="main-container"><div class="main-content"><div class="row">
+  <div class="col-sm-10 col-sm-offset-1">
+    <div class="login-container">
+
+      <div class="center">
+        <h1>
+          <img src="{{ url_for('static', filename='img/unhas.png') }}" alt="Unhas" style="height:70px">
+        </h1>
+        <h4 class="blue" style="margin-bottom:18px">ABSENSI FAKULTAS KEDOKTERAN</h4>
+      </div>
+
+      <div class="position-relative">
+        <div class="login-box visible widget-box no-border">
+          <div class="widget-body">
+            <div class="widget-main">
+              <h4 class="header blue lighter bigger">
+                <i class="ace-icon fa fa-coffee green"></i> Masuk ke aplikasi
+              </h4>
+
+              {% if galat %}
+                <div class="alert alert-danger">
+                  <i class="ace-icon fa fa-exclamation-triangle"></i> {{ galat }}
+                </div>
+              {% endif %}
+
+              <form method="post">
+                <fieldset>
+                  <label class="block clearfix">
+                    <span class="block input-icon input-icon-right">
+                      <input type="text" name="username" class="form-control" placeholder="Username"
+                             autofocus required autocomplete="username" />
+                      <i class="ace-icon fa fa-user"></i>
+                    </span>
+                  </label>
+
+                  <label class="block clearfix">
+                    <span class="block input-icon input-icon-right">
+                      <input type="password" name="sandi" class="form-control" placeholder="Sandi"
+                             required autocomplete="current-password" />
+                      <i class="ace-icon fa fa-lock"></i>
+                    </span>
+                  </label>
+
+                  <div class="clearfix">
+                    <button type="submit" class="width-100 pull-right btn btn-sm btn-primary">
+                      <i class="ace-icon fa fa-key"></i>
+                      <span class="bigger-110">Masuk</span>
+                    </button>
+                  </div>
+                </fieldset>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div></div></div>
 </body>
 </html>

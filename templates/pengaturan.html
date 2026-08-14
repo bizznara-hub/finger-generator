@@ -1,42 +1,68 @@
 {% extends "layout.html" %}
 {% block judul %}Pengaturan{% endblock %}
 {% block tajuk %}Pengaturan{% endblock %}
+{% block subtajuk %}aturan jam, kop laporan, koneksi mesin{% endblock %}
 {% block isi %}
-<form method="post">
-  <div class="kartu">
-    <h2>Perhitungan jam sesi</h2>
-    <p class="bantuan">
-      jam selesai = jam masuk + (jumlah jam &times; menit per jam) + ((jumlah jam − 1) &times; menit pergantian)
-    </p>
-    <div class="kisi sempit">
-      <label class="bidang"><b>Menit per jam</b><input type="number" name="menit_perjam" value="{{ p.menit_perjam }}"></label>
-      <label class="bidang"><b>Menit pergantian</b><input type="number" name="menit_pergantian" value="{{ p.menit_pergantian }}"></label>
-      <label class="bidang"><b>Toleransi datang awal</b><input type="number" name="toleransi_awal" value="{{ p.toleransi_awal }}"><small>menit</small></label>
-      <label class="bidang"><b>Toleransi terlambat</b><input type="number" name="toleransi_akhir" value="{{ p.toleransi_akhir }}"><small>menit</small></label>
+<form method="post" class="form-horizontal">
+
+  <h4 class="header blue bolder smaller">Perhitungan jam sesi</h4>
+  <p class="col-sm-offset-2 col-sm-9 redup">
+    jam selesai = jam masuk + (jumlah jam &times; menit per jam) + ((jumlah jam &minus; 1) &times; menit pergantian)
+  </p>
+  <div class="form-group">
+    <label class="col-sm-2 control-label no-padding-right">Menit per jam</label>
+    <div class="col-sm-2"><input type="number" name="menit_perjam" class="form-control" value="{{ p.menit_perjam }}"></div>
+    <label class="col-sm-2 control-label no-padding-right">Menit pergantian</label>
+    <div class="col-sm-2"><input type="number" name="menit_pergantian" class="form-control" value="{{ p.menit_pergantian }}"></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label no-padding-right">Toleransi awal</label>
+    <div class="col-sm-2"><input type="number" name="toleransi_awal" class="form-control" value="{{ p.toleransi_awal }}"></div>
+    <label class="col-sm-2 control-label no-padding-right">Toleransi terlambat</label>
+    <div class="col-sm-2"><input type="number" name="toleransi_akhir" class="form-control" value="{{ p.toleransi_akhir }}"></div>
+  </div>
+
+  <h4 class="header blue bolder smaller">Kop laporan</h4>
+  <p class="col-sm-offset-2 col-sm-9 redup">Baris pertama disusun otomatis dari semester dan tahun ajaran blok.</p>
+  <div class="form-group">
+    <label class="col-sm-2 control-label no-padding-right">Baris 2</label>
+    <div class="col-sm-6"><input name="nama_institusi" class="form-control" value="{{ p.nama_institusi or '' }}"></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label no-padding-right">Baris 3</label>
+    <div class="col-sm-6"><input name="nama_universitas" class="form-control" value="{{ p.nama_universitas or '' }}"></div>
+  </div>
+
+  <h4 class="header blue bolder smaller">Koneksi att_log (Fingerspot)</h4>
+  <p class="col-sm-offset-2 col-sm-9 redup">
+    Gunakan kredensial <b>baca-saja</b>. Aplikasi hanya membaca tabel <code>att_log</code>.
+  </p>
+  <div class="form-group">
+    <label class="col-sm-2 control-label no-padding-right">Host</label>
+    <div class="col-sm-4"><input name="attlog_host" class="form-control" value="{{ p.attlog_host or '' }}" placeholder="localhost"></div>
+    <label class="col-sm-1 control-label no-padding-right">Port</label>
+    <div class="col-sm-2"><input type="number" name="attlog_port" class="form-control" value="{{ p.attlog_port or 3306 }}"></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label no-padding-right">Nama basis data</label>
+    <div class="col-sm-4"><input name="attlog_nama_db" class="form-control" value="{{ p.attlog_nama_db or '' }}" placeholder="db_fingerfk"></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label no-padding-right">Pengguna</label>
+    <div class="col-sm-4"><input name="attlog_user" class="form-control" value="{{ p.attlog_user or '' }}"></div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label no-padding-right">Sandi</label>
+    <div class="col-sm-4">
+      <input type="password" name="attlog_sandi" class="form-control"
+             placeholder="{{ 'tersimpan — kosongkan bila tidak diubah' if p.attlog_sandi else '' }}">
     </div>
   </div>
 
-  <div class="kartu">
-    <h2>Kop laporan</h2>
-    <div class="kisi">
-      <label class="bidang"><b>Baris 2</b><input name="nama_institusi" value="{{ p.nama_institusi or '' }}"></label>
-      <label class="bidang"><b>Baris 3</b><input name="nama_universitas" value="{{ p.nama_universitas or '' }}"></label>
-    </div>
-    <p class="bantuan" style="margin-top:10px">Baris pertama disusun otomatis dari semester dan tahun ajaran blok.</p>
-  </div>
-
-  <div class="kartu">
-    <h2>Koneksi att_log (Fingerspot)</h2>
-    <p class="bantuan">Gunakan kredensial <b>baca-saja</b>. Aplikasi hanya membaca tabel <code>att_log</code>.</p>
-    <div class="kisi sempit">
-      <label class="bidang"><b>Host</b><input name="attlog_host" value="{{ p.attlog_host or '' }}" placeholder="localhost"></label>
-      <label class="bidang"><b>Port</b><input type="number" name="attlog_port" value="{{ p.attlog_port or 3306 }}"></label>
-      <label class="bidang"><b>Nama basis data</b><input name="attlog_nama_db" value="{{ p.attlog_nama_db or '' }}" placeholder="db_fingerfk"></label>
-      <label class="bidang"><b>Pengguna</b><input name="attlog_user" value="{{ p.attlog_user or '' }}"></label>
-      <label class="bidang"><b>Sandi</b><input type="password" name="attlog_sandi" placeholder="{{ 'tersimpan — kosongkan bila tidak diubah' if p.attlog_sandi else '' }}"></label>
+  <div class="clearfix form-actions">
+    <div class="col-md-offset-2 col-md-9">
+      <button class="btn btn-sm btn-primary"><i class="ace-icon fa fa-check"></i> Simpan pengaturan</button>
     </div>
   </div>
-
-  <div class="baris-aksi"><button class="tombol">Simpan pengaturan</button></div>
 </form>
 {% endblock %}

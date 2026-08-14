@@ -1,71 +1,151 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block judul %}Absensi{% endblock %} &middot; Absensi FK</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='gaya.css') }}">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta charset="utf-8" />
+<title>{% block judul %}Absensi{% endblock %} - ABSENSI FK UNHAS</title>
+<meta name="description" content="Absensi Fakultas Kedokteran Universitas Hasanuddin" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='font-awesome/css/font-awesome.min.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ace.min.css') }}" class="ace-main-stylesheet" id="main-ace-style" />
+<!--[if lte IE 9]>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/ace-part2.min.css') }}" class="ace-main-stylesheet" />
+<![endif]-->
+<link rel="stylesheet" href="{{ url_for('static', filename='gaya.css') }}" />
 </head>
-<body>
-<div class="cangkang">
 
-  <aside class="sisi">
-    <div class="merek">
-      <b>ABSENSI</b>
-      <span>Fakultas Kedokteran</span>
+<body class="no-skin">
+
+<div id="navbar" class="navbar navbar-default">
+  <div class="navbar-container" id="navbar-container">
+    <button type="button" class="navbar-toggle menu-toggler pull-left" id="menu-toggler" data-target="#sidebar">
+      <span class="sr-only">Toggle sidebar</span>
+      <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+    </button>
+
+    <div class="navbar-header pull-left">
+      <a href="{{ url_for('beranda.index') }}" class="navbar-brand">
+        <small>
+          <img src="{{ url_for('static', filename='img/logo.png') }}" alt="logo" class="logo">
+          ABSENSI FK UNHAS
+        </small>
+      </a>
     </div>
 
-    <nav>
-      <a href="{{ url_for('beranda.index') }}" class="{{ 'aktif' if menu_aktif=='beranda' }}">Beranda</a>
-
-      <div class="kelompok">Data mesin</div>
-      <a href="{{ url_for('absensi.index') }}" class="{{ 'aktif' if menu_aktif=='finger' }}">Finger Print</a>
-
-      <div class="kelompok">Data master</div>
-      <a href="{{ url_for('master.daftar', kunci='departemen') }}" class="{{ 'aktif' if menu_aktif=='departemen' }}">Departemen</a>
-      <a href="{{ url_for('master.daftar', kunci='kelas') }}" class="{{ 'aktif' if menu_aktif=='kelas' }}">Kelas</a>
-      <a href="{{ url_for('master.daftar', kunci='dosen') }}" class="{{ 'aktif' if menu_aktif=='dosen' }}">Dosen</a>
-      <a href="{{ url_for('master.daftar', kunci='mahasiswa') }}" class="{{ 'aktif' if menu_aktif=='mahasiswa' }}">Mahasiswa</a>
-      <a href="{{ url_for('master.daftar', kunci='mata-kuliah') }}" class="{{ 'aktif' if menu_aktif=='mata-kuliah' }}">Mata Kuliah</a>
-      <a href="{{ url_for('master.daftar', kunci='ruangan') }}" class="{{ 'aktif' if menu_aktif=='ruangan' }}">Ruang Kuliah</a>
-
-      <div class="kelompok">Kegiatan</div>
-      <a href="{{ url_for('jadwal.daftar') }}" class="{{ 'aktif' if menu_aktif=='jadwal' }}">Jadwal Kuliah</a>
-      <a href="{{ url_for('izin.daftar', kunci='S') }}" class="{{ 'aktif' if menu_aktif=='ketidakhadiran-S' }}">Sakit</a>
-      <a href="{{ url_for('izin.daftar', kunci='I') }}" class="{{ 'aktif' if menu_aktif=='ketidakhadiran-I' }}">Izin</a>
-      <a href="{{ url_for('laporan.index') }}" class="{{ 'aktif' if menu_aktif=='laporan' }}">Laporan</a>
-
-      <div class="kelompok">Sistem</div>
-      <a href="{{ url_for('pengaturan.index') }}" class="{{ 'aktif' if menu_aktif=='pengaturan' }}">Pengaturan</a>
-      <a href="{{ url_for('akun.index') }}" class="{{ 'aktif' if menu_aktif=='akun' }}">Akun</a>
-    </nav>
-
-    <div class="kaki-sisi">
-      <div class="siapa">{{ pengguna.nama if pengguna }}</div>
-      <a href="{{ url_for('auth.keluar') }}" class="keluar">Keluar</a>
+    <div class="navbar-buttons navbar-header pull-right" role="navigation">
+      <ul class="nav ace-nav">
+        <li class="light-blue">
+          <a data-toggle="dropdown" href="#" class="dropdown-toggle">
+            <img class="nav-user-photo" src="{{ url_for('static', filename='img/user.png') }}" alt="Avatar" />
+            <span class="user-info">
+              <small>Selamat Datang,</small>
+              {{ pengguna.nama if pengguna }}
+            </span>
+            <i class="ace-icon fa fa-caret-down"></i>
+          </a>
+          <ul class="user-menu dropdown-menu-right dropdown-menu dropdown-yellow dropdown-caret dropdown-close">
+            <li><a href="{{ url_for('akun.index') }}"><i class="ace-icon fa fa-user"></i> Profil</a></li>
+            <li class="divider"></li>
+            <li><a href="{{ url_for('auth.keluar') }}"><i class="ace-icon fa fa-power-off"></i> Logout</a></li>
+          </ul>
+        </li>
+      </ul>
     </div>
-  </aside>
-
-  <main class="isi">
-    <header class="kepala">
-      <h1>{% block tajuk %}{% endblock %}</h1>
-      <div class="aksi-kepala">{% block aksi %}{% endblock %}</div>
-    </header>
-
-    {% with pesan = get_flashed_messages(with_categories=true) %}
-      {% if pesan %}
-        <div class="pesan-tumpuk">
-        {% for jenis, teks in pesan %}
-          <div class="pesan {{ jenis }}">{{ teks }}</div>
-        {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-
-    {% block isi %}{% endblock %}
-  </main>
-
+  </div>
 </div>
+
+<div class="main-container" id="main-container">
+
+  <div id="sidebar" class="sidebar responsive">
+    {% set menu = [
+      ('beranda',           'beranda.index',  {},                        'fa-home',       'Beranda'),
+      ('finger',            'absensi.index',  {},                        'fa-calculator', 'Finger Print'),
+      ('departemen',        'master.daftar',  {'kunci':'departemen'},    'fa-university', 'Departemen'),
+      ('kelas',             'master.daftar',  {'kunci':'kelas'},         'fa-th-large',   'Kelas'),
+      ('dosen',             'master.daftar',  {'kunci':'dosen'},         'fa-user-md',    'Dosen'),
+      ('mahasiswa',         'master.daftar',  {'kunci':'mahasiswa'},     'fa-user',       'Mahasiswa'),
+      ('mata-kuliah',       'master.daftar',  {'kunci':'mata-kuliah'},   'fa-book',       'Mata Kuliah'),
+      ('ruangan',           'master.daftar',  {'kunci':'ruangan'},       'fa-building-o', 'Ruang Kuliah'),
+      ('jadwal',            'jadwal.daftar',  {},                        'fa-calendar',   'Jadwal Kuliah'),
+      ('ketidakhadiran-S',  'izin.daftar',    {'kunci':'S'},             'fa-medkit',     'Sakit'),
+      ('ketidakhadiran-I',  'izin.daftar',    {'kunci':'I'},             'fa-envelope-o', 'Izin'),
+      ('laporan',           'laporan.index',  {},                        'fa-copy',       'Laporan'),
+      ('pengaturan',        'pengaturan.index', {},                      'fa-cogs',       'Pengaturan'),
+      ('akun',              'akun.index',     {},                        'fa-key',        'Akun'),
+    ] %}
+
+    <ul class="nav nav-list">
+      {% for kunci, rute, arg, ikon, label in menu %}
+        <li class="{{ 'active' if menu_aktif == kunci }}">
+          <a href="{{ url_for(rute, **arg) }}">
+            <i class="menu-icon fa {{ ikon }}"></i>
+            <span class="menu-text"> {{ label }} </span>
+          </a>
+          <b class="arrow"></b>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <div class="sidebar-toggle sidebar-collapse" id="sidebar-collapse">
+      <i class="ace-icon fa fa-angle-double-left" data-icon1="ace-icon fa fa-angle-double-left"
+         data-icon2="ace-icon fa fa-angle-double-right"></i>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div class="main-content-inner">
+
+      <div class="breadcrumbs" id="breadcrumbs">
+        <ul class="breadcrumb">
+          <li>
+            <i class="ace-icon fa fa-home home-icon"></i>
+            <a href="{{ url_for('beranda.index') }}">Beranda</a>
+          </li>
+          {% block remah %}<li class="active">{{ self.judul() }}</li>{% endblock %}
+        </ul>
+      </div>
+
+      <div class="page-content">
+        <div class="page-header">
+          <h1>
+            {% block tajuk %}{% endblock %}
+            <small><i class="ace-icon fa fa-angle-double-right"></i> {% block subtajuk %}{% endblock %}</small>
+          </h1>
+        </div>
+
+        <div class="row">
+          <div class="col-xs-12">
+
+            {% with pesan = get_flashed_messages(with_categories=true) %}
+              {% for jenis, teks in pesan %}
+                <div class="alert alert-{{ 'success' if jenis == 'sukses' else 'danger' }}">
+                  <button class="close" data-dismiss="alert"><i class="ace-icon fa fa-times"></i></button>
+                  <i class="ace-icon fa {{ 'fa-check' if jenis == 'sukses' else 'fa-exclamation-triangle' }}"></i>
+                  {{ teks }}
+                </div>
+              {% endfor %}
+            {% endwith %}
+
+            {% block isi %}{% endblock %}
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <a href="#" id="btn-scroll-up" class="btn-scroll-up btn btn-sm btn-inverse">
+    <i class="ace-icon fa fa-angle-double-up icon-only bigger-110"></i>
+  </a>
+</div>
+
+<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ace.min.js') }}"></script>
 <script src="{{ url_for('static', filename='aplikasi.js') }}"></script>
+{% block skrip %}{% endblock %}
 </body>
 </html>

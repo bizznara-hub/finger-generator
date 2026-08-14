@@ -116,7 +116,7 @@ Dua bentuk kolom saat mencetak:
 │   └── rekap.py        Penulis .xlsx
 ├── views/              Rute per menu
 ├── templates/          Halaman
-├── static/             Gaya dan skrip
+├── static/             Tema Ace (Bootstrap 3 + Font Awesome) dan gaya tambahan
 └── docs/PRD.md         Rancangan lengkap
 ```
 
