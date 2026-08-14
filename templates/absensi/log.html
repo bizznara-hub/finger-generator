@@ -1,0 +1,46 @@
+{% extends "layout.html" %}
+{% block judul %}Log scan{% endblock %}
+{% block tajuk %}Log scan <span class="lencana">{{ total }}</span>{% endblock %}
+{% block aksi %}
+  <form method="get" class="sebaris">
+    <input name="cari" value="{{ kata }}" placeholder="Cari ID Finger..." style="width:190px">
+    <button class="tombol-samar">Cari</button>
+  </form>
+  <a class="tombol-samar" href="{{ url_for('absensi.index') }}">← Finger Print</a>
+{% endblock %}
+{% block isi %}
+<div class="gulir">
+  <table>
+    <thead><tr><th>ID Finger</th><th>Nama di mesin</th><th>Tanggal</th><th>Jam</th><th>Serial mesin</th><th>Sumber</th></tr></thead>
+    <tbody>
+    {% for s in baris %}
+      <tr>
+        <td><b>{{ s.id_finger }}</b></td>
+        <td class="redup">{{ s.nama_mesin or '-' }}</td>
+        <td>{{ s.tanggal.strftime('%d/%m/%Y') }}</td>
+        <td>{{ s.jam.strftime('%H:%M') }}</td>
+        <td class="redup">{{ s.serial or '-' }}</td>
+        <td><span class="lencana">{{ s.sumber }}</span></td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="kosong">Belum ada data scan.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% if halaman_akhir > 1 %}
+<div class="baris-aksi">
+  {% if hal > 1 %}<a class="tombol-samar" href="{{ url_for('absensi.log', hal=hal-1, cari=kata) }}">← Sebelumnya</a>{% endif %}
+  <span class="kecil redup">Halaman {{ hal }} dari {{ halaman_akhir }}</span>
+  {% if hal < halaman_akhir %}<a class="tombol-samar" href="{{ url_for('absensi.log', hal=hal+1, cari=kata) }}">Berikutnya →</a>{% endif %}
+</div>
+{% endif %}
+
+{% if total %}
+<form method="post" action="{{ url_for('absensi.kosongkan') }}" class="baris-aksi"
+      onsubmit="return confirm('Hapus SEMUA {{ total }} baris log scan? Tindakan ini tidak bisa dibatalkan.')">
+  <button class="tombol-bahaya">Kosongkan seluruh log</button>
+</form>
+{% endif %}
+{% endblock %}

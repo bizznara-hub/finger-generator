@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block judul %}{{ judul }}{% endblock %}
+{% block tajuk %}{{ judul }}{% endblock %}
+{% block aksi %}
+  <form method="get" class="sebaris">
+    <input name="cari" value="{{ kata }}" placeholder="Cari..." style="width:190px">
+    <button class="tombol-samar">Cari</button>
+  </form>
+  <a class="tombol" href="{{ url_for('master.tambah', kunci=spek.kunci) }}">+ Tambah</a>
+{% endblock %}
+{% block isi %}
+<div class="gulir">
+  <table>
+    <thead><tr>
+      <th style="width:44px">#</th>
+      {% for label, _ in spek.kolom %}<th>{{ label }}</th>{% endfor %}
+      <th style="width:150px"></th>
+    </tr></thead>
+    <tbody>
+    {% for baris_data in baris %}
+      <tr>
+        <td class="redup">{{ loop.index }}</td>
+        {% for _, ambil in spek.kolom %}<td>{{ ambil(baris_data) }}</td>{% endfor %}
+        <td>
+          <a class="tombol-samar mini" href="{{ url_for('master.ubah', kunci=spek.kunci, id_baris=baris_data.id) }}">Ubah</a>
+          <form method="post" action="{{ url_for('master.hapus', kunci=spek.kunci, id_baris=baris_data.id) }}"
+                style="display:inline" onsubmit="return confirm('Hapus data ini?')">
+            <button class="tombol-bahaya mini">Hapus</button>
+          </form>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="{{ spek.kolom|length + 2 }}" class="kosong">Belum ada data.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

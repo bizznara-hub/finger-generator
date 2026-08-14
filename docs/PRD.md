@@ -51,7 +51,7 @@ menarik/mengimpor data mesin, mencatat sakit-izin, dan mencetak laporan.
 
 | Lapisan | Pilihan | Alasan |
 |---|---|---|
-| Bahasa | Python 3.11 | Pembaca `.xls` mesin dan penulis `.xlsx` sudah jadi dan teruji di Python |
+| Bahasa | Python 3.9 ke atas | Pembaca `.xls` mesin dan penulis `.xlsx` sudah jadi dan teruji di Python |
 | Kerangka web | Flask 3 | Ringan, tanpa proses build, cocok untuk aplikasi CRUD |
 | ORM | SQLAlchemy 2 + Flask-SQLAlchemy | Netral terhadap SQLite maupun PostgreSQL |
 | Basis data | SQLite (lokal) / PostgreSQL (bila `DATABASE_URL` diisi) | Bisa mulai tanpa layanan luar, naik kelas kapan saja |
@@ -256,5 +256,12 @@ Keduanya menulis ke tabel yang sama dan menandai `sumber`. Scan kembar
 2. **Pencocokan ruangan** — dinyalakan atau dimatikan secara baku?
 3. **Impor massal mahasiswa** — bentuk berkasnya seperti apa? Idealnya satu berkas
    berisi NIM, nama, kelas, dan `id_finger` sekaligus.
-4. **Migrasi data lama** — apakah isi `db_absenfkuh` yang sekarang perlu dipindahkan,
-   atau mulai dari data baru?
+## Keputusan yang sudah diambil
+
+| Tanggal | Keputusan |
+|---|---|
+| 14/08/2026 | Tech stack: **Python + Flask**, sesuai bagian 4 |
+| 14/08/2026 | Basis data: **SQLite lokal**, PostgreSQL bila `DATABASE_URL` diisi |
+| 14/08/2026 | Peran: **admin saja** |
+| 14/08/2026 | Data lama `db_absenfkuh` **tidak dimigrasikan** — mulai dari data baru, aplikasi PHP lama disimpan sebagai arsip. Karena itu impor massal mahasiswa menjadi kebutuhan wajib, bukan tambahan |
+| 14/08/2026 | Sesi pembelajaran dibuat manual oleh admin dan dapat diubah |

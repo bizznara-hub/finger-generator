@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Masuk &middot; Absensi FK</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='gaya.css') }}">
+</head>
+<body>
+<div class="masuk-latar">
+  <form class="masuk-kotak" method="post">
+    <h1>Sistem Absensi</h1>
+    <p>Fakultas Kedokteran Universitas Hasanuddin</p>
+    {% if galat %}<div class="pesan galat" style="margin-bottom:14px">{{ galat }}</div>{% endif %}
+    <label class="bidang"><b>Username</b>
+      <input name="username" autofocus required autocomplete="username">
+    </label>
+    <label class="bidang"><b>Sandi</b>
+      <input type="password" name="sandi" required autocomplete="current-password">
+    </label>
+    <button class="tombol" style="width:100%;margin-top:6px">Masuk</button>
+  </form>
+</div>
+</body>
+</html>

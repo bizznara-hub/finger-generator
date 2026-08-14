@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block judul %}Akun{% endblock %}
+{% block tajuk %}Akun{% endblock %}
+{% block isi %}
+<form method="post" class="kartu" style="max-width:520px">
+  <h2>Identitas</h2>
+  <div class="kisi">
+    <label class="bidang"><b>Nama</b><input name="nama" value="{{ pengguna.nama }}" required></label>
+    <label class="bidang"><b>Username</b><input name="username" value="{{ pengguna.username }}" required></label>
+  </div>
+
+  <h3>Ganti sandi</h3>
+  <p class="bantuan">Kosongkan bila tidak ingin mengganti sandi.</p>
+  <div class="kisi">
+    <label class="bidang"><b>Sandi lama</b><input type="password" name="sandi_lama" autocomplete="current-password"></label>
+    <label class="bidang"><b>Sandi baru</b><input type="password" name="sandi_baru" autocomplete="new-password"></label>
+    <label class="bidang"><b>Ulangi sandi baru</b><input type="password" name="sandi_ulang" autocomplete="new-password"></label>
+  </div>
+
+  <div class="baris-aksi"><button class="tombol">Simpan</button></div>
+</form>
+{% endblock %}

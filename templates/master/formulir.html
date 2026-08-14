@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block judul %}{{ judul }}{% endblock %}
+{% block tajuk %}{{ judul }}{% endblock %}
+{% block isi %}
+<form method="post" class="kartu" style="max-width:640px">
+  <div class="kisi">
+  {% for b in spek.bidang %}
+    <label class="bidang">
+      <b>{{ b.label }}{% if b.wajib %} *{% endif %}</b>
+      {% if b.tipe == 'select' %}
+        <select name="{{ b.nama }}">
+          <option value="">— pilih —</option>
+          {% for nilai, label in b.daftar_pilihan() %}
+            <option value="{{ nilai }}" {{ 'selected' if obj[b.nama]|string == nilai }}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      {% else %}
+        <input type="{{ b.tipe }}" name="{{ b.nama }}" value="{{ obj[b.nama] if obj[b.nama] is not none else '' }}">
+      {% endif %}
+      {% if b.bantuan %}<small>{{ b.bantuan }}</small>{% endif %}
+    </label>
+  {% endfor %}
+  </div>
+  <div class="baris-aksi">
+    <button class="tombol">Simpan</button>
+    <a class="tombol-samar" href="{{ url_for('master.daftar', kunci=spek.kunci) }}">Batal</a>
+  </div>
+</form>
+{% endblock %}

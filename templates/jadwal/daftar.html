@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block judul %}Jadwal Kuliah{% endblock %}
+{% block tajuk %}Jadwal Kuliah{% endblock %}
+{% block aksi %}<a class="tombol" href="{{ url_for('jadwal.sunting') }}">+ Tambah blok</a>{% endblock %}
+{% block isi %}
+<p class="bantuan">Susun dari atas ke bawah: <b>blok</b> → <b>kelas peserta</b> → <b>tanggal</b> → <b>sesi</b>.
+  Sesi dibuat manual dan bisa diubah kapan saja.</p>
+<div class="gulir">
+  <table>
+    <thead><tr><th style="width:44px">#</th><th>Blok</th><th>Semester</th><th>Tahun ajaran</th><th>Kelas</th><th style="width:170px"></th></tr></thead>
+    <tbody>
+    {% for j in baris %}
+      <tr>
+        <td class="redup">{{ loop.index }}</td>
+        <td><b>{{ j.mata_kuliah.nama if j.mata_kuliah else '-' }}</b></td>
+        <td>{{ j.semester or '-' }}</td>
+        <td>{{ j.tahun_ajaran or '-' }}</td>
+        <td>
+          {% for jk in j.kelas_jadwal %}
+            <a class="lencana" href="{{ url_for('jadwal.kelas', id_jk=jk.id) }}">{{ jk.kelas.nama if jk.kelas else '?' }}</a>
+          {% else %}<span class="redup kecil">belum ada</span>{% endfor %}
+        </td>
+        <td>
+          <a class="tombol-samar mini" href="{{ url_for('jadwal.rinci', id_jadwal=j.id) }}">Atur</a>
+          <a class="tombol-samar mini" href="{{ url_for('jadwal.sunting', id_jadwal=j.id) }}">Ubah</a>
+          <form method="post" action="{{ url_for('jadwal.hapus', id_jadwal=j.id) }}" style="display:inline"
+                onsubmit="return confirm('Hapus blok ini beserta seluruh tanggal dan sesinya?')">
+            <button class="tombol-bahaya mini">Hapus</button>
+          </form>
+        </td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="kosong">Belum ada blok terjadwal.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

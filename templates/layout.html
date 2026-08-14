@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block judul %}Absensi{% endblock %} &middot; Absensi FK</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='gaya.css') }}">
+</head>
+<body>
+<div class="cangkang">
+
+  <aside class="sisi">
+    <div class="merek">
+      <b>ABSENSI</b>
+      <span>Fakultas Kedokteran</span>
+    </div>
+
+    <nav>
+      <a href="{{ url_for('beranda.index') }}" class="{{ 'aktif' if menu_aktif=='beranda' }}">Beranda</a>
+
+      <div class="kelompok">Data mesin</div>
+      <a href="{{ url_for('absensi.index') }}" class="{{ 'aktif' if menu_aktif=='finger' }}">Finger Print</a>
+
+      <div class="kelompok">Data master</div>
+      <a href="{{ url_for('master.daftar', kunci='departemen') }}" class="{{ 'aktif' if menu_aktif=='departemen' }}">Departemen</a>
+      <a href="{{ url_for('master.daftar', kunci='kelas') }}" class="{{ 'aktif' if menu_aktif=='kelas' }}">Kelas</a>
+      <a href="{{ url_for('master.daftar', kunci='dosen') }}" class="{{ 'aktif' if menu_aktif=='dosen' }}">Dosen</a>
+      <a href="{{ url_for('master.daftar', kunci='mahasiswa') }}" class="{{ 'aktif' if menu_aktif=='mahasiswa' }}">Mahasiswa</a>
+      <a href="{{ url_for('master.daftar', kunci='mata-kuliah') }}" class="{{ 'aktif' if menu_aktif=='mata-kuliah' }}">Mata Kuliah</a>
+      <a href="{{ url_for('master.daftar', kunci='ruangan') }}" class="{{ 'aktif' if menu_aktif=='ruangan' }}">Ruang Kuliah</a>
+
+      <div class="kelompok">Kegiatan</div>
+      <a href="{{ url_for('jadwal.daftar') }}" class="{{ 'aktif' if menu_aktif=='jadwal' }}">Jadwal Kuliah</a>
+      <a href="{{ url_for('izin.daftar', kunci='S') }}" class="{{ 'aktif' if menu_aktif=='ketidakhadiran-S' }}">Sakit</a>
+      <a href="{{ url_for('izin.daftar', kunci='I') }}" class="{{ 'aktif' if menu_aktif=='ketidakhadiran-I' }}">Izin</a>
+      <a href="{{ url_for('laporan.index') }}" class="{{ 'aktif' if menu_aktif=='laporan' }}">Laporan</a>
+
+      <div class="kelompok">Sistem</div>
+      <a href="{{ url_for('pengaturan.index') }}" class="{{ 'aktif' if menu_aktif=='pengaturan' }}">Pengaturan</a>
+      <a href="{{ url_for('akun.index') }}" class="{{ 'aktif' if menu_aktif=='akun' }}">Akun</a>
+    </nav>
+
+    <div class="kaki-sisi">
+      <div class="siapa">{{ pengguna.nama if pengguna }}</div>
+      <a href="{{ url_for('auth.keluar') }}" class="keluar">Keluar</a>
+    </div>
+  </aside>
+
+  <main class="isi">
+    <header class="kepala">
+      <h1>{% block tajuk %}{% endblock %}</h1>
+      <div class="aksi-kepala">{% block aksi %}{% endblock %}</div>
+    </header>
+
+    {% with pesan = get_flashed_messages(with_categories=true) %}
+      {% if pesan %}
+        <div class="pesan-tumpuk">
+        {% for jenis, teks in pesan %}
+          <div class="pesan {{ jenis }}">{{ teks }}</div>
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block isi %}{% endblock %}
+  </main>
+
+</div>
+<script src="{{ url_for('static', filename='aplikasi.js') }}"></script>
+</body>
+</html>

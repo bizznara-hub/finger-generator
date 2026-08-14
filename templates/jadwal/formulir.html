@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block judul %}Blok{% endblock %}
+{% block tajuk %}{{ 'Ubah blok' if obj.id else 'Tambah blok' }}{% endblock %}
+{% block isi %}
+<form method="post" class="kartu" style="max-width:560px">
+  <div class="kisi">
+    <label class="bidang"><b>Mata kuliah / blok *</b>
+      <select name="mata_kuliah_id">
+        <option value="">— pilih —</option>
+        {% for mk in mata_kuliah %}
+          <option value="{{ mk.id }}" {{ 'selected' if obj.mata_kuliah_id == mk.id }}>{{ mk.nama }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="bidang"><b>Semester</b>
+      <input name="semester" value="{{ obj.semester or '' }}" placeholder="Akhir">
+    </label>
+    <label class="bidang"><b>Tahun ajaran</b>
+      <input name="tahun_ajaran" value="{{ obj.tahun_ajaran or '' }}" placeholder="2025/2026">
+    </label>
+  </div>
+  <div class="baris-aksi">
+    <button class="tombol">Simpan</button>
+    <a class="tombol-samar" href="{{ url_for('jadwal.daftar') }}">Batal</a>
+  </div>
+</form>
+{% endblock %}

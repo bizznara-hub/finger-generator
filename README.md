@@ -13,7 +13,7 @@ Menggantikan aplikasi PHP lama (`absensi/`) yang tidak lagi bisa berjalan di PHP
 
 | Lapisan | Pilihan |
 |---|---|
-| Bahasa | Python 3.11 |
+| Bahasa | Python 3.9 ke atas |
 | Kerangka web | Flask 3 |
 | ORM | SQLAlchemy 2 + Flask-SQLAlchemy |
 | Basis data | SQLite (lokal) · PostgreSQL (bila `DATABASE_URL` diisi) |

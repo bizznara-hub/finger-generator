@@ -24,7 +24,9 @@ class Pengguna(db.Model):
     dibuat = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_sandi(self, sandi):
-        self.sandi_hash = generate_password_hash(sandi)
+        # pbkdf2 dipilih secara eksplisit: scrypt (baku Werkzeug) tidak tersedia
+        # pada sebagian pemasangan Python, termasuk Python 3.9 bawaan macOS.
+        self.sandi_hash = generate_password_hash(sandi, method="pbkdf2:sha256")
 
     def cek_sandi(self, sandi):
         return check_password_hash(self.sandi_hash, sandi)

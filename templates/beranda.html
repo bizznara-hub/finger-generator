@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+{% block judul %}Beranda{% endblock %}
+{% block tajuk %}Beranda{% endblock %}
+{% block isi %}
+
+<div class="angka-tumpuk">
+  {% for label, nilai, rute, arg in angka %}
+    <a class="angka" href="{{ url_for(rute, **arg) }}" style="color:inherit">
+      <b>{{ nilai }}</b><span>{{ label }}</span>
+    </a>
+  {% endfor %}
+</div>
+
+<div class="kartu" style="margin-top:16px">
+  <h2>Data mentah tersimpan</h2>
+  {% if rentang[0] %}
+    <p class="bantuan">Scan tercatat dari <b>{{ rentang[0].strftime('%d/%m/%Y') }}</b>
+      sampai <b>{{ rentang[1].strftime('%d/%m/%Y') }}</b>.
+      Catatan sakit/izin: {{ jumlah_izin }}.</p>
+  {% else %}
+    <p class="bantuan">Belum ada data mentah. Tarik dari att_log atau impor berkas ekspor mesin
+      lewat menu <a href="{{ url_for('absensi.index') }}">Finger Print</a>.</p>
+  {% endif %}
+</div>
+
+<div class="kartu">
+  <h2>Mahasiswa tanpa ID Finger
+    {% if tanpa_finger %}<span class="lencana awas">{{ tanpa_finger|length }}</span>{% endif %}
+  </h2>
+  <p class="bantuan">Tanpa ID Finger, mesin tidak bisa mengenali mahasiswa dan statusnya
+    selalu menjadi Alpa.</p>
+  {% if tanpa_finger %}
+    <div class="gulir tinggi">
+      <table>
+        <thead><tr><th>NIM</th><th>Nama</th><th>Kelas</th><th></th></tr></thead>
+        <tbody>
+        {% for m in tanpa_finger %}
+          <tr>
+            <td>{{ m.nim }}</td><td>{{ m.nama }}</td>
+            <td class="redup">{{ m.kelas.label if m.kelas else '-' }}</td>
+            <td><a class="tombol-samar mini" href="{{ url_for('master.ubah', kunci='mahasiswa', id_baris=m.id) }}">Isi ID Finger</a></td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="kecil redup">Semua mahasiswa sudah punya ID Finger.</p>
+  {% endif %}
+</div>
+
+{% endblock %}
