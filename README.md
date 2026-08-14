@@ -1,120 +1,136 @@
-# Generator Rekap Absensi Fingerprint
+# Sistem Absensi Fakultas Kedokteran
 
-Aplikasi web untuk mengubah **data mentah** hasil ekspor mesin fingerprint menjadi
-**rekap absensi** dengan tata letak yang sama seperti berkas referensi
-`data jadi - Rekapan Absensi PBL ... .xlsx`.
+Aplikasi web untuk mengelola data akademik dan mencetak **laporan absensi per blok**
+dari mesin fingerprint, langsung dalam bentuk `.xlsx` siap pakai.
+
+Menggantikan aplikasi PHP lama (`absensi/`) yang tidak lagi bisa berjalan di PHP modern.
+
+> **Status:** dalam pengerjaan. Rancangan lengkap ada di [`docs/PRD.md`](docs/PRD.md).
+
+---
+
+## Tech stack
+
+| Lapisan | Pilihan |
+|---|---|
+| Bahasa | Python 3.11 |
+| Kerangka web | Flask 3 |
+| ORM | SQLAlchemy 2 + Flask-SQLAlchemy |
+| Basis data | SQLite (lokal) · PostgreSQL (bila `DATABASE_URL` diisi) |
+| Sumber att_log | PyMySQL, koneksi baca-saja ke MySQL Fingerspot |
+| Baca berkas mesin | pandas + xlrd |
+| Tulis laporan | openpyxl |
+| Antarmuka | Jinja2 + HTML/CSS/JS biasa, tanpa proses build |
+
+Alasan pemilihan dan alternatif yang ditolak: lihat [bagian 4 PRD](docs/PRD.md#4-tech-stack).
 
 ## Menjalankan
 
 ```bash
-cd app
 ./jalankan.sh
 ```
 
-Lalu buka <http://127.0.0.1:5057>. Perintah pertama akan menyiapkan lingkungan Python
-otomatis (butuh `python3`); jalankan berikutnya langsung menyala.
+Buka <http://127.0.0.1:5057>. Perintah pertama menyiapkan lingkungan Python sendiri
+(butuh `python3`). Akun awal: **admin / admin** — segera ganti lewat menu Akun.
 
-## Alur pemakaian
+Data tersimpan di `data.db`. Untuk memakai PostgreSQL:
 
-1. **Unggah data mentah** — boleh beberapa file sekaligus, hasilnya digabung dan
-   duplikatnya dibuang.
-2. **Tentukan sesi** — aplikasi mengambil *tanggal* dari data, lalu menerapkan jadwal:
-   satu sesi per hari, mulai **07.30**, selesai mengikuti scan terakhir pada rumpun pertama
-   hari itu. Kolom *Jam asli di data* ditampilkan sebagai pembanding. Beri nama sesi
-   (`PBL 1 (MODUL 1)`), rapikan jamnya, hapus hari yang bukan kegiatan pembelajaran.
-3. **Daftar peserta** — isi NIM dan nama lengkap, atau unduh template CSV,
-   isi di Excel, lalu unggah kembali.
-4. **Judul laporan** — kop, blok, kelas, nama file.
-5. **Pratinjau & unduh** — periksa hasilnya, lalu unduh `.xlsx`.
+```bash
+export DATABASE_URL="postgresql://pengguna:sandi@host:5432/namadb"
+./jalankan.sh
+```
 
-## Format masukan yang didukung
+## Dua jalur data mentah
+
+**Jalur A — tarik dari att_log.** Menyambung baca-saja ke basis data software
+Fingerspot dan menarik tabel `att_log` untuk rentang tanggal tertentu. Kredensialnya
+diisi di menu Pengaturan. Aplikasi harus berada di jaringan yang sama dengan server
+Fingerspot.
+
+**Jalur B — impor berkas ekspor mesin.** Tiga format dikenali:
 
 | Ekspor mesin | Kelengkapan |
 |---|---|
-| **Catatan Kehadiran Karyawan** | Paling lengkap — semua sentuhan jari |
-| Laporan Kehadiran | ±14% scan hilang karena dipaksa ke slot pagi/siang/lembur |
-| Kehadiran Tidak Normal | Paling sedikit; hari Sabtu/Minggu tidak ikut terekspor |
+| **Catatan Kehadiran Karyawan** | Paling lengkap — seluruh sentuhan jari |
+| Laporan Kehadiran | ±14% scan hilang karena dipaksa masuk slot pagi/siang/lembur |
+| Kehadiran Tidak Normal | Paling sedikit; Sabtu dan Minggu tidak ikut terekspor |
 
-Bila ragu, unggah **Catatan Kehadiran Karyawan**. Mengunggah beberapa file sekaligus aman
-karena aplikasi menggabungkan dan membuang duplikat.
+Bila ragu, pakai **Catatan Kehadiran Karyawan**. Mengimpor berkas yang sama dua kali
+aman — scan kembar diabaikan.
 
-## Jadwal sesi
+## Alur pemakaian
 
-Jam mulai **tidak** diambil dari data mentah, melainkan dari jadwal pembelajaran
-(baku **07.30**, bisa diubah di langkah 2). Ini disengaja: bila jam mulai ditarik dari
-scan paling awal, jendelanya jadi melingkar — siapa pun yang menempel otomatis dianggap
-tepat waktu, dan yang datang paling telat justru menentukan batas.
+1. Isi data master: Departemen → Kelas → Mahasiswa (beserta **ID Finger**) → Dosen →
+   Ruang Kuliah → Mata Kuliah
+2. Daftarkan mesin di menu **Finger Print**, petakan ke ruangannya
+3. Susun **Jadwal Kuliah**: blok → kelas → tanggal → **sesi** (dibuat manual, bisa diubah)
+4. Tarik atau impor data mentah
+5. Catat **Sakit** dan **Izin** bila ada
+6. Buka **Laporan**, pilih blok dan kelas, lalu unduh `.xlsx`
 
-Dua pola tersedia:
+## Penentuan status
 
-- **Satu sesi per hari** (baku) — tiap hari aktif menghasilkan satu sesi, mulai 07.30,
-  selesai dari scan terakhir rumpun pertama. Scan siang/sore tidak membentuk sesi.
-- **Setiap rumpun scan jadi sesi** — jam apa adanya dari data. Berguna untuk menelaah
-  pola kegiatan, bukan untuk penilaian.
+Untuk setiap mahasiswa pada setiap sesi, berurutan:
 
-## Kolom keluaran per sesi
+1. Tercatat **Sakit** → `S`
+2. Tercatat **Izin** → `I`
+3. Ada scan di dalam jendela sesi → `H`, kolom *Waktu* diisi scan pertama
+4. Selain itu → `A`
 
-Setiap sesi menghasilkan empat kolom:
+Jendela sesi dihitung:
 
-| Kolom | Isi |
-|---|---|
-| Status | H / A / S / I |
-| Ceklog 1 | Scan **pertama** di dalam jendela sesi |
-| Ceklog 2 | Scan **kedua** di dalam jendela sesi (`-` bila hanya menempel sekali) |
-| Durasi (jam) | Selisih Ceklog 2 − Ceklog 1, dalam jam desimal |
-
-Di bagian rekap ada **Total Jam** yang menjumlahkan seluruh kolom Durasi
-(`=SUM(...)`, sehingga tetap hidup bila angkanya disunting di Excel).
-
-## Aturan penentuan status
-
-- **H** — ada scan dalam rentang `jam mulai − toleransi awal` sampai
-  `jam selesai + toleransi terlambat`.
-- **A** — tidak ada scan dalam rentang tersebut.
-- **S** / **I** — tidak bisa disimpulkan dari mesin (butuh surat), jadi diisi manual
-  lewat data `override` dan ditandai `MANUAL` pada kolom *Waktu*.
-
-Jam dari mesin dibulatkan lebih dulu: mesin menulis `07:33:59.941` untuk pukul **07:34**.
-
-## Deploy ke Vercel
-
-Repo ini siap dipakai apa adanya: `api/index.py` menjadi titik masuk dan
-`vercel.json` mengarahkan seluruh rute ke sana.
-
-```bash
-vercel --prod
+```
+jam_selesai = jam_masuk + (jml_jam × menit_perjam) + ((jml_jam − 1) × menit_pergantian)
+jendela      = [jam_masuk − toleransi_awal, jam_selesai + toleransi_akhir]
 ```
 
-Atau hubungkan repo GitHub-nya lewat dasbor Vercel — tiap `git push` akan otomatis ter-deploy.
+`menit_perjam`, `menit_pergantian`, dan toleransi diatur di menu **Pengaturan**.
+Jam selesai boleh ditimpa manual per sesi.
 
-Aplikasi ini **stateless**: tidak ada file yang disimpan di server. Hasil pembacaan data
-mentah dikirim balik ke browser lalu disertakan lagi pada setiap permintaan berikutnya.
-Ini penting di Vercel, karena tiap permintaan bisa dilayani instance berbeda yang tidak
-berbagi filesystem.
+Mesin menulis `07:33:59.941` untuk pukul **07:34** — detik ≥ 30 dibulatkan ke atas
+sebelum disimpan.
 
-## Privasi data
+## Bentuk laporan
 
-Data kehadiran memuat informasi pribadi. `.gitignore` sudah memblokir `*.xls`, `*.xlsx`,
-dan `*.csv` supaya tidak pernah ikut ter-commit. Simpan berkas mentah **di luar** repo ini.
+Mengikuti berkas rujukan, dengan rumus hidup (bukan angka mati):
+
+- `H`, `A`, `S`, `I` = `COUNTIF` atas rentang kolom sesi
+- `Total Kehadiran` = `H + S + I`
+- `Persentasi (%)` = `Total ÷ jumlah sesi`, format `0%`
+
+Dua bentuk kolom saat mencetak:
+
+- **Ringkas** — `Status | Waktu`, sama persis dengan berkas rujukan (baku)
+- **Lengkap** — `Status | Ceklog 1 | Ceklog 2 | Durasi (jam)`, plus kolom Total Jam
 
 ## Struktur berkas
 
 ```
 .
-├── api/index.py        Titik masuk Vercel
-├── app.py              Server web + endpoint API
-├── core/parser.py      Pembaca 3 format ekspor mesin -> log scan
-├── core/sesi.py        Deteksi sesi otomatis dari sebaran jam
-├── core/rekap.py       Penentuan status + penulis .xlsx
-├── templates/          Halaman antarmuka
-└── static/             Gaya dan skrip antarmuka
+├── app.py              Titik masuk aplikasi
+├── core/
+│   ├── models.py       Skema basis data
+│   ├── parser.py       Pembaca 3 format ekspor mesin
+│   ├── attlog.py       Penarik data dari MySQL Fingerspot
+│   ├── laporan.py      Penentuan status H/A/S/I
+│   └── rekap.py        Penulis .xlsx
+├── views/              Rute per menu
+├── templates/          Halaman
+├── static/             Gaya dan skrip
+└── docs/PRD.md         Rancangan lengkap
 ```
 
-## Catatan tentang berkas referensi
+## Privasi data
 
-Rumus di berkas referensi diperbaiki di keluaran aplikasi:
+Data kehadiran memuat informasi pribadi. `.gitignore` memblokir `*.xls`, `*.xlsx`,
+`*.csv`, dan `*.db` agar tidak pernah ikut ter-commit. Simpan berkas mentah **di luar**
+repositori ini.
 
-- `=COUNTIF(D12:P12,"A")` — rentangnya bocor ke kolom rekap; diperbaiki jadi `D12:O12`.
-- `=T12:T145/6` — referensi rentang dibagi angka, rapuh di Excel versi baru;
-  diperbaiki jadi `=T12/<jumlah sesi>` sehingga persentase ikut menyesuaikan
-  bila jumlah sesi bukan 6.
+## Pemasangan di Vercel
+
+Aplikasi ini bisa di-deploy ke Vercel, tetapi:
+
+- **Wajib** mengisi `DATABASE_URL` ke PostgreSQL — filesystem Vercel tidak menyimpan apa pun
+- Jalur att_log **tidak bisa** dipakai kecuali MySQL Fingerspot dapat dijangkau dari internet
+
+Untuk pemakaian sehari-hari di kampus, menjalankannya di server lokal lebih tepat.

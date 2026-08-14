@@ -10,3 +10,7 @@ __pycache__/
 *.csv
 .vercel
 .env*
+
+# Basis data lokal
+*.db
+*.sqlite3
