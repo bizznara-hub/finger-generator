@@ -23,85 +23,75 @@ Aplikasi ini dipakai petugas akademik setiap hari untuk pekerjaan data; nadanya
 Halaman dalam satu family berbagi bentuk yang sama; yang boleh berbeda hanya
 susunan panelnya.
 
-## Theme — Cobalt
+## Theme — DNA dari Art Design Pro (disesuaikan)
 
-Kertas *cool near-white* yang direkayasa, tinta charcoal dingin, **satu** sinyal kobalt.
-Bukan `#fff`, bukan `#000`. Seluruh nilai di bawah **sudah diverifikasi kontrasnya**
-(WCAG 2.1, dihitung dari OKLCH — bukan dikira-kira).
+Diekstrak dari `github.com/Daymychen/art-design-pro` (Vue 3 + Element Plus, MIT).
+Demonya SPA sehingga CSS terrender tidak terbaca; token dibaca **langsung dari kode
+sumbernya**, yang justru lebih otoritatif.
 
-- `--color-paper`      oklch(98.6% 0.003 250)
-- `--color-paper-2`    oklch(96.8% 0.005 251)
-- `--color-paper-3`    oklch(94.4% 0.007 252)
-- `--color-ink`        oklch(21% 0.021 259)   · 17.02:1 di atas kertas
-- `--color-ink-2`      oklch(33% 0.018 257)   · 11.73:1
-- `--color-muted`      oklch(50% 0.015 256)   ·  5.76:1
-- `--color-rule`       oklch(90.5% 0.006 252)
-- `--color-rule-2`     oklch(84% 0.009 253)
-- `--color-accent`     oklch(50% 0.2 256)     ·  5.90:1 dengan teks putih di atasnya
-- `--color-accent-ink` oklch(99% 0.004 250)
-- `--color-focus`      oklch(50% 0.2 256)
-- `--color-graphite`   oklch(20.5% 0.017 261) · rail, 12.49:1
+### Yang diambil
 
-Aksen semula `oklch(58% …)` sesuai spesifikasi Cobalt, tetapi gagal kontras untuk teks
-putih di atasnya (4,25:1 — ambang 4,5:1). Diturunkan ke `50%`: satu nilai itu
-memperbaiki tombol, tautan, dan status Hadir sekaligus, sehingga disiplin *satu sinyal
-kobalt* tetap utuh.
+- **Permukaan berlapis** — latar halaman abu muda, kartu/rail/tabel putih di atasnya.
+  Ini yang memberi kedalaman lembut tanpa bayangan.
+- **Primer periwinkle** (dari `#5D87FF`) menggantikan kobalt yang keras.
+- **Sukses mint-teal** (dari `#13DEB9`) — bukan hijau generik.
+- **Tinggi kontrol 36px**, sama dengan `--el-component-custom-height`.
+- **Item menu berbentuk pil menjorok** dengan tint primer saat aktif.
 
-**Aksen dipakai < 5% viewport** — hanya tombol utama, cincin fokus, penanda menu
-terpilih, dan status Hadir. Tidak pernah sebagai latar besar.
+### Yang TIDAK diambil, dan alasannya
 
-**Satu pita gelap**: rail sisi kiri. Itu satu-satunya permukaan gelap.
+Kesembilan warna aksen Art Design Pro **gagal WCAG AA** untuk teks putih di atasnya:
 
-### Warna status kehadiran
+| Warna asli | Teks putih |
+|---|---|
+| Primer `#5D87FF` | 3,29:1 |
+| Bahaya `#FF4D4F` | 3,27:1 |
+| Oranye `#F9901F` | 2,32:1 |
+| Sukses `#13DEB9` | 1,72:1 |
 
-- `--color-hadir` oklch(50% 0.2 256) — kobalt, sama dengan aksen · 5.31:1
-- `--color-alpa`  oklch(51% 0.19 27)  · 5.47:1
-- `--color-sakit` oklch(49% 0.12 75)  · 5.58:1
-- `--color-izin`  oklch(50% 0.16 310) · 5.67:1
+Palet itu cantik justru karena terang — dan itu pula yang membuatnya gagal. Aplikasi
+ini dipakai membaca angka berjam-jam, jadi ronanya dipertahankan dan lightness-nya
+diturunkan sampai lulus 4,5:1 pada **tiga** kondisi sekaligus: teks putih di atas isi,
+isi di atas tint lembutnya, dan isi di atas latar halaman.
+
+### Token
+
+- `--color-bg`        oklch(97.2% 0.004 267) — latar halaman
+- `--color-surface`   oklch(99.5% 0.001 267) — kartu, rail, tabel
+- `--color-surface-2` oklch(97.6% 0.004 267) — hover baris, kepala tabel
+- `--color-ink`       oklch(24% 0.023 255)   · 16,21:1
+- `--color-ink-2`     oklch(32% 0.022 255)   · 11,69:1
+- `--color-muted`     oklch(52% 0.014 258)   ·  5,08:1
+- `--color-rule`      oklch(92.9% 0.005 267)
+- `--color-accent`    oklch(55% 0.175 267)   ·  5,03:1 dengan teks putih
+- `--color-ok`        oklch(51% 0.143 175)   — mint-teal
+- `--color-warn`      oklch(55% 0.157 74)    — amber
+- `--color-bad`       oklch(56% 0.203 24)    — merah
+- `--color-info`      oklch(56% 0.142 300)   — ungu
+
+Seluruh 17 pasangan diverifikasi: **0 gagal**.
 
 ## Typography
 
-Tiga muka huruf — batas maksimum Hallmark.
+Dua muka huruf. Art Design Pro tidak memakai webfont sama sekali (font sistem bawaan
+Element Plus), jadi referensi itu tidak menjawab soal font — Geist tetap dipakai.
 
-- **Display**: Geist **700**, tracking `-0.022em`, roman
-- **Body**: Geist 400 / 500 / 600 — satu famili dengan display
+- **Display & body**: Geist 400 / 500 / 600 / 700
 - **Mono**: Geist Mono 400 / 500 — hanya untuk data: NIM, ID Finger, jam, angka
 
-Bobot display 700 melawan body 400 = jarak **300 unit**, sesuai aturan Hallmark.
-Bobot 600 vs 400 (yang saya pakai di percobaan pertama) hanya 200 unit dan terbaca
-sebagai setelan bawaan, bukan pilihan.
+Bobot judul 700 melawan tubuh 400 = jarak 300 unit.
 
-Skala **rasio 1.25 (major third)** dari 16px, bukan kenaikan sembarang:
-
-`2xs` 11px · `xs` 13px · `sm` 14px · `base` 16px · `md` 20px · `lg` 25px · `xl` 31px · `2xl` 39px
-
-Hierarki dibawa **bobot dan ukuran**, bukan bayangan:
-
-```
-judul halaman 31px/700 → judul panel 11px/500 mono → tubuh 16px/400
-→ tabel 14px/400 → angka readout 39px/400 mono
-```
-
-Mono pada NIM dan jam bukan gaya: kolom `07:34` dan `C011241006` menjadi rata
-sehingga terbaca sekali lihat. Itu inti pekerjaan aplikasi ini.
+Skala rasio 1.25 dari 16px:
+`2xs` 11px · `xs` 13px · `sm` 14px · `base` 16px · `md` 20px · `lg` 25px · `xl` 31px
 
 ## Spacing
 
-Skala 4 poin sembilan langkah, di `static/css/tokens.css`. Halaman **wajib** memakai
-token, tidak pernah nilai mentah.
+Skala 4 poin sembilan langkah, di `static/css/tokens.css`.
 
 `3xs` 2px · `2xs` 4px · `xs` 8px · `sm` 12px · `md` 16px · `lg` 24px · `xl` 40px ·
 `2xl` 64px · `3xl` 96px
 
-**Irama padding sengaja tidak seragam** — padding yang sama di semua tempat membuat
-halaman terbaca sebagai template:
-
-| Tempat | Padding |
-|---|---|
-| Halaman | 40px atas, 96px bawah |
-| Panel (isi) | 24px |
-| Kepala panel | 12px / 24px |
-| Sel tabel | 8px / 12px |
+Irama padding sengaja tidak seragam: halaman 40px, kartu 24px, sel tabel 12/16px.
 
 ## Motion
 

@@ -4,9 +4,10 @@
     "scope": "app",
     "genre": "modern-minimal",
     "macrostructure": "Index-First",
-    "theme": "Cobalt",
-    "theme_axes": "light-cool / grotesk-sans / cool-accent",
+    "theme": "studied-DNA",
+    "dna_source": "https://github.com/Daymychen/art-design-pro",
+    "theme_axes": "light-layered / geometric-sans / periwinkle-accent",
     "enrichment": "none",
-    "brief": "Sistem Absensi FK Unhas - aplikasi admin data akademik, nada utilitarian/technical"
+    "brief": "Sistem Absensi FK Unhas - DNA Art Design Pro, palet disesuaikan agar lulus WCAG AA"
   }
 ]

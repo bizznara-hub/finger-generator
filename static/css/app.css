@@ -1,5 +1,8 @@
 /* Hallmark · pre-emit critique: P5 H5 E5 S5 R5 V5
- * Hallmark · genre: modern-minimal · macrostructure: Index-First · theme: Cobalt (varian terang)
+ * Hallmark · genre: modern-minimal · macrostructure: Index-First
+ * theme: studied-DNA (source: github.com/Daymychen/art-design-pro)
+ * paper oklch(97.2% 0.004 267) berlapis surface oklch(99.5% 0.001 267)
+ * accent oklch(57% 0.175 267) periwinkle · display+body: Geist · data: Geist Mono
  * design-system: design.md · designed-as-app · enrichment: none (typography only)
  * nav: app side-rail (terang) · footer: none
  * contrast: pass (40-41, dihitung) · tokens: pass (48) · icons: pass (30)
@@ -30,7 +33,7 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  background: var(--color-paper);
+  background: var(--color-bg);
   color: var(--color-ink-2);
   font-family: var(--font-body);
   font-size: var(--text-base);
@@ -78,7 +81,7 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
   width: var(--rail-w);
   display: flex;
   flex-direction: column;
-  background: var(--color-paper-2);
+  background: var(--color-surface);
   border-inline-end: var(--rule-hair) solid var(--color-rule);
 }
 
@@ -113,7 +116,7 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
 .rail__link {
   display: block;
   padding: var(--space-xs) var(--space-sm);
-  border-radius: var(--radius-control);
+  border-radius: var(--radius-menu);
   color: var(--color-ink-2);
   font-size: var(--text-sm);
   font-weight: var(--w-medium);
@@ -122,7 +125,7 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
   transition: background-color var(--dur-1) var(--ease-out),
               color var(--dur-1) var(--ease-out);
 }
-.rail__link:hover { background: var(--color-paper-3); color: var(--color-ink); text-decoration: none; }
+.rail__link:hover { background: var(--color-surface-2); color: var(--color-ink); text-decoration: none; }
 .rail__link[aria-current="page"] {
   background: var(--color-accent-soft);
   color: var(--color-accent);
@@ -182,7 +185,7 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
 .panel--kotak {
   border: var(--rule-hair) solid var(--color-rule);
   border-radius: var(--radius-panel);
-  background: var(--color-paper);
+  background: var(--color-surface);
 }
 .panel--kotak > .panel__body { padding: var(--space-lg); }
 /* panel tanpa bingkai: isi non-tabel duduk langsung di kanvas, beri jarak
@@ -232,7 +235,7 @@ code { font-family: var(--font-mono); font-size: 0.9em; }
   padding: var(--space-md);
   border: var(--rule-hair) solid var(--color-rule);
   border-radius: var(--radius-panel);
-  background: var(--color-paper);
+  background: var(--color-surface);
   color: inherit;
   transition: border-color var(--dur-1) var(--ease-out);
 }
@@ -264,7 +267,7 @@ a.stat:hover .stat__num { color: var(--color-accent); }
   overflow-x: auto;
   border: var(--rule-hair) solid var(--color-rule);
   border-radius: var(--radius-panel);
-  background: var(--color-paper);
+  background: var(--color-surface);
 }
 .table-wrap--tall { max-height: 30rem; overflow-y: auto; }
 
@@ -274,7 +277,7 @@ thead th {
   position: sticky;
   top: 0;
   z-index: var(--z-raised);
-  background: var(--color-paper);
+  background: var(--color-surface-2);
   color: var(--color-muted);
   font-size: var(--text-xs);
   font-weight: var(--w-medium);
@@ -290,7 +293,7 @@ tbody td {
 }
 tbody tr:last-child td { border-block-end: 0; }
 tbody tr { transition: background-color var(--dur-1) var(--ease-out); }
-tbody tr:hover { background: var(--color-paper-2); }
+tbody tr:hover { background: var(--color-surface-2); }
 
 /* data: mono tabular supaya kolomnya rata */
 .num, .nim {
@@ -331,7 +334,7 @@ tbody tr:hover { background: var(--color-paper-2); }
   display: inline-block;
   padding: var(--space-3xs) var(--space-xs);
   border-radius: 5px;
-  background: var(--color-paper-3);
+  background: var(--color-surface-3);
   font-size: var(--text-xs);
   font-weight: var(--w-medium);
   color: var(--color-muted);
@@ -350,7 +353,7 @@ tbody tr:hover { background: var(--color-paper-2); }
   padding: 0 var(--space-md);
   border: var(--rule-hair) solid var(--color-rule-2);
   border-radius: var(--radius-control);
-  background: var(--color-paper);
+  background: var(--color-surface);
   color: var(--color-ink);
   font-family: var(--font-body);
   font-size: var(--text-sm);
@@ -362,18 +365,18 @@ tbody tr:hover { background: var(--color-paper-2); }
               border-color var(--dur-1) var(--ease-out),
               color var(--dur-1) var(--ease-out);
 }
-.btn:hover { background: var(--color-paper-2); border-color: var(--color-rule-2); text-decoration: none; }
-.btn:active { background: var(--color-paper-3); }
+.btn:hover { background: var(--color-surface-2); border-color: var(--color-accent-line); color: var(--color-accent); text-decoration: none; }
+.btn:active { background: var(--color-surface-3); }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
-.btn:disabled:hover { background: var(--color-paper); }
+.btn:disabled:hover { background: var(--color-surface); color: var(--color-ink); border-color: var(--color-rule-2); }
 
 .btn--primary { background: var(--color-accent); border-color: var(--color-accent); color: var(--color-accent-ink); }
 .btn--primary:hover,
 .btn--primary:active { background: var(--color-accent-hover); border-color: var(--color-accent-hover); color: var(--color-accent-ink); }
 .btn--primary:disabled:hover { background: var(--color-accent); border-color: var(--color-accent); }
 
-.btn--danger { color: var(--color-alpa); }
-.btn--danger:hover { background: var(--color-alpa-soft); border-color: var(--color-alpa); color: var(--color-alpa); }
+.btn--danger { color: var(--color-bad); }
+.btn--danger:hover { background: var(--color-bad-soft); border-color: var(--color-bad); color: var(--color-bad); }
 
 .btn--sm { min-height: 30px; padding: 0 var(--space-sm); font-size: var(--text-xs); }
 
@@ -383,7 +386,7 @@ tbody tr:hover { background: var(--color-paper-2); }
 
 .field { display: flex; flex-direction: column; gap: var(--space-2xs); min-width: 0; }
 .field__label { font-size: var(--text-sm); font-weight: var(--w-medium); color: var(--color-ink); }
-.field__req { color: var(--color-alpa); }
+.field__req { color: var(--color-bad); }
 .field__hint { min-height: 1lh; font-size: var(--text-xs); color: var(--color-muted); }
 
 input[type="text"], input[type="password"], input[type="number"],
@@ -394,7 +397,7 @@ input[type="file"], select, textarea {
   padding: 0 var(--space-sm);
   border: var(--rule-hair) solid var(--color-rule-2);
   border-radius: var(--radius-control);
-  background: var(--color-paper);
+  background: var(--color-surface);
   color: var(--color-ink);
   font-family: var(--font-body);
   font-size: var(--text-sm);
@@ -408,7 +411,7 @@ select[multiple] { min-height: 6.5rem; padding: var(--space-2xs); }
 
 input:hover:not(:disabled), select:hover:not(:disabled), textarea:hover:not(:disabled) { border-color: var(--color-muted); }
 input:focus, select:focus, textarea:focus { border-color: var(--color-accent); outline: 2px solid var(--color-focus); }
-input:disabled, select:disabled, textarea:disabled { opacity: 0.5; cursor: not-allowed; background: var(--color-paper-2); }
+input:disabled, select:disabled, textarea:disabled { opacity: 0.5; cursor: not-allowed; background: var(--color-surface-2); }
 input.mono, .field--mono input { font-family: var(--font-mono); font-size: var(--text-xs); }
 
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: var(--space-md); }
@@ -427,13 +430,13 @@ input.mono, .field--mono input { font-family: var(--font-mono); font-size: var(-
   padding: var(--space-sm) var(--space-md);
   border: var(--rule-hair) solid var(--color-rule);
   border-radius: var(--radius-control);
-  background: var(--color-paper-2);
+  background: var(--color-surface);
   font-size: var(--text-sm);
   margin-block-end: var(--space-lg);
 }
 .note__mark { flex: none; font-weight: var(--w-semi); }
-.note--ok   { background: var(--color-ok-soft);     border-color: transparent; color: var(--color-ok); }
-.note--bad  { background: var(--color-alpa-soft);   border-color: transparent; color: var(--color-alpa); }
+.note--ok   { background: var(--color-ok-soft);  border-color: transparent; color: var(--color-ok); }
+.note--bad  { background: var(--color-bad-soft); border-color: transparent; color: var(--color-bad); }
 .note--info { background: var(--color-accent-soft); border-color: transparent; color: var(--color-accent); }
 .note--info b, .note--ok b, .note--bad b { font-weight: var(--w-semi); }
 
@@ -445,7 +448,7 @@ input.mono, .field--mono input { font-family: var(--font-mono); font-size: var(-
   max-width: 21rem;
   border: var(--rule-hair) solid var(--color-rule);
   border-radius: var(--radius-panel);
-  background: var(--color-paper);
+  background: var(--color-surface);
   padding: var(--space-xl);
 }
 .masuk__mark { display: block; font-size: var(--text-xs); color: var(--color-muted); }
