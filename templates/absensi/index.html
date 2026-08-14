@@ -21,7 +21,7 @@
   </div>
 </div>
 
-<section class="panel">
+<section class="panel panel--kotak">
   <div class="panel__head">
     <h2 class="panel__title">Jalur A — tarik dari att_log</h2>
     <span class="tag {{ 'tag--accent' if attlog_siap else 'tag--warn' }}">
@@ -55,7 +55,7 @@
   </div>
 </section>
 
-<section class="panel">
+<section class="panel panel--kotak">
   <div class="panel__head"><h2 class="panel__title">Jalur B — impor berkas ekspor mesin</h2></div>
   <div class="panel__body">
     <p class="hint">Tiga format dikenali. Paling lengkap: <b>Catatan Kehadiran Karyawan</b>.
@@ -73,8 +73,8 @@
 <section class="panel">
   <div class="panel__head"><h2 class="panel__title">Mesin terdaftar</h2></div>
   <div class="panel__body panel__flush">
-    <p class="hint" style="padding:var(--space-sm) var(--space-sm) 0">Serial harus sama
-      dengan kolom <code>sn</code> pada att_log agar pencocokan ruangan bisa bekerja.</p>
+    <p class="hint">Serial harus sama dengan kolom <code>sn</code> pada att_log
+      agar pencocokan ruangan bisa bekerja.</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Serial</th><th>Nama</th><th>Ruangan</th><th>IP</th><th class="col-aksi"></th></tr></thead>

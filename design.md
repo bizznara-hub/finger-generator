@@ -63,9 +63,9 @@ terpilih, dan status Hadir. Tidak pernah sebagai latar besar.
 
 Tiga muka huruf — batas maksimum Hallmark.
 
-- **Display**: Space Grotesk **700**, tracking `-0.025em`, roman
-- **Body**: Inter 400 / 500
-- **Mono**: JetBrains Mono 400 / 500 — NIM, ID Finger, jam, angka, label UPPERCASE
+- **Display**: Geist **700**, tracking `-0.022em`, roman
+- **Body**: Geist 400 / 500 / 600 — satu famili dengan display
+- **Mono**: Geist Mono 400 / 500 — hanya untuk data: NIM, ID Finger, jam, angka
 
 Bobot display 700 melawan body 400 = jarak **300 unit**, sesuai aturan Hallmark.
 Bobot 600 vs 400 (yang saya pakai di percobaan pertama) hanya 200 unit dan terbaca
@@ -149,7 +149,7 @@ Cobalt itu *composed*, bukan animated. Gerak hanya di tempat yang menjelaskan se
 - Kepala halaman: eyebrow mono UPPERCASE **di atas** judul, satu kolom (tidak pernah
   bersebelahan — itu tell editorial-template)
 - Warna aksen dan penempatannya (< 5% viewport)
-- Pasangan Space Grotesk + Inter + JetBrains Mono
+- Pasangan Geist + Geist Mono
 - Bentuk tombol dan irama padding
 - Panel bergaris rambut dengan kepala panel bertipografi mono
 
