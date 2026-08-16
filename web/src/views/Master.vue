@@ -18,10 +18,12 @@ const SPEK = {
   // mana yang belum terisi dan bisa melengkapinya lewat tombol Ubah.
   dosen: { kolom: [['nip','NIP'],['nama','Nama']],
     bidang: [['nama','Nama lengkap','teks',true],['nip','NIP','teks']] },
-  // Tabel cukup No, NIM, dan Nama. Kelas dan ID Finger tetap ada di formulir:
-  // tanpa ID Finger, mesin tidak bisa mengenali mahasiswa sama sekali.
+  // Tabel cukup No, NIM, dan Nama. ID Finger tetap ada di formulir: tanpa itu
+  // mesin tidak bisa mengenali mahasiswa sama sekali.
+  // Kelas tidak lagi diisi di sini. Keanggotaan kelas ditangani di Jadwal
+  // Kuliah, yang menarik peserta dari kelas lalu bisa disunting per orang.
   mahasiswa: { kolom: [['nim','NIM'],['nama','Nama']],
-    bidang: [['nim','NIM','teks',true],['nama','Nama lengkap','teks',true],['kelas_id','Kelas','pilih:kelas'],['id_finger','ID Finger','teks']] },
+    bidang: [['nim','NIM','teks',true],['nama','Nama lengkap','teks',true],['id_finger','ID Finger','teks']] },
   'mata-kuliah': { kolom: [['nama','Mata Kuliah']],
     bidang: [['nama','Mata Kuliah','teks',true]] },
   ruangan: { kolom: [['kode','Kode'],['nama','Nama'],['kapasitas','Kapasitas']],
