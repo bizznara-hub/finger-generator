@@ -25,6 +25,7 @@ from app import app
 from core import parser as pembaca
 from core.models import (
     Departemen,
+    Dosen,
     Jadwal,
     JadwalHari,
     JadwalJam,
@@ -248,6 +249,35 @@ def isi_departemen():
     return baru, berkode
 
 
+def baca_dosen(path):
+    """Satu nama dosen per baris. Baris kosong dan yang diawali # diabaikan."""
+    nama = []
+    with open(path, encoding="utf-8") as f:
+        for baris in f:
+            t = baris.strip()
+            if t and not t.startswith("#"):
+                nama.append(t)
+    return nama
+
+
+def isi_dosen(daftar):
+    """Tambahkan dosen yang belum ada. Pembandingan mengabaikan huruf besar,
+    tanda baca, dan spasi, sehingga bentuk penulisan berbeda tidak digandakan."""
+    def kunci(t):
+        return re.sub(r"[^a-z]", "", t.lower())
+
+    ada = {kunci(d.nama) for d in Dosen.query.all()}
+    baru = 0
+    for nama in daftar:
+        k = kunci(nama)
+        if k and k not in ada:
+            db.session.add(Dosen(nama=nama))
+            ada.add(k)
+            baru += 1
+    db.session.commit()
+    return baru
+
+
 def baca_rekap(path):
     """Ambil sesi, mahasiswa, dan status dari berkas rekap."""
     df = pd.read_excel(path, header=None)
@@ -320,6 +350,7 @@ def main():
     ap = argparse.ArgumentParser(description="Isi basis data dengan data awal.")
     ap.add_argument("--rekap", help="berkas .xlsx rekap absensi (opsional)")
     ap.add_argument("--mentah", help="berkas .xls ekspor mesin (opsional)")
+    ap.add_argument("--dosen", help="berkas teks berisi satu nama dosen per baris")
     ap.add_argument("--kosongkan", action="store_true", help="hapus isi tabel lebih dulu")
     ap.add_argument("--petakan-demo", action="store_true",
                     help="petakan ID Finger ke mahasiswa pertama (KARANGAN, untuk coba-coba)")
@@ -346,6 +377,10 @@ def main():
 
         baru_mk = isi_mata_kuliah()
         print(f"Mata kuliah        : {baru_mk} baru, total {MataKuliah.query.count()}")
+
+        if a.dosen:
+            baru_dsn = isi_dosen(baca_dosen(a.dosen))
+            print(f"Dosen              : {baru_dsn} baru, total {Dosen.query.count()}")
 
         if d is None:
             print("\nSelesai. Berkas rekap tidak diberikan, jadi hanya departemen yang diisi.")

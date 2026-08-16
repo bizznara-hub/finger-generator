@@ -1,5 +1,7 @@
 """CRUD data master lewat satu mesin generik, sama seperti versi Jinja."""
 
+import re
+
 from flask import jsonify, request
 from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError
@@ -16,6 +18,14 @@ from core.models import (
 )
 
 from . import GalatAPI, bp
+
+# Gelar depan tidak ikut menentukan urutan: tanpa ini seluruh "Dr. dr." dan
+# "Prof." menumpuk di atas hanya karena huruf besar diurutkan lebih dulu.
+GELAR_DEPAN = re.compile(r"^(prof\.?|dr\.?|drg\.?|ns\.?|apt\.?|\s)+", re.I)
+
+
+def urut_nama_orang(nama):
+    return GELAR_DEPAN.sub("", nama or "").lower()
 
 # kunci -> (model, judul, kolom yang boleh diisi, kolom pencarian, urutan)
 # Seluruh daftar diurutkan berdasarkan NAMA. Catatan: urutan di laporan resmi
@@ -73,6 +83,8 @@ def daftar(kunci):
         pola = f"%{kata}%"
         q = q.filter(or_(*[k.ilike(pola) for k in cari]))
     baris = q.order_by(urut).all()
+    if kunci in ("dosen", "mahasiswa"):
+        baris.sort(key=lambda b: urut_nama_orang(b.nama))
     return jsonify(judul=judul, baris=[_serialisasi(kunci, b) for b in baris])
 
 

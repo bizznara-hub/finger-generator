@@ -12,8 +12,10 @@ const SPEK = {
     bidang: [['kode','Kode','teks'],['nama','Nama departemen','teks',true]] },
   kelas: { kolom: [['nama','Nama kelas']],
     bidang: [['nama','Nama kelas','teks',true]] },
-  dosen: { kolom: [['nip','NIP'],['nama','Nama'],['departemen','Departemen'],['id_finger','ID Finger']],
-    bidang: [['nip','NIP','teks'],['nama','Nama lengkap','teks',true],['departemen_id','Departemen','pilih:departemen'],['id_finger','ID Finger','teks'],['hp','No. HP','teks']] },
+  // Data dari LMS hanya memuat nama, jadi tabel cukup No dan Nama.
+  // NIP, departemen, dan ID Finger tetap ada di formulir untuk diisi menyusul.
+  dosen: { kolom: [['nama','Nama']],
+    bidang: [['nama','Nama lengkap','teks',true],['nip','NIP','teks'],['departemen_id','Departemen','pilih:departemen'],['id_finger','ID Finger','teks'],['hp','No. HP','teks']] },
   // Tabel cukup No, NIM, dan Nama. Kelas dan ID Finger tetap ada di formulir:
   // tanpa ID Finger, mesin tidak bisa mengenali mahasiswa sama sekali.
   mahasiswa: { kolom: [['nim','NIM'],['nama','Nama']],
