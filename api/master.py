@@ -41,7 +41,7 @@ SPEK = {
               [Kelas.nama, Kelas.angkatan], Kelas.nama),
     "dosen": (Dosen, "Dosen", ["nip", "nama"],
               [Dosen.nama, Dosen.nip], Dosen.nama),
-    "mahasiswa": (Mahasiswa, "Mahasiswa", ["nim", "nama", "kelas_id", "id_finger", "hp"],
+    "mahasiswa": (Mahasiswa, "Mahasiswa", ["nim", "nama", "kelas_id", "id_finger"],
                   [Mahasiswa.nim, Mahasiswa.nama, Mahasiswa.id_finger], Mahasiswa.nama),
     "mata-kuliah": (MataKuliah, "Mata Kuliah", ["kode", "nama", "sks", "departemen_id"],
                     [MataKuliah.nama, MataKuliah.kode], MataKuliah.nama),

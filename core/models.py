@@ -71,7 +71,6 @@ class Mahasiswa(db.Model):
     id_finger = db.Column(db.String(20), index=True)
     nim = db.Column(db.String(30), unique=True, nullable=False)
     nama = db.Column(db.String(150), nullable=False)
-    hp = db.Column(db.String(30))
 
     kelas = db.relationship("Kelas")
 

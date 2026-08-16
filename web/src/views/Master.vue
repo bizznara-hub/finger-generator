@@ -14,12 +14,14 @@ const SPEK = {
     bidang: [['nama','Nama kelas','teks',true]] },
   // Dosen tidak diabsen lewat mesin, jadi tidak punya ID Finger. Departemen
   // dan No. HP juga tidak dipakai di mana pun: cukup nama dan NIP.
-  dosen: { kolom: [['nama','Nama']],
+  // NIP ditampilkan meski masih kosong, supaya admin langsung melihat baris
+  // mana yang belum terisi dan bisa melengkapinya lewat tombol Ubah.
+  dosen: { kolom: [['nip','NIP'],['nama','Nama']],
     bidang: [['nama','Nama lengkap','teks',true],['nip','NIP','teks']] },
   // Tabel cukup No, NIM, dan Nama. Kelas dan ID Finger tetap ada di formulir:
   // tanpa ID Finger, mesin tidak bisa mengenali mahasiswa sama sekali.
   mahasiswa: { kolom: [['nim','NIM'],['nama','Nama']],
-    bidang: [['nim','NIM','teks',true],['nama','Nama lengkap','teks',true],['kelas_id','Kelas','pilih:kelas'],['id_finger','ID Finger','teks'],['hp','No. HP','teks']] },
+    bidang: [['nim','NIM','teks',true],['nama','Nama lengkap','teks',true],['kelas_id','Kelas','pilih:kelas'],['id_finger','ID Finger','teks']] },
   'mata-kuliah': { kolom: [['nama','Mata Kuliah']],
     bidang: [['nama','Mata Kuliah','teks',true]] },
   ruangan: { kolom: [['kode','Kode'],['nama','Nama'],['kapasitas','Kapasitas']],
@@ -29,13 +31,13 @@ const SPEK = {
 }
 
 const spek = computed(() => SPEK[kunci.value] || SPEK.departemen)
-const MONO = ['nim','id_finger','serial','ip_address','angkatan','sks','kapasitas','jumlah_mahasiswa']
+const MONO = ['nim','nip','id_finger','serial','ip_address','angkatan','sks','kapasitas','jumlah_mahasiswa']
 
 // Kolom pendek diberi lebar tetap supaya tidak meregang dan menyisakan
 // celah lebar di sebelah kolom nama.
 const LEBAR_TETAP = {
   kode: 110, sks: 90, kapasitas: 110, angkatan: 110,
-  id_finger: 120, jumlah_mahasiswa: 130, port: 90, nim: 140
+  id_finger: 120, jumlah_mahasiswa: 130, port: 90, nim: 140, nip: 190
 }
 
 const judul = ref(''); const baris = ref([]); const memuat = ref(false)
