@@ -195,29 +195,78 @@ h3 { font-size: var(--text-h3); }
   font-size: 15px; line-height: 1;
 }
 
-/* ---------------- tombol: pil, tinggi minimum 36px, lengkung memantul ---- */
-.el-button {
+/* ---------------- tombol: seragam dengan chip tab -------------------------
+ * Nilai diambil persis dari .tab__item yang sebelumnya muncul di bilah tab:
+ * tinggi 28px, font 12px bobot 700, bentuk pil, latar teal muda dengan teks
+ * teal gelap. Varian utama memakai gradasi emas seperti tab yang aktif.
+ *
+ * Catatan: Flip7 mensyaratkan tinggi minimum 72rpx (36px) untuk sasaran
+ * sentuh. Chip ini 28px sesuai permintaan, jadi lebih kecil dari syarat itu. */
+
+.el-button,
+.el-button.el-button--small,
+.el-button.el-button--large,
+.el-button.el-button--default {
+  height: 28px !important;
+  min-height: 28px !important;
+  padding: 0 14px !important;
+  border: none !important;
   border-radius: var(--r-round) !important;
-  min-height: 36px;
+  background: var(--primary-bg) !important;
+  color: var(--primary-dark) !important;
+  font-size: var(--text-sm) !important;
   font-weight: 700 !important;
   letter-spacing: 0.5px;
-  transition: transform var(--dur) var(--bounce), box-shadow var(--dur) var(--bounce) !important;
+  line-height: 1 !important;
+  white-space: nowrap;
+  transition: transform var(--dur) var(--bounce), box-shadow var(--dur) !important;
 }
+.el-button:hover,
+.el-button:focus { transform: translateY(-1px); box-shadow: var(--glow-teal); }
 .el-button:active { transform: scale(0.95); }
+.el-button.is-disabled,
+.el-button.is-disabled:hover { opacity: 0.5; transform: none; box-shadow: none; }
 
-.el-button--primary {
+/* tombol tautan di dalam tabel ikut jadi chip agar seragam */
+.el-button.is-link,
+.el-button.is-text {
+  background: var(--primary-bg) !important;
+  color: var(--primary-dark) !important;
+  padding: 0 12px !important;
+}
+
+/* utama — gradasi emas, sama dengan chip tab yang sedang aktif */
+.el-button--primary,
+.el-button--primary.is-link,
+.el-button--primary.is-text {
   background: linear-gradient(180deg, var(--accent-light), var(--accent)) !important;
-  border-color: var(--accent-dark) !important;
   color: var(--primary-dark) !important;
   box-shadow: var(--glow-accent);
 }
-.el-button--primary:hover { background: linear-gradient(180deg, var(--accent), var(--accent-dark)) !important; }
+.el-button--primary:hover { box-shadow: 0 4px 14px rgba(255, 210, 63, 0.55); }
 
-.el-button--danger {
-  background: var(--coral) !important; border-color: var(--coral-dark) !important;
-  color: #fff !important; box-shadow: var(--glow-coral);
+/* bahaya — coral */
+.el-button--danger,
+.el-button--danger.is-link,
+.el-button--danger.is-text {
+  background: var(--coral) !important;
+  color: #fff !important;
+  box-shadow: var(--glow-coral);
 }
-.el-button--success { background: var(--primary) !important; border-color: var(--primary-dark) !important; box-shadow: var(--glow-teal); }
+.el-button--danger:hover { box-shadow: 0 4px 14px rgba(239, 108, 74, 0.55); }
+
+/* sukses — teal pekat */
+.el-button--success {
+  background: var(--primary) !important;
+  color: #fff !important;
+  box-shadow: var(--glow-teal);
+}
+
+/* jarak antar tombol yang berdampingan */
+.el-button + .el-button { margin-left: 6px !important; }
+
+/* ikon di dalam chip mengecil mengikuti tinggi 28px */
+.el-button iconify-icon { font-size: 13px; }
 
 /* ---------------- isian: permukaan krem ---------------- */
 .el-input__wrapper,

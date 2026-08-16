@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { api } from '@/api'
@@ -9,12 +9,16 @@ const route = useRoute()
 const pilihan = ref([]); const kelas = ref(null)
 const bentuk = ref('ringkas'); const cocokkan = ref('0')
 const hasil = ref(null); const memuat = ref(false); const konfeti = ref(null)
+const hal = ref(1); const PER_HAL = 30
+const halaman = computed(() =>
+  (hasil.value?.baris || []).slice((hal.value - 1) * PER_HAL, hal.value * PER_HAL))
 
 async function muat() {
   if (!kelas.value) { hasil.value = null; return }
   memuat.value = true
   try {
     hasil.value = await api.get(`/laporan/pratinjau?kelas=${kelas.value}&ruangan=${cocokkan.value}`)
+    hal.value = 1
   } catch (e) { ElMessage.error(e.message); hasil.value = null }
   finally { memuat.value = false }
 }
@@ -72,7 +76,7 @@ onMounted(async () => {
     <section v-if="hasil?.baris?.length" class="kartu">
       <div class="kartu__kepala">
         <h2 class="kartu__judul judul-bagian"><span class="judul-bagian__emoji">👀</span> Pratinjau</h2>
-        <span class="redup kecil">{{ hasil.baris.length }} dari {{ hasil.total_baris }} baris</span>
+        <span class="redup kecil">{{ hasil.total_baris }} baris</span>
       </div>
       <div class="gulir" v-loading="memuat">
         <table class="rekap">
@@ -93,7 +97,7 @@ onMounted(async () => {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="b in hasil.baris" :key="b.no">
+            <tr v-for="b in halaman" :key="b.no">
               <td class="redup num">{{ b.no }}</td>
               <td class="nim">{{ b.nim }}</td>
               <td class="kiri">{{ b.nama }}</td>
@@ -133,6 +137,7 @@ onMounted(async () => {
 .stat b { display: block; font-size: var(--text-h1); font-weight: 800; color: var(--ink); letter-spacing: 1px; }
 .stat span { font-size: var(--text-sm); color: var(--ink-muted); font-weight: 600; }
 .gulir { overflow: auto; max-height: 520px; }
+.hal { display: flex; justify-content: center; padding: 12px; }
 .rekap { width: 100%; border-collapse: collapse; font-size: 13px; }
 .rekap th, .rekap td {
   padding: 7px 10px; border-bottom: 1px solid var(--primary-bg);

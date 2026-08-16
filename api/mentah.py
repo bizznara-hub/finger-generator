@@ -125,7 +125,7 @@ def log():
     if kata:
         q = q.filter(LogScan.id_finger.ilike(f"%{kata}%"))
     q = q.order_by(LogScan.tanggal.desc(), LogScan.jam.desc())
-    per_hal, total = 100, q.count()
+    per_hal, total = 30, q.count()
     baris = q.limit(per_hal).offset((hal - 1) * per_hal).all()
     return jsonify(
         total=total, hal=hal, halaman_akhir=max(1, -(-total // per_hal)),

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { api, jalankan } from '@/api'
@@ -9,6 +9,9 @@ const id = route.params.id
 const d = ref(null); const pilihan = ref({})
 const rentang = ref([]); const pesertaBaru = ref([])
 const dialogSesi = ref(false); const sesiForm = ref({}); const hariAktif = ref(null)
+const hal = ref(1); const PER_HAL = 30
+const peserta = computed(() =>
+  (d.value?.peserta || []).slice((hal.value - 1) * PER_HAL, hal.value * PER_HAL))
 
 async function muat() {
   d.value = await api.get(`/jadwal/kelas/${id}`)
@@ -106,7 +109,7 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
           </el-table-column>
           <el-table-column label="" width="140" align="right">
             <template #default="{ row }">
-              <el-button link type="primary" @click="bukaSesi(h, row)">Ubah</el-button>
+              <el-button link @click="bukaSesi(h, row)">Ubah</el-button>
               <el-button link type="danger" @click="hapusSesi(row)">Hapus</el-button>
             </template>
           </el-table-column>
@@ -129,8 +132,8 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
             <el-button type="primary" @click="tambahPeserta">Tambahkan</el-button>
           </div>
         </div>
-        <el-table :data="d.peserta" max-height="360" empty-text="Belum ada peserta.">
-          <el-table-column type="index" label="#" width="60" />
+        <el-table :data="peserta" empty-text="Belum ada peserta.">
+          <el-table-column type="index" label="#" width="60" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
           <el-table-column label="NIM" width="140">
             <template #default="{ row }"><span class="nim">{{ row.nim }}</span></template>
           </el-table-column>
@@ -147,6 +150,11 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
             </template>
           </el-table-column>
         </el-table>
+
+        <div v-if="d.peserta.length > PER_HAL" class="hal">
+          <el-pagination layout="prev, pager, next, total" :total="d.peserta.length"
+                         :page-size="PER_HAL" :current-page="hal" @current-change="hal = $event" />
+        </div>
       </section>
 
       <el-dialog v-model="dialogSesi" :title="sesiForm.id ? 'Ubah sesi' : 'Tambah sesi'" width="460">
@@ -191,5 +199,6 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
 .info { margin-bottom: 16px; }
 .mb { margin-bottom: 16px; }
 .sebaris { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.hal { display: flex; justify-content: center; padding: 12px; }
 .kisi { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0 12px; }
 </style>

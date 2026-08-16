@@ -28,6 +28,8 @@ const spek = computed(() => SPEK[kunci.value] || SPEK.departemen)
 const MONO = ['nim','id_finger','serial','ip_address','angkatan','sks','kapasitas','jumlah_mahasiswa']
 
 const judul = ref(''); const baris = ref([]); const memuat = ref(false)
+const hal = ref(1); const PER_HAL = 30
+const halaman = computed(() => baris.value.slice((hal.value - 1) * PER_HAL, hal.value * PER_HAL))
 const kata = ref(''); const pilihan = ref({})
 const dialog = ref(false); const form = ref({}); const sunting = ref(null); const sibuk = ref(false)
 
@@ -35,7 +37,7 @@ async function muat() {
   memuat.value = true
   try {
     const d = await api.get(`/master/${kunci.value}?cari=${encodeURIComponent(kata.value)}`)
-    judul.value = d.judul; baris.value = d.baris
+    judul.value = d.judul; baris.value = d.baris; hal.value = 1
   } finally { memuat.value = false }
 }
 
@@ -88,9 +90,9 @@ muatPilihan()
     </div>
 
     <div class="kartu">
-      <el-table :data="baris" v-loading="memuat" stripe style="width:100%"
+      <el-table :data="halaman" v-loading="memuat" stripe style="width:100%"
                 empty-text="Belum ada data.">
-        <el-table-column type="index" label="#" width="60" />
+        <el-table-column type="index" label="#" width="60" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
         <el-table-column v-for="[k, l] in spek.kolom" :key="k" :prop="k" :label="l" min-width="140">
           <template #default="{ row }">
             <span :class="MONO.includes(k) ? 'num' : ''">{{ row[k] ?? '—' }}</span>
@@ -98,11 +100,16 @@ muatPilihan()
         </el-table-column>
         <el-table-column label="" width="150" align="right">
           <template #default="{ row }">
-            <el-button link type="primary" @click="buka(row)">Ubah</el-button>
+            <el-button link @click="buka(row)">Ubah</el-button>
             <el-button link type="danger" @click="hapus(row)">Hapus</el-button>
           </template>
         </el-table-column>
       </el-table>
+
+      <div v-if="baris.length > PER_HAL" class="hal">
+        <el-pagination layout="prev, pager, next, total" :total="baris.length"
+                       :page-size="PER_HAL" :current-page="hal" @current-change="hal = $event" />
+      </div>
     </div>
 
     <el-dialog v-model="dialog" :title="(sunting ? 'Ubah ' : 'Tambah ') + judul" width="440">
@@ -125,4 +132,5 @@ muatPilihan()
 <style scoped>
 .alat { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
 .tajuk { flex: 1; min-width: 160px; font-size: 20px; font-weight: 700; }
+.hal { display: flex; justify-content: center; padding: 12px; }
 </style>

@@ -63,7 +63,7 @@ def pratinjau():
         sesi=[{k: s[k] for k in ("nama", "label_tanggal", "jam_mulai", "jam_selesai")} for s in sesi],
         baris=[{"no": b["no"], "nim": b["nim"], "nama": b["nama"],
                 "sel": [{"status": x["status"], "waktu": x["waktu"], "ceklog": x["ceklog"]} for x in b["sel"]]}
-               for b in baris[:80]],
+               for b in baris],
         total_baris=len(baris),
         statistik=mesin.statistik(sesi, baris),
     )

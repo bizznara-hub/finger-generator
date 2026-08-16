@@ -7,6 +7,8 @@ import { api, jalankan } from '@/api'
 const route = useRoute()
 const jenis = computed(() => route.params.jenis)
 const judul = ref(''); const baris = ref([]); const memuat = ref(false)
+const hal = ref(1); const PER_HAL = 30
+const halaman = computed(() => baris.value.slice((hal.value - 1) * PER_HAL, hal.value * PER_HAL))
 const kata = ref(''); const pilihan = ref({}); const sesi = ref([])
 const dialog = ref(false)
 const form = ref({ mahasiswa_id: null, tanggal: '', jadwal_jam_id: null, keterangan: '' })
@@ -15,7 +17,7 @@ async function muat() {
   memuat.value = true
   try {
     const d = await api.get(`/ketidakhadiran/${jenis.value}?cari=${encodeURIComponent(kata.value)}`)
-    judul.value = d.judul; baris.value = d.baris
+    judul.value = d.judul; baris.value = d.baris; hal.value = 1
   } finally { memuat.value = false }
 }
 
@@ -59,8 +61,8 @@ api.get('/pilihan').then((d) => (pilihan.value = d))
     </div>
 
     <div class="kartu">
-      <el-table :data="baris" v-loading="memuat" stripe empty-text="Belum ada catatan.">
-        <el-table-column type="index" label="#" width="60" />
+      <el-table :data="halaman" v-loading="memuat" stripe empty-text="Belum ada catatan.">
+        <el-table-column type="index" label="#" width="60" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
         <el-table-column label="NIM" width="140">
           <template #default="{ row }"><span class="nim">{{ row.nim }}</span></template>
         </el-table-column>
@@ -76,6 +78,11 @@ api.get('/pilihan').then((d) => (pilihan.value = d))
           <template #default="{ row }"><el-button link type="danger" @click="hapus(row)">Hapus</el-button></template>
         </el-table-column>
       </el-table>
+
+      <div v-if="baris.length > PER_HAL" class="hal">
+        <el-pagination layout="prev, pager, next, total" :total="baris.length"
+                       :page-size="PER_HAL" :current-page="hal" @current-change="hal = $event" />
+      </div>
     </div>
 
     <el-dialog v-model="dialog" :title="`Catat ${judul.toLowerCase()}`" width="440">
@@ -110,4 +117,5 @@ api.get('/pilihan').then((d) => (pilihan.value = d))
 <style scoped>
 .alat { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
 .tajuk { flex: 1; min-width: 140px; font-size: 20px; font-weight: 700; }
+.hal { display: flex; justify-content: center; padding: 12px; }
 </style>

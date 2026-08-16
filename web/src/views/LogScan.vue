@@ -56,8 +56,8 @@ onMounted(() => muat())
       </el-table>
     </div>
 
-    <el-pagination v-if="d.halaman_akhir > 1" class="hal" layout="prev, pager, next"
-                   :page-count="d.halaman_akhir" :current-page="d.hal" @current-change="muat" />
+    <el-pagination v-if="d.halaman_akhir > 1" class="hal" layout="prev, pager, next, total"
+                   :total="d.total" :page-size="30" :current-page="d.hal" @current-change="muat" />
   </div>
 </template>
 
