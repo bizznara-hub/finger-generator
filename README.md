@@ -40,6 +40,62 @@ export DATABASE_URL="postgresql://pengguna:sandi@host:5432/namadb"
 ./jalankan.sh
 ```
 
+## Menjalankan dengan Docker
+
+Cara ini yang dipakai untuk VPS. Node hanya bekerja saat citra dibangun dan tidak
+ikut ke hasil akhir, jadi server cukup punya Docker.
+
+```bash
+cp .env.contoh .env
+openssl rand -hex 32          # salin hasilnya ke SECRET_KEY di dalam .env
+docker compose up -d --build
+```
+
+Buka <http://127.0.0.1:5057>. Akun awal **admin / admin** — segera ganti.
+
+`SECRET_KEY` sengaja dibuat wajib: tanpa itu Flask memakai kunci bawaan yang
+tertulis di dalam kode, sehingga cookie sesi bisa dipalsukan siapa pun yang
+membaca repositori ini.
+
+Basis data SQLite berada di volume `basisdata` (`/data/data.db` di dalam wadah),
+terpisah dari citra sehingga selamat saat aplikasi dibangun ulang. Untuk memakai
+PostgreSQL:
+
+```bash
+# isi POSTGRES_PASSWORD di .env, lalu:
+DATABASE_URL=postgresql://finger:SANDI@postgres:5432/finger \
+  docker compose --profile postgres up -d --build
+```
+
+### Mengisi data awal di dalam wadah
+
+`seed.py` membaca berkas rujukan yang tidak ikut dalam repositori, jadi
+berkasnya dipasang saat perintah dijalankan:
+
+```bash
+docker compose run --rm \
+  -v "$HOME/fingerprint:/rujukan:ro" \
+  aplikasi python seed.py --rekap "/rujukan/data jadi - ....xlsx" --dosen /rujukan/dosen.txt
+```
+
+Bila basis data lokal sudah terisi, menyalinnya lebih cepat:
+
+```bash
+docker compose cp data.db aplikasi:/data/data.db && docker compose restart aplikasi
+```
+
+`restart` di situ bukan sekadar kebiasaan. Berkas hasil `cp` membawa UID mesin
+asal, dan titik masuk wadah membereskan kepemilikan `/data` saat start. Tanpa
+langkah itu aplikasi tetap bisa membaca sehingga tampak sehat, tetapi setiap
+penyimpanan gagal dengan *attempt to write a readonly database*.
+
+### Di belakang Nginx atau Caddy
+
+Ubah pemetaan porta menjadi `127.0.0.1:5057:5057` supaya aplikasi tidak terbuka
+langsung ke internet, lalu teruskan dari peladen web yang menangani TLS. Cookie
+sesi memakai `SameSite=Lax` dan belum menyetel `Secure`, jadi TLS memang harus
+diakhiri di lapisan itu.
+
 ## Dua jalur data mentah
 
 **Jalur A — tarik dari att_log.** Menyambung baca-saja ke basis data software

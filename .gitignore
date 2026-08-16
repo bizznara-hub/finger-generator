@@ -10,6 +10,7 @@ __pycache__/
 *.csv
 .vercel
 .env*
+!.env.contoh
 
 # Basis data lokal
 *.db

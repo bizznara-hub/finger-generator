@@ -1,0 +1,48 @@
+# Jalankan lokal maupun di VPS:  docker compose up -d --build
+# Dengan Postgres:               docker compose --profile postgres up -d --build
+
+services:
+  aplikasi:
+    build: .
+    image: finger-fk:terbaru
+    restart: unless-stopped
+    ports:
+      # Di VPS sebaiknya dibuat 127.0.0.1:5057:5057 lalu dipasang di belakang
+      # Nginx atau Caddy, supaya TLS dan nama domain ditangani di sana.
+      - "5057:5057"
+    environment:
+      # WAJIB diganti di produksi. Tanpa ini seluruh sesi login memakai kunci
+      # bawaan yang tertulis di dalam kode, sehingga cookie bisa dipalsukan.
+      SECRET_KEY: "${SECRET_KEY:?SECRET_KEY belum diisi, buat dengan openssl rand -hex 32}"
+      DATABASE_URL: "${DATABASE_URL:-sqlite:////data/data.db}"
+    volumes:
+      - basisdata:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:5057/api/status', timeout=4).status < 500 else 1)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+
+  postgres:
+    profiles: ["postgres"]
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB:-finger}"
+      POSTGRES_USER: "${POSTGRES_USER:-finger}"
+      # Tidak memakai bentuk wajib ":?" karena Compose tetap membaca layanan ini
+      # meski profilnya tidak dipakai, sehingga jalur SQLite ikut terhalang.
+      # Bila dibiarkan kosong, citra postgres sendiri yang menolak jalan.
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-}"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-finger}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  basisdata:
+  postgres:

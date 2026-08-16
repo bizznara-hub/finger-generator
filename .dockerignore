@@ -1,0 +1,31 @@
+# Lingkungan lokal - tidak boleh masuk ke citra
+.venv/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.vercel/
+.env*
+.DS_Store
+
+# Data absensi bersifat pribadi
+*.xls
+*.xlsx
+*.csv
+*.db
+*.sqlite3
+
+# Antarmuka dibangun ulang di dalam citra
+web/node_modules/
+web/dist/
+
+# Berkas kerja yang tidak dipakai saat berjalan
+docs/
+design.md
+.hallmark/
+.agents/
+.claude/
+skills-lock.json
+vercel.json
+jalankan.sh
+README.md
