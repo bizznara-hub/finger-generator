@@ -41,6 +41,55 @@ from core.models import (
     db,
 )
 
+# Daftar departemen Fakultas Kedokteran. Bukan data pribadi, jadi aman
+# ditulis di dalam kode.
+DEPARTEMEN = [
+    "Anatomi",
+    "Anestesiologi",
+    "Biokimia",
+    "Farmakologi",
+    "Fisiologi",
+    "Forensik dan Medikolegal",
+    "Histologi",
+    "IKM dan IKK",
+    "Ilmu Bedah",
+    "Ilmu Faal",
+    "Ilmu Gizi",
+    "Ilmu Kedokteran Jiwa",
+    "Ilmu Kesehatan Anak",
+    "Ilmu Kesehatan Kulit dan Kelamin",
+    "Ilmu Kesehatan Mata",
+    "Ilmu Kesehatan THT",
+    "Ilmu Penyakit Dalam",
+    "Ilmu Penyakit Saraf",
+    "Kardiologi dan Kedok Vaskuler",
+    "Kedokteran Fisik dan Rehabilitasi",
+    "Kedokteran Kehakiman (Forensik dan Modikolegal)",
+    "Mikrobiologi",
+    "Obstetri dan Ginekologi",
+    "Orthopedi dan Traumatologi",
+    "Parasitologi",
+    "Patologi Anatomi",
+    "Patologi Klinik",
+    "Prodi S1",
+    "Psikiatri",
+    "Pulmonologi",
+    "Radiologi",
+    "Rehabilitasi Medik",
+]
+
+
+def isi_departemen():
+    """Tambahkan departemen yang belum ada. Aman dijalankan berulang."""
+    baru = 0
+    for nama in DEPARTEMEN:
+        if not Departemen.query.filter_by(nama=nama).first():
+            db.session.add(Departemen(nama=nama))
+            baru += 1
+    db.session.commit()
+    return baru
+
+
 def baca_rekap(path):
     """Ambil sesi, mahasiswa, dan status dari berkas rekap."""
     df = pd.read_excel(path, header=None)
@@ -111,16 +160,17 @@ def kosongkan():
 
 def main():
     ap = argparse.ArgumentParser(description="Isi basis data dengan data awal.")
-    ap.add_argument("--rekap", required=True, help="berkas .xlsx rekap absensi")
+    ap.add_argument("--rekap", help="berkas .xlsx rekap absensi (opsional)")
     ap.add_argument("--mentah", help="berkas .xls ekspor mesin (opsional)")
     ap.add_argument("--kosongkan", action="store_true", help="hapus isi tabel lebih dulu")
     ap.add_argument("--petakan-demo", action="store_true",
                     help="petakan ID Finger ke mahasiswa pertama (KARANGAN, untuk coba-coba)")
     a = ap.parse_args()
 
-    d = baca_rekap(a.rekap)
-    print(f"Terbaca dari rekap : {len(d['mahasiswa'])} mahasiswa · {len(d['sesi'])} sesi")
-    print(f"Blok               : {d['blok']} · Kelas {d['kelas']} · {d['semester']} {d['tahun']}")
+    d = baca_rekap(a.rekap) if a.rekap else None
+    if d:
+        print(f"Terbaca dari rekap : {len(d['mahasiswa'])} mahasiswa · {len(d['sesi'])} sesi")
+        print(f"Blok               : {d['blok']} · Kelas {d['kelas']} · {d['semester']} {d['tahun']}")
 
     with app.app_context():
         if a.kosongkan:
@@ -128,6 +178,13 @@ def main():
             print("Tabel dikosongkan.")
 
         Pengaturan.ambil()
+
+        baru_dep = isi_departemen()
+        print(f"Departemen         : {baru_dep} baru, total {Departemen.query.count()}")
+
+        if d is None:
+            print("\nSelesai. Berkas rekap tidak diberikan, jadi hanya departemen yang diisi.")
+            return
 
         dep = Departemen.query.filter_by(nama="Pendidikan Dokter").first()
         if not dep:

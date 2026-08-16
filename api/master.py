@@ -18,6 +18,9 @@ from core.models import (
 from . import GalatAPI, bp
 
 # kunci -> (model, judul, kolom yang boleh diisi, kolom pencarian, urutan)
+# Seluruh daftar diurutkan berdasarkan NAMA. Catatan: urutan di laporan resmi
+# tetap berdasarkan NIM (lihat core/laporan.py) karena begitulah bentuk baku
+# daftar hadir; urutan di sini hanya untuk kemudahan mencari di layar.
 SPEK = {
     "departemen": (Departemen, "Departemen", ["kode", "nama"],
                    [Departemen.nama, Departemen.kode], Departemen.nama),
@@ -26,13 +29,13 @@ SPEK = {
     "dosen": (Dosen, "Dosen", ["nip", "nama", "departemen_id", "id_finger", "hp"],
               [Dosen.nama, Dosen.nip, Dosen.id_finger], Dosen.nama),
     "mahasiswa": (Mahasiswa, "Mahasiswa", ["nim", "nama", "kelas_id", "id_finger", "hp"],
-                  [Mahasiswa.nim, Mahasiswa.nama, Mahasiswa.id_finger], Mahasiswa.nim),
+                  [Mahasiswa.nim, Mahasiswa.nama, Mahasiswa.id_finger], Mahasiswa.nama),
     "mata-kuliah": (MataKuliah, "Mata Kuliah", ["kode", "nama", "sks", "departemen_id"],
                     [MataKuliah.nama, MataKuliah.kode], MataKuliah.nama),
     "ruangan": (Ruangan, "Ruang Kuliah", ["kode", "nama", "kapasitas"],
                 [Ruangan.nama, Ruangan.kode], Ruangan.nama),
     "mesin": (Mesin, "Mesin", ["serial", "nama", "ruangan_id", "ip_address", "port"],
-              [Mesin.serial, Mesin.nama], Mesin.serial),
+              [Mesin.serial, Mesin.nama], Mesin.nama),
 }
 
 ANGKA = {"departemen_id", "kelas_id", "ruangan_id", "sks", "kapasitas"}
