@@ -148,7 +148,7 @@ onMounted(async () => {
   font-weight: 800; color: var(--primary-dark); font-size: var(--text-sm); letter-spacing: 1px;
 }
 .rekap .kiri { text-align: left; }
-.rekap th:first-child, .rekap td:first-child { padding-left: 22px; }
+.rekap th:first-child, .rekap td:first-child { padding-left: 34px; }
 .rekap th:last-child, .rekap td:last-child { padding-right: 22px; }
 .rekap tbody tr:hover { background: var(--cream); }
 </style>

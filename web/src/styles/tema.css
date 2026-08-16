@@ -307,7 +307,7 @@ h3 { font-size: var(--text-h3); }
 /* Kolom pertama dan terakhir diberi napas dari tepi tabel; bawaannya
    hanya 12px sehingga nomor urut terasa menempel ke sisi kiri. */
 .el-table th.el-table__cell:first-child > .cell,
-.el-table td.el-table__cell:first-child > .cell { padding-left: 22px; }
+.el-table td.el-table__cell:first-child > .cell { padding-left: 34px; }
 .el-table th.el-table__cell:last-child > .cell,
 .el-table td.el-table__cell:last-child > .cell { padding-right: 22px; }
 
