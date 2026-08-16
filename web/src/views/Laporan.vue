@@ -82,7 +82,7 @@ onMounted(async () => {
         <table class="rekap">
           <thead>
             <tr>
-              <th rowspan="2">#</th><th rowspan="2">NIM</th><th rowspan="2" class="kiri">Nama</th>
+              <th rowspan="2">No</th><th rowspan="2">NIM</th><th rowspan="2" class="kiri">Nama</th>
               <th v-for="(s, i) in hasil.sesi" :key="i" :colspan="bentuk === 'lengkap' ? 3 : 2">
                 {{ s.nama }}<br><span class="redup kecil">{{ s.label_tanggal }} · {{ s.jam_mulai }}–{{ s.jam_selesai }}</span>
               </th>

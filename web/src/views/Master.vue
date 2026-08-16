@@ -27,6 +27,13 @@ const SPEK = {
 const spek = computed(() => SPEK[kunci.value] || SPEK.departemen)
 const MONO = ['nim','id_finger','serial','ip_address','angkatan','sks','kapasitas','jumlah_mahasiswa']
 
+// Kolom pendek diberi lebar tetap supaya tidak meregang dan menyisakan
+// celah lebar di sebelah kolom nama.
+const LEBAR_TETAP = {
+  kode: 110, sks: 90, kapasitas: 110, angkatan: 110,
+  id_finger: 120, jumlah_mahasiswa: 130, port: 90, nim: 140
+}
+
 const judul = ref(''); const baris = ref([]); const memuat = ref(false)
 const hal = ref(1); const PER_HAL = 30
 const halaman = computed(() => baris.value.slice((hal.value - 1) * PER_HAL, hal.value * PER_HAL))
@@ -92,13 +99,15 @@ muatPilihan()
     <div class="kartu">
       <el-table :data="halaman" v-loading="memuat" stripe style="width:100%"
                 empty-text="Belum ada data.">
-        <el-table-column type="index" label="#" width="60" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
-        <el-table-column v-for="[k, l] in spek.kolom" :key="k" :prop="k" :label="l" min-width="140">
+        <el-table-column type="index" label="No" width="70" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
+        <el-table-column v-for="[k, l] in spek.kolom" :key="k" :prop="k" :label="l"
+                         :width="LEBAR_TETAP[k]"
+                         :min-width="LEBAR_TETAP[k] ? undefined : (k === 'nama' ? 220 : 140)">
           <template #default="{ row }">
             <span :class="MONO.includes(k) ? 'num' : ''">{{ row[k] ?? '—' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="" width="150" align="right">
+        <el-table-column label="Aksi" width="150" align="left">
           <template #default="{ row }">
             <el-button link @click="buka(row)">Ubah</el-button>
             <el-button link type="danger" @click="hapus(row)">Hapus</el-button>

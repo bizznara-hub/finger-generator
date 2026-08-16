@@ -79,15 +79,75 @@ DEPARTEMEN = [
 ]
 
 
+HENTI = {"dan", "di", "dari", "untuk"}
+
+
+def _potong(nama):
+    """Kata bermakna dari sebuah nama departemen; isi tanda kurung diabaikan."""
+    bersih = re.sub(r"\([^)]*\)", " ", nama)
+    return [k for k in re.findall(r"[A-Za-z0-9]+", bersih) if k.lower() not in HENTI]
+
+
+def _singkat(kata, panjang=0):
+    """Singkatan dari inisial. Kata yang sudah berupa akronim dipakai utuh,
+    sehingga "IKM dan IKK" menjadi IKM, bukan II."""
+    if not kata:
+        return "DEP"
+    if kata[0].isupper() and len(kata[0]) >= 2:
+        dasar = kata[0]
+    elif len(kata) == 1:
+        dasar = kata[0][:3].upper()
+    else:
+        dasar = "".join(k if (k.isupper() and len(k) >= 2) else k[0] for k in kata).upper()
+    if panjang and len(kata) > 1:
+        dasar = dasar[:-1] + kata[-1][:1 + panjang].upper()
+    elif panjang:
+        dasar = kata[0][:3 + panjang].upper()
+    return dasar
+
+
+def kode_departemen(nama, dipakai):
+    """Kode unik untuk satu departemen. `dipakai` adalah himpunan kode terpakai."""
+    kata = _potong(nama)
+    k = _singkat(kata)
+    if k in dipakai:
+        for tambah in range(1, 5):
+            calon = _singkat(kata, tambah)
+            if calon not in dipakai:
+                return calon
+        i = 2
+        while f"{k}{i}" in dipakai:
+            i += 1
+        return f"{k}{i}"
+    return k
+
+
 def isi_departemen():
-    """Tambahkan departemen yang belum ada. Aman dijalankan berulang."""
-    baru = 0
+    """Tambahkan departemen yang belum ada dan lengkapi kode yang masih kosong.
+    Aman dijalankan berulang."""
+    baru = berkode = 0
+    dipakai = {d.kode for d in Departemen.query.all() if d.kode}
+
     for nama in DEPARTEMEN:
-        if not Departemen.query.filter_by(nama=nama).first():
-            db.session.add(Departemen(nama=nama))
+        obj = Departemen.query.filter_by(nama=nama).first()
+        if not obj:
+            obj = Departemen(nama=nama)
+            db.session.add(obj)
             baru += 1
+        if not obj.kode:
+            obj.kode = kode_departemen(nama, dipakai)
+            dipakai.add(obj.kode)
+            berkode += 1
+
+    # departemen di luar daftar yang belum berkode ikut dilengkapi
+    for obj in Departemen.query.all():
+        if not obj.kode:
+            obj.kode = kode_departemen(obj.nama, dipakai)
+            dipakai.add(obj.kode)
+            berkode += 1
+
     db.session.commit()
-    return baru
+    return baru, berkode
 
 
 def baca_rekap(path):
@@ -179,8 +239,9 @@ def main():
 
         Pengaturan.ambil()
 
-        baru_dep = isi_departemen()
-        print(f"Departemen         : {baru_dep} baru, total {Departemen.query.count()}")
+        baru_dep, berkode = isi_departemen()
+        print(f"Departemen         : {baru_dep} baru, {berkode} diberi kode, "
+              f"total {Departemen.query.count()}")
 
         if d is None:
             print("\nSelesai. Berkas rekap tidak diberikan, jadi hanya departemen yang diisi.")

@@ -107,7 +107,7 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
               <span v-if="!row.jam_selesai_manual" class="redup kecil"> otomatis</span>
             </template>
           </el-table-column>
-          <el-table-column label="" width="140" align="right">
+          <el-table-column label="Aksi" width="140" align="left">
             <template #default="{ row }">
               <el-button link @click="bukaSesi(h, row)">Ubah</el-button>
               <el-button link type="danger" @click="hapusSesi(row)">Hapus</el-button>
@@ -133,7 +133,7 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
           </div>
         </div>
         <el-table :data="peserta" empty-text="Belum ada peserta.">
-          <el-table-column type="index" label="#" width="60" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
+          <el-table-column type="index" label="No" width="70" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
           <el-table-column label="NIM" width="140">
             <template #default="{ row }"><span class="nim">{{ row.nim }}</span></template>
           </el-table-column>
@@ -144,7 +144,7 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
               <el-tag v-else type="warning" size="small">belum diisi</el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="" width="120" align="right">
+          <el-table-column label="Aksi" width="120" align="left">
             <template #default="{ row }">
               <el-button link type="danger" @click="hapusPeserta(row)">Keluarkan</el-button>
             </template>

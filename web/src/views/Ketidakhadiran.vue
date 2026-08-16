@@ -62,7 +62,7 @@ api.get('/pilihan').then((d) => (pilihan.value = d))
 
     <div class="kartu">
       <el-table :data="halaman" v-loading="memuat" stripe empty-text="Belum ada catatan.">
-        <el-table-column type="index" label="#" width="60" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
+        <el-table-column type="index" label="No" width="70" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
         <el-table-column label="NIM" width="140">
           <template #default="{ row }"><span class="nim">{{ row.nim }}</span></template>
         </el-table-column>
@@ -74,7 +74,7 @@ api.get('/pilihan').then((d) => (pilihan.value = d))
         <el-table-column prop="keterangan" label="Keterangan" min-width="160">
           <template #default="{ row }"><span class="redup">{{ row.keterangan || '—' }}</span></template>
         </el-table-column>
-        <el-table-column label="" width="100" align="right">
+        <el-table-column label="Aksi" width="100" align="left">
           <template #default="{ row }"><el-button link type="danger" @click="hapus(row)">Hapus</el-button></template>
         </el-table-column>
       </el-table>
