@@ -10,8 +10,8 @@ const kunci = computed(() => route.params.kunci)
 const SPEK = {
   departemen: { kolom: [['kode','Kode'],['nama','Nama']],
     bidang: [['kode','Kode','teks'],['nama','Nama departemen','teks',true]] },
-  kelas: { kolom: [['nama','Nama'],['angkatan','Angkatan'],['departemen','Departemen'],['jumlah_mahasiswa','Mahasiswa']],
-    bidang: [['nama','Nama kelas','teks',true],['angkatan','Angkatan','teks'],['departemen_id','Departemen','pilih:departemen']] },
+  kelas: { kolom: [['nama','Nama kelas']],
+    bidang: [['nama','Nama kelas','teks',true]] },
   dosen: { kolom: [['nip','NIP'],['nama','Nama'],['departemen','Departemen'],['id_finger','ID Finger']],
     bidang: [['nip','NIP','teks'],['nama','Nama lengkap','teks',true],['departemen_id','Departemen','pilih:departemen'],['id_finger','ID Finger','teks'],['hp','No. HP','teks']] },
   mahasiswa: { kolom: [['nim','NIM'],['nama','Nama'],['kelas','Kelas'],['id_finger','ID Finger']],

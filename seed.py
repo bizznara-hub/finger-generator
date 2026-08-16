@@ -79,6 +79,31 @@ DEPARTEMEN = [
 ]
 
 
+# Pilihan kelas yang dipakai fakultas.
+KELAS = [
+    "A",
+    "A & B & C",
+    "A & C",
+    "B",
+    "C",
+    "D",
+    "Internasional",
+    "Khusus",
+    "Reguler",
+]
+
+
+def isi_kelas():
+    """Tambahkan kelas yang belum ada. Aman dijalankan berulang."""
+    baru = 0
+    for nama in KELAS:
+        if not Kelas.query.filter_by(nama=nama).first():
+            db.session.add(Kelas(nama=nama))
+            baru += 1
+    db.session.commit()
+    return baru
+
+
 HENTI = {"dan", "di", "dari", "untuk"}
 
 
@@ -242,6 +267,9 @@ def main():
         baru_dep, berkode = isi_departemen()
         print(f"Departemen         : {baru_dep} baru, {berkode} diberi kode, "
               f"total {Departemen.query.count()}")
+
+        baru_kls = isi_kelas()
+        print(f"Kelas              : {baru_kls} baru, total {Kelas.query.count()}")
 
         if d is None:
             print("\nSelesai. Berkas rekap tidak diberikan, jadi hanya departemen yang diisi.")
