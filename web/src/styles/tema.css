@@ -270,7 +270,7 @@ h3 { font-size: var(--text-h3); }
 .aksi {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 14px;
   flex-wrap: nowrap;
   white-space: nowrap;
 }
@@ -304,12 +304,19 @@ h3 { font-size: var(--text-h3); }
 }
 .el-table tr:hover > td.el-table__cell { background: var(--cream) !important; }
 
-/* Kolom pertama dan terakhir diberi napas dari tepi tabel; bawaannya
-   hanya 12px sehingga nomor urut terasa menempel ke sisi kiri. */
+/* Jarak antar kolom. Bawaan Element Plus hanya 12px sehingga isi kolom
+   terasa saling menempel. */
+.el-table th.el-table__cell > .cell,
+.el-table td.el-table__cell > .cell { padding-left: 20px; }
+
+/* Kolom nomor paling lega supaya tidak menempel ke tepi kiri tabel. */
 .el-table th.el-table__cell:first-child > .cell,
 .el-table td.el-table__cell:first-child > .cell { padding-left: 34px; }
+
+/* Kolom aksi justru dirapatkan ke kiri agar tombol Ubah tidak terdorong
+   jauh ke kanan, lalu diberi jarak dari tepi kanan tabel. */
 .el-table th.el-table__cell:last-child > .cell,
-.el-table td.el-table__cell:last-child > .cell { padding-right: 22px; }
+.el-table td.el-table__cell:last-child > .cell { padding-left: 10px; padding-right: 22px; }
 
 .el-tag { border-radius: var(--r-round) !important; font-weight: 700 !important; }
 

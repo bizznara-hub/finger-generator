@@ -140,7 +140,7 @@ onMounted(async () => {
 .hal { display: flex; justify-content: center; padding: 12px; }
 .rekap { width: 100%; border-collapse: collapse; font-size: 13px; }
 .rekap th, .rekap td {
-  padding: 7px 10px; border-bottom: 1px solid var(--primary-bg);
+  padding: 7px 14px; border-bottom: 1px solid var(--primary-bg);
   text-align: center; white-space: nowrap;
 }
 .rekap thead th {
