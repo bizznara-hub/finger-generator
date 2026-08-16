@@ -107,10 +107,12 @@ muatPilihan()
             <span :class="MONO.includes(k) ? 'num' : ''">{{ row[k] ?? '—' }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="Aksi" width="150" align="left">
+        <el-table-column label="Aksi" width="176" align="left">
           <template #default="{ row }">
-            <el-button link @click="buka(row)">Ubah</el-button>
-            <el-button link type="danger" @click="hapus(row)">Hapus</el-button>
+            <div class="aksi">
+              <el-button link @click="buka(row)">Ubah</el-button>
+              <el-button link type="danger" @click="hapus(row)">Hapus</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>

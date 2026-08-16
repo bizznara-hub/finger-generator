@@ -79,10 +79,10 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
                 <b>{{ k.label }}</b>
                 <span class="redup kecil"> · {{ k.jumlah_peserta }} peserta · {{ k.jumlah_hari }} tanggal</span>
               </div>
-              <div>
-                <el-button size="small" type="primary" plain
+              <div class="aksi">
+                <el-button type="primary" plain
                            @click="router.push(`/jadwal/kelas/${k.id}`)">Atur sesi</el-button>
-                <el-button size="small" type="danger" link @click="hapusKelas(k)">Keluarkan</el-button>
+                <el-button type="danger" link @click="hapusKelas(k)">Keluarkan</el-button>
               </div>
             </div>
           </div>

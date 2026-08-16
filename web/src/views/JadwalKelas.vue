@@ -107,10 +107,12 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
               <span v-if="!row.jam_selesai_manual" class="redup kecil"> otomatis</span>
             </template>
           </el-table-column>
-          <el-table-column label="Aksi" width="140" align="left">
+          <el-table-column label="Aksi" width="176" align="left">
             <template #default="{ row }">
-              <el-button link @click="bukaSesi(h, row)">Ubah</el-button>
-              <el-button link type="danger" @click="hapusSesi(row)">Hapus</el-button>
+              <div class="aksi">
+                <el-button link @click="bukaSesi(h, row)">Ubah</el-button>
+                <el-button link type="danger" @click="hapusSesi(row)">Hapus</el-button>
+              </div>
             </template>
           </el-table-column>
         </el-table>

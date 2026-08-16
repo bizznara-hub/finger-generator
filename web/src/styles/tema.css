@@ -265,6 +265,18 @@ h3 { font-size: var(--text-h3); }
 /* jarak antar tombol yang berdampingan */
 .el-button + .el-button { margin-left: 6px !important; }
 
+/* Wadah tombol aksi di dalam tabel: selalu satu baris, tidak pernah
+   membungkus walau kolomnya sempit atau fontnya lebih lebar. */
+.aksi {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+.aksi .el-button { flex: none; }
+.aksi .el-button + .el-button { margin-left: 0 !important; }
+
 /* ikon di dalam chip mengecil mengikuti tinggi 28px */
 .el-button iconify-icon { font-size: 13px; }
 
@@ -291,6 +303,13 @@ h3 { font-size: var(--text-h3); }
   font-size: var(--text-sm);
 }
 .el-table tr:hover > td.el-table__cell { background: var(--cream) !important; }
+
+/* Kolom pertama dan terakhir diberi napas dari tepi tabel; bawaannya
+   hanya 12px sehingga nomor urut terasa menempel ke sisi kiri. */
+.el-table th.el-table__cell:first-child > .cell,
+.el-table td.el-table__cell:first-child > .cell { padding-left: 22px; }
+.el-table th.el-table__cell:last-child > .cell,
+.el-table td.el-table__cell:last-child > .cell { padding-right: 22px; }
 
 .el-tag { border-radius: var(--r-round) !important; font-weight: 700 !important; }
 
