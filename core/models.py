@@ -40,15 +40,14 @@ class Departemen(db.Model):
 
 
 class Dosen(db.Model):
+    """Dosen hanya dicatat sebagai pengampu jadwal, bukan peserta absensi:
+    yang discan mesin adalah mahasiswa. Karena itu tidak ada ID Finger di sini.
+    """
+
     __tablename__ = "dosen"
     id = db.Column(db.Integer, primary_key=True)
-    departemen_id = db.Column(db.Integer, db.ForeignKey("departemen.id"))
-    id_finger = db.Column(db.String(20), index=True)
     nip = db.Column(db.String(40))
     nama = db.Column(db.String(150), nullable=False)
-    hp = db.Column(db.String(30))
-
-    departemen = db.relationship("Departemen")
 
 
 class Kelas(db.Model):

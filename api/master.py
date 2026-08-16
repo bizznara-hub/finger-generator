@@ -21,7 +21,10 @@ from . import GalatAPI, bp
 
 # Gelar depan tidak ikut menentukan urutan: tanpa ini seluruh "Dr. dr." dan
 # "Prof." menumpuk di atas hanya karena huruf besar diurutkan lebih dulu.
-GELAR_DEPAN = re.compile(r"^(prof\.?|dr\.?|drg\.?|ns\.?|apt\.?|\s)+", re.I)
+# Gelar terpanjang diuji lebih dulu, jika tidak "dr" akan termakan dari "drg."
+# dan menyisakan "g." sebagai kunci urut. Lookahead menjaga nama asli yang
+# kebetulan diawali huruf serupa, misalnya "Drajat", agar tidak ikut terpotong.
+GELAR_DEPAN = re.compile(r"^(?:(?:prof|drg|drs|dr|apt|ns)(?:\.|(?![a-z]))\s*|\s+)+", re.I)
 
 
 def urut_nama_orang(nama):
@@ -36,8 +39,8 @@ SPEK = {
                    [Departemen.nama, Departemen.kode], Departemen.nama),
     "kelas": (Kelas, "Kelas", ["nama", "angkatan", "departemen_id"],
               [Kelas.nama, Kelas.angkatan], Kelas.nama),
-    "dosen": (Dosen, "Dosen", ["nip", "nama", "departemen_id", "id_finger", "hp"],
-              [Dosen.nama, Dosen.nip, Dosen.id_finger], Dosen.nama),
+    "dosen": (Dosen, "Dosen", ["nip", "nama"],
+              [Dosen.nama, Dosen.nip], Dosen.nama),
     "mahasiswa": (Mahasiswa, "Mahasiswa", ["nim", "nama", "kelas_id", "id_finger", "hp"],
                   [Mahasiswa.nim, Mahasiswa.nama, Mahasiswa.id_finger], Mahasiswa.nama),
     "mata-kuliah": (MataKuliah, "Mata Kuliah", ["kode", "nama", "sks", "departemen_id"],
@@ -64,7 +67,7 @@ def _serialisasi(kunci, obj):
         d[b] = getattr(obj, b)
     if kunci == "mahasiswa":
         d["kelas"] = obj.kelas.label if obj.kelas else None
-    if kunci in ("kelas", "dosen", "mata-kuliah"):
+    if kunci in ("kelas", "mata-kuliah"):
         d["departemen"] = obj.departemen.nama if obj.departemen else None
     if kunci == "kelas":
         d["jumlah_mahasiswa"] = Mahasiswa.query.filter_by(kelas_id=obj.id).count()
