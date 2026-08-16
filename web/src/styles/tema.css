@@ -1,60 +1,112 @@
-/* Sistem desain terkunci — lihat design.md.
- * Token diambil dari DNA Art Design Pro, lightness disesuaikan agar seluruh
- * pasangan lulus WCAG AA. Element Plus dipetakan ke token yang sama supaya
- * komponen bawaannya tidak keluar dari sistem. */
+/* Flip7 Design System — diterapkan apa adanya atas permintaan.
+ *
+ * Satuan asalnya rpx (WeChat mini-program, basis lebar 750). Untuk web
+ * dikonversi 1rpx = 0.5px, sehingga proporsi rancangannya tetap terjaga:
+ * body 28rpx -> 14px, h1 48rpx -> 24px, radius lg 24rpx -> 12px, dan
+ * seterusnya.
+ *
+ * CATATAN KONTRAS — dicatat, bukan disembunyikan. Teks putih di atas isi:
+ *   teal #2BA8A2 2,91:1 · teal-dark #1E8C86 4,08:1 · gold #FFD23F 1,44:1
+ *   coral #EF6C4A 3,04:1 · sky #5DADE2 2,46:1 · success #27AE60 2,87:1
+ * Seluruhnya di bawah ambang WCAG AA 4,5:1. Palet dipakai apa adanya
+ * sesuai keputusan; angka di atas adalah rekamnya.
+ */
 
 :root {
-  --color-bg:        oklch(97.2% 0.004 267);
-  --color-surface:   oklch(99.5% 0.001 267);
-  --color-surface-2: oklch(97.6% 0.004 267);
-  --color-surface-3: oklch(95.4% 0.005 267);
+  /* ---------------- warna Flip7 ---------------- */
+  --primary:        #2BA8A2;
+  --primary-light:  #3CC4BD;
+  --primary-dark:   #1E8C86;
+  --primary-bg:     #E8F6F5;
 
-  --color-ink:   oklch(24% 0.023 255);
-  --color-ink-2: oklch(32% 0.022 255);
-  --color-muted: oklch(52% 0.014 258);
+  --accent:         #FFD23F;
+  --accent-light:   #FFE47A;
+  --accent-dark:    #E6B800;
 
-  --color-rule:   oklch(92.9% 0.005 267);
-  --color-rule-2: oklch(88% 0.007 267);
+  --coral:          #EF6C4A;
+  --coral-light:    #FF8A6A;
+  --coral-dark:     #D45233;
 
-  --color-accent:       oklch(55% 0.175 267);
-  --color-accent-hover: oklch(48% 0.175 267);
-  --color-accent-soft:  oklch(97.5% 0.028 267);
+  --cream:          #FFF8E7;
+  --sky:            #5DADE2;
 
-  --color-ok:   oklch(51% 0.143 175);   --color-ok-soft:   oklch(97.5% 0.023 175);
-  --color-warn: oklch(55% 0.157 74);    --color-warn-soft: oklch(97.5% 0.025 74);
-  --color-bad:  oklch(56% 0.203 24);    --color-bad-soft:  oklch(97.5% 0.032 24);
-  --color-info: oklch(56% 0.142 300);   --color-info-soft: oklch(97.5% 0.023 300);
+  --surface-base:   #EFF8F7;
+  --surface-card:   #FFFFFF;
+  --success:        #27AE60;
+  --error:          #E74C3C;
 
-  --font-body: "Geist", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --ink:            #17403E;
+  --ink-2:          #2C5A57;
+  --ink-muted:      #5B807D;
 
-  --space-xs: 0.5rem;  --space-sm: 0.75rem; --space-md: 1rem;
-  --space-lg: 1.5rem;  --space-xl: 2.5rem;
+  /* ---------------- tipografi ---------------- */
+  --font-body: -apple-system, BlinkMacSystemFont, "PingFang SC",
+               "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --radius-control: 6px;
-  --radius-panel: 10px;
+  --text-display: 36px;   /* 72rpx */
+  --text-h1:      24px;   /* 48rpx */
+  --text-h2:      18px;   /* 36rpx */
+  --text-h3:      16px;   /* 32rpx */
+  --text-body:    14px;   /* 28rpx */
+  --text-sm:      12px;   /* 24rpx */
+  --text-xs:      10px;   /* 20rpx */
+
+  --track-head: 2px;      /* 4rpx */
+  --track-wide: 3px;      /* 6rpx */
+
+  /* ---------------- ruang (basis 8rpx = 4px) ---------------- */
+  --sp-xs: 4px;
+  --sp-sm: 8px;
+  --sp-md: 12px;
+  --sp-lg: 16px;
+  --sp-xl: 24px;
+
+  /* ---------------- sudut ---------------- */
+  --r-sm:    4px;    /*  8rpx */
+  --r-md:    8px;    /* 16rpx */
+  --r-lg:   12px;    /* 24rpx */
+  --r-xl:   16px;    /* 32rpx */
+  --r-round: 999px;
+
+  /* ---------------- pendar berwarna ---------------- */
+  --shadow-sm:    0 1px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md:    0 2px 8px rgba(0, 0, 0, 0.12);
+  --shadow-lg:    0 4px 16px rgba(0, 0, 0, 0.16);
+  --shadow-card:  0 2px 10px rgba(43, 168, 162, 0.10);
+  --glow-coral:   0 2px 10px rgba(239, 108, 74, 0.35);
+  --glow-teal:    0 2px 10px rgba(43, 168, 162, 0.30);
+  --glow-accent:  0 2px 10px rgba(255, 210, 63, 0.40);
+  --glow-sky:     0 2px 8px rgba(93, 173, 226, 0.30);
+  --shadow-focus: 0 0 0 2px rgba(43, 168, 162, 0.15);
+
+  /* ---------------- gerak ---------------- */
+  --bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur:    280ms;
 
   --rail-w: 232px;
   --header-h: 56px;
   --tab-h: 40px;
 
-  /* ---- pemetaan ke Element Plus ---- */
-  --el-color-primary: oklch(55% 0.175 267);
-  --el-color-success: oklch(51% 0.143 175);
-  --el-color-warning: oklch(55% 0.157 74);
-  --el-color-danger:  oklch(56% 0.203 24);
-  --el-color-error:   oklch(56% 0.203 24);
-  --el-color-info:    oklch(52% 0.014 258);
-  --el-border-radius-base: 6px;
-  --el-border-color: oklch(88% 0.007 267);
-  --el-border-color-light: oklch(92.9% 0.005 267);
-  --el-text-color-primary: oklch(24% 0.023 255);
-  --el-text-color-regular: oklch(32% 0.022 255);
-  --el-text-color-secondary: oklch(52% 0.014 258);
-  --el-bg-color: oklch(99.5% 0.001 267);
-  --el-fill-color-light: oklch(97.6% 0.004 267);
+  /* ---------------- pemetaan Element Plus ---------------- */
+  --el-color-primary: #2BA8A2;
+  --el-color-primary-light-3: #3CC4BD;
+  --el-color-primary-light-9: #E8F6F5;
+  --el-color-success: #27AE60;
+  --el-color-warning: #FFD23F;
+  --el-color-danger:  #EF6C4A;
+  --el-color-error:   #E74C3C;
+  --el-color-info:    #5DADE2;
+  --el-border-radius-base: 8px;
+  --el-border-color: #CFE7E5;
+  --el-border-color-light: #E1F0EF;
+  --el-text-color-primary: #17403E;
+  --el-text-color-regular: #2C5A57;
+  --el-text-color-secondary: #5B807D;
+  --el-bg-color: #FFFFFF;
+  --el-fill-color-light: #E8F6F5;
   --el-font-family: var(--font-body);
-  --el-component-size: 34px;
+  --el-component-size: 36px;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -63,52 +115,164 @@ html, body { overflow-x: clip; }
 
 body {
   margin: 0;
-  background: var(--color-bg);
-  color: var(--color-ink-2);
+  background: var(--surface-base);
+  color: var(--ink-2);
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: var(--text-body);
+  font-weight: 500;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3 { margin: 0; color: var(--color-ink); letter-spacing: -0.015em; }
+h1, h2, h3 {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 800;
+  letter-spacing: var(--track-head);
+}
+h1 { font-size: var(--text-h1); }
+h2 { font-size: var(--text-h2); }
+h3 { font-size: var(--text-h3); }
 
-/* data selalu mono + tabular supaya kolom NIM dan jam rata */
+/* ---------------- data tetap mono agar kolom rata ---------------- */
 .num, .nim, .jam {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  font-size: 13px;
+  font-size: var(--text-sm);
+  font-weight: 600;
 }
-.redup { color: var(--color-muted); }
-.kecil { font-size: 13px; }
+.redup { color: var(--ink-muted); }
+.kecil { font-size: var(--text-sm); }
 
-/* status kehadiran */
+/* ---------------- status kehadiran: lencana pil ---------------- */
 .st {
-  display: inline-block; min-width: 26px; padding: 1px 6px; border-radius: 5px;
-  font-family: var(--font-mono); font-size: 12px; font-weight: 500; text-align: center;
+  display: inline-block; min-width: 28px; padding: 2px 10px;
+  border-radius: var(--r-round);
+  font-size: var(--text-sm); font-weight: 800; letter-spacing: 1px;
+  text-align: center; color: #fff;
 }
-.st-H { color: var(--color-accent); background: var(--color-accent-soft); }
-.st-A { color: var(--color-bad);    background: var(--color-bad-soft); }
-.st-S { color: var(--color-warn);   background: var(--color-warn-soft); }
-.st-I { color: var(--color-info);   background: var(--color-info-soft); }
+.st-H { background: var(--primary); box-shadow: var(--glow-teal); }
+.st-A { background: var(--coral);   box-shadow: var(--glow-coral); }
+.st-S { background: var(--accent);  color: var(--primary-dark); box-shadow: var(--glow-accent); }
+.st-I { background: var(--sky);     box-shadow: var(--glow-sky); }
 
-/* kartu: garis rambut, bukan bayangan */
+/* ---------------- kartu: sudut besar + garis aksen kiri ---------------- */
 .kartu {
-  background: var(--color-surface);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-panel);
+  position: relative;
+  background: var(--surface-card);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
 }
+.kartu::before {
+  content: ""; position: absolute; inset-block: 0; inset-inline-start: 0;
+  width: 3px; background: var(--primary-light);
+}
+.kartu--emas::before { background: var(--accent); }
+.kartu--emas { box-shadow: var(--glow-accent); background: linear-gradient(180deg, #FFFDF5, #fff); }
+.kartu--coral::before { background: var(--coral); }
+.kartu--coral { box-shadow: var(--glow-coral); }
+
 .kartu__kepala {
-  display: flex; align-items: center; gap: var(--space-sm); flex-wrap: wrap;
-  padding: var(--space-sm) var(--space-lg);
-  border-bottom: 1px solid var(--color-rule);
+  display: flex; align-items: center; gap: var(--sp-md); flex-wrap: wrap;
+  padding: var(--sp-md) var(--sp-xl);
+  border-bottom: 3px dashed var(--primary-bg);
 }
-.kartu__judul { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; color: var(--color-ink); }
-.kartu__isi { padding: var(--space-lg); }
+.kartu__judul {
+  flex: 1; min-width: 0;
+  font-size: var(--text-h3); font-weight: 800;
+  color: var(--ink); letter-spacing: var(--track-head);
+}
+.kartu__isi { padding: var(--sp-xl); }
 .kartu__isi--rapat { padding: 0; }
 
-.petunjuk { color: var(--color-muted); font-size: 13px; max-width: 70ch; margin: 0 0 var(--space-md); }
+.petunjuk { color: var(--ink-muted); font-size: var(--text-sm); max-width: 70ch; margin: 0 0 var(--sp-lg); }
 .petunjuk:last-child { margin-bottom: 0; }
 
-.el-table { --el-table-border-color: var(--color-rule); }
-.el-table th.el-table__cell { background: var(--color-surface-2) !important; font-weight: 500; }
+/* judul bagian dengan emoji dalam wadah tersendiri */
+.judul-bagian { display: flex; align-items: center; gap: var(--sp-sm); }
+.judul-bagian__emoji {
+  display: inline-grid; place-items: center; width: 24px; height: 24px;
+  font-size: 15px; line-height: 1;
+}
+
+/* ---------------- tombol: pil, tinggi minimum 36px, lengkung memantul ---- */
+.el-button {
+  border-radius: var(--r-round) !important;
+  min-height: 36px;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px;
+  transition: transform var(--dur) var(--bounce), box-shadow var(--dur) var(--bounce) !important;
+}
+.el-button:active { transform: scale(0.95); }
+
+.el-button--primary {
+  background: linear-gradient(180deg, var(--accent-light), var(--accent)) !important;
+  border-color: var(--accent-dark) !important;
+  color: var(--primary-dark) !important;
+  box-shadow: var(--glow-accent);
+}
+.el-button--primary:hover { background: linear-gradient(180deg, var(--accent), var(--accent-dark)) !important; }
+
+.el-button--danger {
+  background: var(--coral) !important; border-color: var(--coral-dark) !important;
+  color: #fff !important; box-shadow: var(--glow-coral);
+}
+.el-button--success { background: var(--primary) !important; border-color: var(--primary-dark) !important; box-shadow: var(--glow-teal); }
+
+/* ---------------- isian: permukaan krem ---------------- */
+.el-input__wrapper,
+.el-textarea__inner,
+.el-select__wrapper {
+  background-color: var(--cream) !important;
+  border-radius: var(--r-md) !important;
+  box-shadow: inset 0 0 0 1px #EADFC4 !important;
+}
+.el-input__wrapper.is-focus,
+.el-select__wrapper.is-focused {
+  box-shadow: inset 0 0 0 2px var(--primary), var(--shadow-focus) !important;
+}
+
+/* ---------------- tabel ---------------- */
+.el-table { --el-table-border-color: var(--primary-bg); border-radius: var(--r-md); }
+.el-table th.el-table__cell {
+  background: var(--primary-bg) !important;
+  color: var(--primary-dark) !important;
+  font-weight: 800 !important;
+  letter-spacing: 1px;
+  font-size: var(--text-sm);
+}
+.el-table tr:hover > td.el-table__cell { background: var(--cream) !important; }
+
+.el-tag { border-radius: var(--r-round) !important; font-weight: 700 !important; }
+
+/* ---------------- animasi ---------------- */
+@keyframes glow-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.85; transform: scale(1.03); }
+}
+.berdenyut { animation: glow-pulse 2s infinite; }
+
+@keyframes boom-pulse {
+  0%, 100% { box-shadow: var(--glow-coral); }
+  50%      { box-shadow: 0 4px 20px rgba(239, 108, 74, 0.7); }
+}
+.boom { animation: boom-pulse 2s infinite; }
+
+@keyframes crown-bounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%      { transform: translateY(-4px) rotate(-8deg); }
+  50%      { transform: translateY(-2px) rotate(0deg); }
+  75%      { transform: translateY(-4px) rotate(8deg); }
+}
+.mahkota { display: inline-block; animation: crown-bounce 1.5s infinite; }
+
+@keyframes konfeti-jatuh {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .berdenyut, .boom, .mahkota { animation: none; }
+  .el-button { transition: none !important; }
+}

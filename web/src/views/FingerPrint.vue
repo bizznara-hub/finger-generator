@@ -120,9 +120,9 @@ onMounted(muat)
 <style scoped>
 .tajuk { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
 .angka { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%,180px),1fr)); gap: 12px; margin-bottom: 16px; }
-.stat { padding: 16px; background: var(--color-surface); border: 1px solid var(--color-rule); border-radius: var(--radius-panel); }
-.stat b { display: block; font-size: 22px; font-weight: 600; color: var(--color-ink); }
-.stat span { font-size: 12.5px; color: var(--color-muted); }
+.stat { padding: 16px; background: var(--surface-card); border: 1px solid var(--primary-bg); border-radius: var(--r-lg); }
+.stat b { display: block; font-size: 22px; font-weight: 600; color: var(--ink); }
+.stat span { font-size: 12.5px; color: var(--ink-muted); }
 .baris { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px; }
 @media (min-width: 62rem) { .baris { grid-template-columns: 1fr 1fr; } }
 .tombol { display: flex; gap: 8px; margin-top: 12px; }

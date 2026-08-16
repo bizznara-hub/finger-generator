@@ -128,7 +128,7 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
 .daftar { display: grid; gap: 16px; }
 .kelas__item {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 10px 0; border-bottom: 1px solid var(--color-rule);
+  padding: 10px 0; border-bottom: 1px solid var(--primary-bg);
 }
 .kelas__item:last-child { border-bottom: 0; }
 </style>

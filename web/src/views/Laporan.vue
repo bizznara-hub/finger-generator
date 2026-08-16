@@ -3,11 +3,12 @@ import { onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { api } from '@/api'
+import Konfeti from '@/komponen/Konfeti.vue'
 
 const route = useRoute()
 const pilihan = ref([]); const kelas = ref(null)
 const bentuk = ref('ringkas'); const cocokkan = ref('0')
-const hasil = ref(null); const memuat = ref(false)
+const hasil = ref(null); const memuat = ref(false); const konfeti = ref(null)
 
 async function muat() {
   if (!kelas.value) { hasil.value = null; return }
@@ -21,6 +22,9 @@ async function muat() {
 function unduh() {
   window.location.href =
     `/api/laporan/unduh?kelas=${kelas.value}&bentuk=${bentuk.value}&ruangan=${cocokkan.value}`
+  // momen selesai — dirayakan sesuai sistem desain
+  konfeti.value?.rayakan()
+  ElMessage.success('Laporan sedang diunduh.')
 }
 
 watch([kelas, cocokkan], muat)
@@ -34,9 +38,10 @@ onMounted(async () => {
 
 <template>
   <div>
-    <h1 class="tajuk">Laporan Absensi</h1>
+    <Konfeti ref="konfeti" />
+    <h1 class="tajuk"><span class="judul-bagian__emoji">📊</span> Laporan Absensi</h1>
 
-    <section class="kartu mb">
+    <section class="kartu kartu--emas mb">
       <div class="kartu__isi alat">
         <el-select v-model="kelas" placeholder="— pilih blok dan kelas —" style="flex:1;min-width:260px" filterable>
           <el-option v-for="p in pilihan" :key="p.id" :label="p.label" :value="p.id" />
@@ -58,13 +63,15 @@ onMounted(async () => {
     <div v-if="hasil" class="angka">
       <div class="stat"><b class="num">{{ hasil.statistik.peserta }}</b><span>mahasiswa</span></div>
       <div class="stat"><b class="num">{{ hasil.statistik.sesi }}</b><span>sesi</span></div>
-      <div class="stat"><b class="num">{{ hasil.statistik.persen_hadir }}%</b><span>kehadiran</span></div>
-      <div class="stat"><b class="num">{{ hasil.statistik.tanpa_finger }}</b><span>tanpa ID Finger</span></div>
+      <div class="stat stat--emas berdenyut"><b class="num">{{ hasil.statistik.persen_hadir }}%</b><span>kehadiran</span></div>
+      <div class="stat" :class="hasil.statistik.tanpa_finger ? 'stat--coral' : ''">
+        <b class="num">{{ hasil.statistik.tanpa_finger }}</b><span>tanpa ID Finger</span>
+      </div>
     </div>
 
     <section v-if="hasil?.baris?.length" class="kartu">
       <div class="kartu__kepala">
-        <h2 class="kartu__judul">Pratinjau</h2>
+        <h2 class="kartu__judul judul-bagian"><span class="judul-bagian__emoji">👀</span> Pratinjau</h2>
         <span class="redup kecil">{{ hasil.baris.length }} dari {{ hasil.total_baris }} baris</span>
       </div>
       <div class="gulir" v-loading="memuat">
@@ -109,23 +116,32 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.tajuk { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
+.tajuk { display: flex; align-items: center; gap: 8px; font-size: var(--text-h1); font-weight: 800; letter-spacing: 2px; margin-bottom: 16px; }
 .mb { margin-bottom: 16px; }
 .alat { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .angka { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%,160px),1fr)); gap: 12px; margin-bottom: 16px; }
-.stat { padding: 14px 16px; background: var(--color-surface); border: 1px solid var(--color-rule); border-radius: var(--radius-panel); }
-.stat b { display: block; font-size: 20px; font-weight: 600; color: var(--color-ink); }
-.stat span { font-size: 12.5px; color: var(--color-muted); }
+.stat {
+  position: relative; padding: 14px 16px 14px 20px;
+  background: var(--surface-card); border-radius: var(--r-lg); box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+.stat::before { content: ""; position: absolute; inset-block: 0; inset-inline-start: 0; width: 3px; background: var(--primary-light); }
+.stat--emas::before { background: var(--accent); }
+.stat--emas { box-shadow: var(--glow-accent); }
+.stat--coral::before { background: var(--coral); }
+.stat--coral { box-shadow: var(--glow-coral); }
+.stat b { display: block; font-size: var(--text-h1); font-weight: 800; color: var(--ink); letter-spacing: 1px; }
+.stat span { font-size: var(--text-sm); color: var(--ink-muted); font-weight: 600; }
 .gulir { overflow: auto; max-height: 520px; }
 .rekap { width: 100%; border-collapse: collapse; font-size: 13px; }
 .rekap th, .rekap td {
-  padding: 7px 10px; border-bottom: 1px solid var(--color-rule);
+  padding: 7px 10px; border-bottom: 1px solid var(--primary-bg);
   text-align: center; white-space: nowrap;
 }
 .rekap thead th {
-  position: sticky; top: 0; z-index: 2; background: var(--color-surface-2);
-  font-weight: 500; color: var(--color-muted); font-size: 12px;
+  position: sticky; top: 0; z-index: 2; background: var(--primary-bg);
+  font-weight: 800; color: var(--primary-dark); font-size: var(--text-sm); letter-spacing: 1px;
 }
 .rekap .kiri { text-align: left; }
-.rekap tbody tr:hover { background: var(--color-surface-2); }
+.rekap tbody tr:hover { background: var(--cream); }
 </style>

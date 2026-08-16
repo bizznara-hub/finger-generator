@@ -21,7 +21,7 @@ onMounted(async () => { data.value = await api.get('/beranda') })
 
       <div class="baris">
         <section class="kartu tumbuh">
-          <div class="kartu__kepala"><h2 class="kartu__judul">Scan per hari</h2>
+          <div class="kartu__kepala"><h2 class="kartu__judul judul-bagian"><span class="judul-bagian__emoji">📈</span> Scan per hari</h2>
             <span class="redup kecil" v-if="data.rentang.awal">{{ data.rentang.awal }} – {{ data.rentang.akhir }}</span>
           </div>
           <div class="kartu__isi">
@@ -40,7 +40,7 @@ onMounted(async () => { data.value = await api.get('/beranda') })
 
         <section class="kartu">
           <div class="kartu__kepala">
-            <h2 class="kartu__judul">Tanpa ID Finger</h2>
+            <h2 class="kartu__judul judul-bagian"><span class="judul-bagian__emoji">🔍</span> Tanpa ID Finger</h2>
             <el-tag v-if="data.tanpa_finger.length" type="warning" size="small" round>
               {{ data.tanpa_finger.length }}
             </el-tag>
@@ -64,18 +64,23 @@ onMounted(async () => { data.value = await api.get('/beranda') })
 <style scoped>
 .angka { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 12px; margin-bottom: 20px; }
 .angka__kartu {
-  display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto;
-  gap: 2px 12px; padding: 16px; text-decoration: none;
-  background: var(--color-surface); border: 1px solid var(--color-rule); border-radius: var(--radius-panel);
-  transition: border-color 0.15s;
+  position: relative; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto;
+  gap: 2px 12px; padding: 16px 16px 16px 20px; text-decoration: none; overflow: hidden;
+  background: var(--surface-card); border-radius: var(--r-lg); box-shadow: var(--shadow-card);
+  transition: transform var(--dur) var(--bounce), box-shadow var(--dur) var(--bounce);
 }
-.angka__kartu:hover { border-color: var(--color-accent); }
+.angka__kartu::before {
+  content: ""; position: absolute; inset-block: 0; inset-inline-start: 0;
+  width: 3px; background: var(--primary-light);
+}
+.angka__kartu:hover { transform: translateY(-2px); box-shadow: var(--glow-teal); }
+.angka__kartu:active { transform: scale(0.97); }
 .angka__ikon {
-  grid-row: 1 / 3; width: 38px; height: 38px; border-radius: 9px; display: grid; place-items: center;
-  background: var(--color-accent-soft); color: var(--color-accent); align-self: center;
+  grid-row: 1 / 3; width: 40px; height: 40px; border-radius: var(--r-md); display: grid; place-items: center;
+  background: var(--primary-bg); color: var(--primary-dark); align-self: center;
 }
-.angka__nilai { font-size: 22px; font-weight: 600; color: var(--color-ink); line-height: 1.2; }
-.angka__label { font-size: 12.5px; color: var(--color-muted); }
+.angka__nilai { font-size: var(--text-h1); font-weight: 800; color: var(--ink); line-height: 1.2; letter-spacing: 1px; }
+.angka__label { font-size: var(--text-sm); color: var(--ink-muted); font-weight: 600; }
 
 .baris { display: grid; grid-template-columns: 1fr; gap: 16px; }
 @media (min-width: 62rem) { .baris { grid-template-columns: 1.4fr 1fr; } }
@@ -84,12 +89,14 @@ onMounted(async () => { data.value = await api.get('/beranda') })
 .grafik__kolom { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; }
 .grafik__batang {
   width: 100%; max-width: 34px; margin-top: auto; min-height: 3px;
-  background: var(--color-accent); border-radius: 4px 4px 0 0; opacity: 0.85;
+  background: linear-gradient(180deg, var(--primary-light), var(--primary));
+  border-radius: var(--r-sm) var(--r-sm) 0 0; opacity: 0.9;
+  box-shadow: var(--glow-teal);
 }
 .grafik__kolom:hover .grafik__batang { opacity: 1; }
-.grafik__label { font-size: 10.5px; color: var(--color-muted); }
+.grafik__label { font-size: var(--text-xs); color: var(--ink-muted); font-weight: 600; }
 
-.orang { display: flex; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--color-rule); font-size: 13px; }
+.orang { display: flex; gap: 12px; padding: 7px 0; border-bottom: 2px dashed var(--primary-bg); font-size: var(--text-sm); }
 .orang:last-child { border-bottom: 0; }
-.orang__nama { color: var(--color-ink-2); }
+.orang__nama { color: var(--ink-2); font-weight: 600; }
 </style>

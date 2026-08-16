@@ -41,15 +41,20 @@ async function kirim() {
 
 <style scoped>
 .masuk { display: grid; place-items: center; min-height: 100vh; padding: 16px; }
+.masuk { background: var(--surface-base); }
 .masuk__kotak {
   width: 100%; max-width: 340px; padding: 32px;
-  background: var(--color-surface); border: 1px solid var(--color-rule); border-radius: 12px;
+  background: var(--surface-card); border-radius: var(--r-xl); box-shadow: var(--shadow-lg);
 }
 .masuk__logo {
-  width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center;
-  background: var(--color-accent); color: #fff; margin-bottom: 16px;
+  width: 48px; height: 48px; border-radius: var(--r-md); display: grid; place-items: center;
+  background: linear-gradient(180deg, var(--primary-light), var(--primary)); color: #fff;
+  margin-bottom: 16px; box-shadow: var(--glow-teal);
 }
-h1 { font-size: 20px; font-weight: 700; }
-.masuk__sub { margin: 4px 0 24px; font-size: 13px; color: var(--color-muted); }
+h1 { font-size: var(--text-h1); font-weight: 800; letter-spacing: 3px; color: var(--ink); }
+.masuk__sub {
+  margin: 4px 0 24px; font-size: var(--text-sm); color: var(--ink-muted); font-weight: 600;
+  padding-bottom: 12px; border-bottom: 3px dashed var(--primary-bg);
+}
 .mb { margin-bottom: 12px; }
 </style>
