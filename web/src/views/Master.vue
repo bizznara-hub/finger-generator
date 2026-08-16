@@ -14,7 +14,9 @@ const SPEK = {
     bidang: [['nama','Nama kelas','teks',true]] },
   dosen: { kolom: [['nip','NIP'],['nama','Nama'],['departemen','Departemen'],['id_finger','ID Finger']],
     bidang: [['nip','NIP','teks'],['nama','Nama lengkap','teks',true],['departemen_id','Departemen','pilih:departemen'],['id_finger','ID Finger','teks'],['hp','No. HP','teks']] },
-  mahasiswa: { kolom: [['nim','NIM'],['nama','Nama'],['kelas','Kelas'],['id_finger','ID Finger']],
+  // Tabel cukup No, NIM, dan Nama. Kelas dan ID Finger tetap ada di formulir:
+  // tanpa ID Finger, mesin tidak bisa mengenali mahasiswa sama sekali.
+  mahasiswa: { kolom: [['nim','NIM'],['nama','Nama']],
     bidang: [['nim','NIM','teks',true],['nama','Nama lengkap','teks',true],['kelas_id','Kelas','pilih:kelas'],['id_finger','ID Finger','teks'],['hp','No. HP','teks']] },
   'mata-kuliah': { kolom: [['kode','Kode'],['nama','Nama blok'],['sks','SKS'],['departemen','Departemen']],
     bidang: [['kode','Kode','teks'],['nama','Nama mata kuliah / blok','teks',true],['sks','SKS','angka'],['departemen_id','Departemen','pilih:departemen']] },

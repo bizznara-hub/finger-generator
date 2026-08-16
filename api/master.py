@@ -76,6 +76,14 @@ def daftar(kunci):
     return jsonify(judul=judul, baris=[_serialisasi(kunci, b) for b in baris])
 
 
+def _samakan_finger_dengan_nim(kunci, obj):
+    """ID Finger mahasiswa mengikuti NIM. Mesin didaftarkan dengan NIM sebagai
+    User ID, jadi keduanya memang satu nilai. Tetap bisa ditimpa manual bila
+    ada mesin yang memakai nomor lain."""
+    if kunci == "mahasiswa" and not (obj.id_finger or "").strip():
+        obj.id_finger = obj.nim
+
+
 def _terapkan(kunci, obj, data):
     _, _, bidang, _, _ = _spek(kunci)
     for b in bidang:
@@ -96,6 +104,7 @@ def tambah(kunci):
     model, judul, _, _, _ = _spek(kunci)
     obj = model()
     _terapkan(kunci, obj, request.get_json(silent=True) or {})
+    _samakan_finger_dengan_nim(kunci, obj)
     try:
         db.session.add(obj)
         db.session.commit()
@@ -112,6 +121,7 @@ def ubah(kunci, id_baris):
     if obj is None:
         raise GalatAPI("Data tidak ditemukan.", 404)
     _terapkan(kunci, obj, request.get_json(silent=True) or {})
+    _samakan_finger_dengan_nim(kunci, obj)
     try:
         db.session.commit()
     except IntegrityError:

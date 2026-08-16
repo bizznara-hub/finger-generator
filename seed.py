@@ -310,13 +310,22 @@ def main():
         for m in d["mahasiswa"]:
             obj = Mahasiswa.query.filter_by(nim=m["nim"]).first()
             if not obj:
-                obj = Mahasiswa(nim=m["nim"], nama=m["nama"], kelas_id=kelas.id)
+                # ID Finger mengikuti NIM: mesin didaftarkan dengan NIM sebagai User ID
+            obj = Mahasiswa(nim=m["nim"], nama=m["nama"], kelas_id=kelas.id,
+                            id_finger=m["nim"])
                 db.session.add(obj)
                 db.session.flush()
                 baru += 1
             peta_mhs[m["nim"]] = obj
+        # mahasiswa lama yang belum berisi ID Finger ikut disamakan dengan NIM
+        disamakan = 0
+        for obj in Mahasiswa.query.all():
+            if not (obj.id_finger or "").strip():
+                obj.id_finger = obj.nim
+                disamakan += 1
         db.session.commit()
-        print(f"Mahasiswa          : {baru} baru, total {Mahasiswa.query.count()}")
+        print(f"Mahasiswa          : {baru} baru, {disamakan} ID Finger disamakan "
+              f"dengan NIM, total {Mahasiswa.query.count()}")
 
         # ---------- mata kuliah + jadwal ----------
         mk = MataKuliah.query.filter_by(nama=d["blok"]).first()
