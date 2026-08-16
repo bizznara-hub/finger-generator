@@ -83,10 +83,10 @@ onMounted(async () => {
     <!-- ============ RAIL ============ -->
     <aside class="rail">
       <div class="rail__merek">
-        <span class="rail__logo"><iconify-icon icon="lucide:fingerprint" width="18" /></span>
+        <img class="rail__logo" src="/logo.png" alt="Logo" width="32" height="32">
         <span v-show="!ciut" class="rail__teks">
-          <b>Absensi FK</b>
-          <small>Universitas Hasanuddin</small>
+          <b>Finger FK</b>
+          <small>Megabuana Palopo</small>
         </span>
       </div>
 
@@ -159,9 +159,8 @@ onMounted(async () => {
 
 .rail__merek { display: flex; align-items: center; gap: 10px; padding: 16px; height: var(--header-h); }
 .rail__logo {
-  width: 32px; height: 32px; flex: none; border-radius: var(--r-md);
-  background: linear-gradient(180deg, var(--primary-light), var(--primary)); color: #fff;
-  display: grid; place-items: center; box-shadow: var(--glow-teal);
+  width: 32px; height: 32px; flex: none;
+  object-fit: contain;
 }
 .rail__teks { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
 .rail__teks b { font-size: var(--text-h3); font-weight: 800; letter-spacing: 2px; color: var(--ink); white-space: nowrap; }

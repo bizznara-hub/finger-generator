@@ -74,8 +74,8 @@ api.get('/pilihan').then((d) => (pilihan.value = d))
         <el-table-column prop="keterangan" label="Keterangan" min-width="160">
           <template #default="{ row }"><span class="redup">{{ row.keterangan || '—' }}</span></template>
         </el-table-column>
-        <el-table-column label="Aksi" width="120" align="left">
-          <template #default="{ row }"><el-button link type="danger" @click="hapus(row)">Hapus</el-button></template>
+        <el-table-column label="Aksi" width="130" align="right">
+          <template #default="{ row }"><div class="aksi"><el-button link type="danger" @click="hapus(row)">Hapus</el-button></div></template>
         </el-table-column>
       </el-table>
 

@@ -270,6 +270,7 @@ h3 { font-size: var(--text-h3); }
 .aksi {
   display: flex;
   align-items: center;
+  justify-content: flex-end;   /* rapat ke tepi kanan kolom */
   gap: 14px;
   flex-wrap: nowrap;
   white-space: nowrap;
@@ -316,7 +317,7 @@ h3 { font-size: var(--text-h3); }
 /* Kolom aksi justru dirapatkan ke kiri agar tombol Ubah tidak terdorong
    jauh ke kanan, lalu diberi jarak dari tepi kanan tabel. */
 .el-table th.el-table__cell:last-child > .cell,
-.el-table td.el-table__cell:last-child > .cell { padding-left: 10px; padding-right: 22px; }
+.el-table td.el-table__cell:last-child > .cell { padding-left: 10px; padding-right: 34px; }
 
 .el-tag { border-radius: var(--r-round) !important; font-weight: 700 !important; }
 

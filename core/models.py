@@ -100,7 +100,7 @@ class Mesin(db.Model):
 
 
 class MataKuliah(db.Model):
-    """Di FK Unhas satu mata kuliah = satu Blok."""
+    """Satu mata kuliah = satu Blok."""
 
     __tablename__ = "mata_kuliah"
     id = db.Column(db.Integer, primary_key=True)
@@ -122,7 +122,7 @@ class Pengaturan(db.Model):
     toleransi_awal = db.Column(db.Integer, default=15, nullable=False)
     toleransi_akhir = db.Column(db.Integer, default=15, nullable=False)
     nama_institusi = db.Column(db.String(150), default="FAKULTAS KEDOKTERAN")
-    nama_universitas = db.Column(db.String(150), default="UNIVERSITAS HASANUDDIN")
+    nama_universitas = db.Column(db.String(150), default="UNIVERSITAS MEGA BUANA PALOPO")
 
     # koneksi opsional ke basis data software Fingerspot
     attlog_host = db.Column(db.String(120))

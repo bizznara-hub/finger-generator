@@ -21,9 +21,9 @@ async function kirim() {
 <template>
   <div class="masuk">
     <form class="masuk__kotak" @submit.prevent="kirim">
-      <span class="masuk__logo"><iconify-icon icon="lucide:fingerprint" width="22" /></span>
-      <h1>Absensi FK</h1>
-      <p class="masuk__sub">Fakultas Kedokteran Universitas Hasanuddin</p>
+      <img class="masuk__logo" src="/logo.png" alt="Logo" width="56" height="56">
+      <h1>Finger FK</h1>
+      <p class="masuk__sub">Universitas Mega Buana Palopo</p>
 
       <el-input v-model="form.username" placeholder="Username" size="large" autofocus class="mb">
         <template #prefix><iconify-icon icon="lucide:user" width="16" /></template>
@@ -47,9 +47,7 @@ async function kirim() {
   background: var(--surface-card); border-radius: var(--r-xl); box-shadow: var(--shadow-lg);
 }
 .masuk__logo {
-  width: 48px; height: 48px; border-radius: var(--r-md); display: grid; place-items: center;
-  background: linear-gradient(180deg, var(--primary-light), var(--primary)); color: #fff;
-  margin-bottom: 16px; box-shadow: var(--glow-teal);
+  display: block; width: 56px; height: 56px; object-fit: contain; margin-bottom: 16px;
 }
 h1 { font-size: var(--text-h1); font-weight: 800; letter-spacing: 3px; color: var(--ink); }
 .masuk__sub {
