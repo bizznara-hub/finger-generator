@@ -18,8 +18,8 @@ const SPEK = {
   // tanpa ID Finger, mesin tidak bisa mengenali mahasiswa sama sekali.
   mahasiswa: { kolom: [['nim','NIM'],['nama','Nama']],
     bidang: [['nim','NIM','teks',true],['nama','Nama lengkap','teks',true],['kelas_id','Kelas','pilih:kelas'],['id_finger','ID Finger','teks'],['hp','No. HP','teks']] },
-  'mata-kuliah': { kolom: [['kode','Kode'],['nama','Nama blok'],['sks','SKS'],['departemen','Departemen']],
-    bidang: [['kode','Kode','teks'],['nama','Nama mata kuliah / blok','teks',true],['sks','SKS','angka'],['departemen_id','Departemen','pilih:departemen']] },
+  'mata-kuliah': { kolom: [['nama','Mata Kuliah']],
+    bidang: [['nama','Mata Kuliah','teks',true]] },
   ruangan: { kolom: [['kode','Kode'],['nama','Nama'],['kapasitas','Kapasitas']],
     bidang: [['kode','Kode ruangan','teks'],['nama','Nama ruangan','teks',true],['kapasitas','Kapasitas','angka']] },
   mesin: { kolom: [['serial','Serial'],['nama','Nama'],['ruangan','Ruangan'],['ip_address','IP']],

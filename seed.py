@@ -79,6 +79,79 @@ DEPARTEMEN = [
 ]
 
 
+# Daftar mata kuliah.
+MATA_KULIAH = [
+    "Agama",
+    "Akupuntur",
+    "Bahasa Indonesia",
+    "Bahasa Inggris",
+    "Bioetik & Humaniora",
+    "Bioinformatika",
+    "Biomedik I",
+    "Biomedik II",
+    "Biomedik III",
+    "Biomedik IV",
+    "Biomedik V",
+    "Dasar-dasar Teknik Komunikasi",
+    "Gastroenterohepatologi",
+    "Gawat Darurat & Traumatologi",
+    "Ilmu Filsafat",
+    "Ilmu Forensik & Medikolegal",
+    "Immunologi dan Hematologi",
+    "Indera Khusus",
+    "Kedokteran Komunitas",
+    "Kedokteran Tropis",
+    "Kesehatan Masyarakat",
+    "Keterampilan Belajar",
+    "Keterampilan Diagnostik Dasar",
+    "Keterampilan Klinik 1",
+    "Keterampilan Klinik 2",
+    "Keterampilan Klinik 3",
+    "Keterampilan Klinik 4",
+    "Keterampilan Klinik 5",
+    "Keterampilan Klinik 6",
+    "Kewarganegaraan",
+    "Komunikasi Pada Profesi Kedokteran",
+    "Kuliah Kerja Nyata",
+    "Manajemen Bencana",
+    "Manajemen Kesehatan dan Rumah Sakit",
+    "Manajemen Nyeri",
+    "Manajemen Pendidikan Kedokteran",
+    "Mekanisme Dasar Penyakit",
+    "Metodologi Penelitian",
+    "P2KD 1",
+    "P2KD 3",
+    "Pembentukan dan Pengembangan Karakter Dokter 1",
+    "Pembentukan dan Pengembngan Karakter Dokter",
+    "Pembentukan dan Pengembngan Karakter Dokter 2",
+    "Penelitian Kualitatif",
+    "Psikiatri",
+    "Siklus Hidup",
+    "Sistem Endokrin&Metabolisme",
+    "Sistem Kardiovaskuler",
+    "Sistem Muskuloskeletal",
+    "Sistem Neurologi",
+    "Sistem Reproduksi",
+    "Sistem Respirasi",
+    "Sistem Urogenital",
+    "Skripsi",
+    "Statistik Lanjut",
+    "UMUM",
+    "Urogenitalia",
+]
+
+
+def isi_mata_kuliah():
+    """Tambahkan mata kuliah yang belum ada. Aman dijalankan berulang."""
+    baru = 0
+    for nama in MATA_KULIAH:
+        if not MataKuliah.query.filter_by(nama=nama).first():
+            db.session.add(MataKuliah(nama=nama))
+            baru += 1
+    db.session.commit()
+    return baru
+
+
 # Pilihan kelas yang dipakai fakultas.
 KELAS = [
     "A",
@@ -271,6 +344,9 @@ def main():
         baru_kls = isi_kelas()
         print(f"Kelas              : {baru_kls} baru, total {Kelas.query.count()}")
 
+        baru_mk = isi_mata_kuliah()
+        print(f"Mata kuliah        : {baru_mk} baru, total {MataKuliah.query.count()}")
+
         if d is None:
             print("\nSelesai. Berkas rekap tidak diberikan, jadi hanya departemen yang diisi.")
             return
@@ -311,8 +387,8 @@ def main():
             obj = Mahasiswa.query.filter_by(nim=m["nim"]).first()
             if not obj:
                 # ID Finger mengikuti NIM: mesin didaftarkan dengan NIM sebagai User ID
-            obj = Mahasiswa(nim=m["nim"], nama=m["nama"], kelas_id=kelas.id,
-                            id_finger=m["nim"])
+                obj = Mahasiswa(nim=m["nim"], nama=m["nama"], kelas_id=kelas.id,
+                                id_finger=m["nim"])
                 db.session.add(obj)
                 db.session.flush()
                 baru += 1
