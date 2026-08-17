@@ -5,6 +5,7 @@ sudah terbukti dipakai, dengan tiga tambahan: tabel ketidakhadiran (sakit/izin),
 kolom sumber pada log scan, dan pengaturan koneksi att_log.
 """
 
+import re
 from datetime import date, datetime, time
 
 from flask_sqlalchemy import SQLAlchemy
@@ -51,17 +52,20 @@ class Dosen(db.Model):
 
 
 class Kelas(db.Model):
+    """Hanya nama, seperti tabel kelas aplikasi PHP.
+
+    Angkatan sengaja tidak di sini melainkan pada Mahasiswa: mahasiswa yang
+    mengulang bisa ikut kelas angkatan lain, sehingga angkatan adalah sifat
+    orangnya, bukan sifat kelasnya.
+    """
+
     __tablename__ = "kelas"
     id = db.Column(db.Integer, primary_key=True)
-    departemen_id = db.Column(db.Integer, db.ForeignKey("departemen.id"))
     nama = db.Column(db.String(60), nullable=False)
-    angkatan = db.Column(db.String(10))
-
-    departemen = db.relationship("Departemen")
 
     @property
     def label(self):
-        return f"{self.nama} ({self.angkatan})" if self.angkatan else self.nama
+        return self.nama
 
 
 class Mahasiswa(db.Model):
@@ -71,8 +75,16 @@ class Mahasiswa(db.Model):
     id_finger = db.Column(db.String(20), index=True)
     nim = db.Column(db.String(30), unique=True, nullable=False)
     nama = db.Column(db.String(150), nullable=False)
+    angkatan = db.Column(db.String(4), index=True)
 
     kelas = db.relationship("Kelas")
+
+    @staticmethod
+    def angkatan_dari_nim(nim):
+        """C011241006 -> 2024. Dua digit sesudah kode prodi menandai angkatan,
+        jadi NIM sendiri sudah cukup menentukannya tanpa admin mengetik ulang."""
+        m = re.search(r"[A-Za-z]\d{3}(\d{2})", nim or "")
+        return "20" + m.group(1) if m else None
 
 
 class Ruangan(db.Model):

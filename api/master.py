@@ -38,12 +38,12 @@ def urut_nama_orang(nama):
 SPEK = {
     "departemen": (Departemen, "Departemen", ["kode", "nama"],
                    [Departemen.nama, Departemen.kode], Departemen.nama),
-    "kelas": (Kelas, "Kelas", ["nama", "angkatan", "departemen_id"],
-              [Kelas.nama, Kelas.angkatan], Kelas.nama),
+    "kelas": (Kelas, "Kelas", ["nama"], [Kelas.nama], Kelas.nama),
     "dosen": (Dosen, "Dosen", ["nip", "nama"],
               [Dosen.nama, Dosen.nip], Dosen.nama),
-    "mahasiswa": (Mahasiswa, "Mahasiswa", ["nim", "nama", "id_finger"],
-                  [Mahasiswa.nim, Mahasiswa.nama, Mahasiswa.id_finger], Mahasiswa.nama),
+    "mahasiswa": (Mahasiswa, "Mahasiswa", ["nim", "nama", "angkatan", "id_finger"],
+                  [Mahasiswa.nim, Mahasiswa.nama, Mahasiswa.angkatan, Mahasiswa.id_finger],
+                  Mahasiswa.nama),
     "mata-kuliah": (MataKuliah, "Mata Kuliah", ["kode", "nama", "sks", "departemen_id"],
                     [MataKuliah.nama, MataKuliah.kode], MataKuliah.nama),
     "ruangan": (Ruangan, "Ruang Kuliah", ["kode", "nama", "kapasitas"],
@@ -68,7 +68,7 @@ def _serialisasi(kunci, obj):
         d[b] = getattr(obj, b)
     if kunci == "mahasiswa":
         d["kelas"] = obj.kelas.label if obj.kelas else None
-    if kunci in ("kelas", "mata-kuliah"):
+    if kunci == "mata-kuliah":
         d["departemen"] = obj.departemen.nama if obj.departemen else None
     if kunci == "kelas":
         d["jumlah_mahasiswa"] = Mahasiswa.query.filter_by(kelas_id=obj.id).count()
@@ -93,11 +93,19 @@ def daftar(kunci):
 
 
 def _samakan_finger_dengan_nim(kunci, obj):
-    """ID Finger mahasiswa mengikuti NIM. Mesin didaftarkan dengan NIM sebagai
-    User ID, jadi keduanya memang satu nilai. Tetap bisa ditimpa manual bila
-    ada mesin yang memakai nomor lain."""
-    if kunci == "mahasiswa" and not (obj.id_finger or "").strip():
+    """ID Finger dan angkatan mahasiswa mengikuti NIM.
+
+    Mesin didaftarkan dengan NIM sebagai User ID, jadi ID Finger memang satu
+    nilai dengan NIM. Angkatan pun sudah tertulis di dalam NIM, sehingga admin
+    tidak perlu mengetiknya ulang - tetapi keduanya masih bisa ditimpa manual,
+    misalnya untuk mahasiswa pindahan yang NIM-nya tidak mengikuti pola.
+    """
+    if kunci != "mahasiswa":
+        return
+    if not (obj.id_finger or "").strip():
         obj.id_finger = obj.nim
+    if not (obj.angkatan or "").strip():
+        obj.angkatan = Mahasiswa.angkatan_dari_nim(obj.nim)
 
 
 def _terapkan(kunci, obj, data):

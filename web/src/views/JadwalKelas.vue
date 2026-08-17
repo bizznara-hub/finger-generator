@@ -17,7 +17,7 @@ function pindahKelas(idJk) {
   router.push({ path: `/jadwal/kelas/${idJk}`, query: { ...route.query } })
 }
 const d = ref(null); const pilihan = ref({})
-const rentang = ref([]); const pesertaBaru = ref([])
+const tanggalBaru = ref(''); const pesertaBaru = ref([])
 const dialogSesi = ref(false); const sesiForm = ref({}); const hariAktif = ref(null)
 const hal = ref(1); const PER_HAL = 30
 const peserta = computed(() =>
@@ -28,10 +28,12 @@ async function muat() {
 }
 
 async function tambahHari() {
-  if (!rentang.value?.length) return
+  if (!tanggalBaru.value) return
+  // Satu tanggal saja, seperti add-hari.php. Rentang hanya dipakai sekali
+  // ketika blok dibuat.
   await jalankan(() => api.post(`/jadwal/kelas/${id.value}/hari`,
-    { tanggal: rentang.value[0], tanggal_akhir: rentang.value[1] }))
-  rentang.value = []; await muat()
+    { tanggal: tanggalBaru.value }))
+  tanggalBaru.value = ''; await muat()
 }
 
 async function hapusHari(h) {
@@ -114,10 +116,13 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
       <section class="kartu mb">
         <div class="kartu__kepala"><h2 class="kartu__judul">Tambah tanggal</h2></div>
         <div class="kartu__isi">
-          <p class="petunjuk">Pilih satu tanggal, atau rentang untuk membuat beberapa sekaligus.</p>
+          <p class="petunjuk">
+            Seluruh tanggal blok sudah dibuat saat blok didaftarkan. Ini hanya untuk
+            menyisipkan satu tanggal tambahan.
+          </p>
           <div class="sebaris">
-            <el-date-picker v-model="rentang" type="daterange" value-format="YYYY-MM-DD"
-                            start-placeholder="Dari" end-placeholder="Sampai" />
+            <el-date-picker v-model="tanggalBaru" type="date" value-format="YYYY-MM-DD"
+                            placeholder="Pilih tanggal" style="width:220px" />
             <el-button type="primary" @click="tambahHari">Tambahkan</el-button>
           </div>
         </div>

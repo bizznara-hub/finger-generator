@@ -22,8 +22,10 @@ const SPEK = {
   // mesin tidak bisa mengenali mahasiswa sama sekali.
   // Kelas tidak lagi diisi di sini. Keanggotaan kelas ditangani di Jadwal
   // Kuliah, yang menarik peserta dari kelas lalu bisa disunting per orang.
-  mahasiswa: { kolom: [['nim','NIM'],['nama','Nama']],
-    bidang: [['nim','NIM','teks',true],['nama','Nama lengkap','teks',true],['id_finger','ID Finger','teks']] },
+  // Angkatan melekat pada mahasiswa, bukan kelas: mahasiswa yang mengulang bisa
+  // ikut kelas angkatan lain. Terisi sendiri dari NIM, tetap bisa ditimpa.
+  mahasiswa: { kolom: [['nim','NIM'],['angkatan','Angkatan'],['nama','Nama']],
+    bidang: [['nim','NIM','teks',true],['nama','Nama lengkap','teks',true],['angkatan','Angkatan','teks'],['id_finger','ID Finger','teks']] },
   'mata-kuliah': { kolom: [['nama','Mata Kuliah']],
     bidang: [['nama','Mata Kuliah','teks',true]] },
   ruangan: { kolom: [['kode','Kode'],['nama','Nama'],['kapasitas','Kapasitas']],
@@ -33,13 +35,13 @@ const SPEK = {
 }
 
 const spek = computed(() => SPEK[kunci.value] || SPEK.departemen)
-const MONO = ['nim','nip','id_finger','serial','ip_address','angkatan','sks','kapasitas','jumlah_mahasiswa']
+const MONO = ['nim','nip','angkatan','id_finger','serial','ip_address','angkatan','sks','kapasitas','jumlah_mahasiswa']
 
 // Kolom pendek diberi lebar tetap supaya tidak meregang dan menyisakan
 // celah lebar di sebelah kolom nama.
 const LEBAR_TETAP = {
   kode: 110, sks: 90, kapasitas: 110, angkatan: 110,
-  id_finger: 120, jumlah_mahasiswa: 130, port: 90, nim: 140, nip: 190
+  id_finger: 120, jumlah_mahasiswa: 130, port: 90, nim: 140, nip: 190, angkatan: 120
 }
 
 const judul = ref(''); const baris = ref([]); const memuat = ref(false)

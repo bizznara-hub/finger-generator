@@ -419,15 +419,11 @@ def main():
             db.session.add(dep)
             db.session.flush()
 
-        # NIM berbentuk C011241006: empat huruf/angka kode prodi, lalu dua digit angkatan
-        angkatan = None
-        if d["mahasiswa"]:
-            m = re.search(r"[A-Za-z]\d{3}(\d{2})", d["mahasiswa"][0]["nim"])
-            if m:
-                angkatan = "20" + m.group(1)
-        kelas = Kelas.query.filter_by(nama=d["kelas"], angkatan=angkatan).first()
+        # Angkatan tidak lagi dihitung di sini: kelas hanya menyimpan nama,
+        # dan angkatan melekat pada tiap mahasiswa lewat NIM-nya sendiri.
+        kelas = Kelas.query.filter_by(nama=d["kelas"]).first()
         if not kelas:
-            kelas = Kelas(nama=d["kelas"], angkatan=angkatan, departemen_id=dep.id)
+            kelas = Kelas(nama=d["kelas"])
             db.session.add(kelas)
             db.session.flush()
 
@@ -450,7 +446,8 @@ def main():
             if not obj:
                 # ID Finger mengikuti NIM: mesin didaftarkan dengan NIM sebagai User ID
                 obj = Mahasiswa(nim=m["nim"], nama=m["nama"], kelas_id=kelas.id,
-                                id_finger=m["nim"])
+                                id_finger=m["nim"],
+                                angkatan=Mahasiswa.angkatan_dari_nim(m["nim"]))
                 db.session.add(obj)
                 db.session.flush()
                 baru += 1
