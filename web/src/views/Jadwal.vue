@@ -24,7 +24,7 @@ function buka(b) {
         koordinator_id: b.koordinator_id, sekretaris_id: b.sekretaris_id,
         profil_jam_id: b.profil_jam_id }
     : { mata_kuliah_id: null, semester: '', tahun_ajaran: '', koordinator_id: null,
-        sekretaris_id: null, kelas_id: [], rentang: [],
+        sekretaris_id: null, kelas_id: [], tanggal_mulai: '', tanggal_selesai: '',
         profil_jam_id: (pilihan.value.profil_jam || []).find((x) => x.bawaan)?.id ?? null }
   dialog.value = true
 }
@@ -33,10 +33,7 @@ async function simpan() {
   if (sunting.value) {
     await jalankan(() => api.put(`/jadwal/${sunting.value.id}`, form.value))
   } else {
-    const f = form.value
-    await jalankan(() => api.post('/jadwal', {
-      ...f, tanggal_mulai: f.rentang?.[0], tanggal_selesai: f.rentang?.[1]
-    }))
+    await jalankan(() => api.post('/jadwal', form.value))
   }
   dialog.value = false; await muat()
 }
@@ -124,11 +121,20 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
           </el-form-item>
         </div>
 
-        <el-form-item v-if="!sunting" label="Tanggal" required>
-          <el-date-picker v-model="form.rentang" type="daterange" value-format="YYYY-MM-DD"
-                          start-placeholder="Tanggal mulai" range-separator="S/D"
-                          end-placeholder="Tanggal selesai" style="width:100%" />
-        </el-form-item>
+        <!-- Dua pemilih terpisah, bukan rentang. Mode rentang Element Plus selalu
+             membentangkan dua bulan sekaligus; menyembunyikan panel kanan lewat CSS
+             mematikan tombol maju, jadi bulan berikutnya tak terjangkau. Dua pemilih
+             tanggal biasa masing-masing membuka satu kalender yang tetap bisa dinavigasi. -->
+        <div v-if="!sunting" class="kisi2">
+          <el-form-item label="Tanggal mulai" required>
+            <el-date-picker v-model="form.tanggal_mulai" type="date" value-format="YYYY-MM-DD"
+                            placeholder="Pilih tanggal" style="width:100%" />
+          </el-form-item>
+          <el-form-item label="Tanggal selesai" required>
+            <el-date-picker v-model="form.tanggal_selesai" type="date" value-format="YYYY-MM-DD"
+                            placeholder="Pilih tanggal" style="width:100%" />
+          </el-form-item>
+        </div>
 
         <el-form-item label="Blok" required>
           <el-select v-model="form.mata_kuliah_id" filterable placeholder="— pilih —" style="width:100%">
