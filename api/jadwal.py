@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from flask import jsonify, request
 
-from core.laporan import label_tanggal
+from core.laporan import label_tanggal, susun
 from core.models import (
     Dosen,
     ProfilJam,
@@ -211,8 +211,22 @@ def tambah_kelas(id_jadwal):
     db.session.flush()
     for m in Mahasiswa.query.filter_by(kelas_id=int(kelas_id)).all():
         db.session.add(JadwalMahasiswa(jadwal_kelas_id=jk.id, mahasiswa_id=m.id))
+
+    # Saat blok dibuat, seluruh kelas mendapat rentang tanggal yang sama. Kelas
+    # yang menyusul harus ikut rentang itu juga, kalau tidak ia lahir kosong dan
+    # admin harus mengetik ulang seluruh tanggalnya.
+    saudara = next((x for x in j.kelas_jadwal if x.id != jk.id and x.hari), None)
+    disalin = 0
+    if saudara:
+        for h in saudara.hari:
+            db.session.add(JadwalHari(jadwal_kelas_id=jk.id, tanggal=h.tanggal))
+            disalin += 1
     db.session.commit()
-    return jsonify(id=jk.id, pesan="Kelas ditambahkan beserta seluruh mahasiswanya.")
+
+    pesan = "Kelas ditambahkan beserta seluruh mahasiswanya."
+    if disalin:
+        pesan += f" {disalin} tanggal disalin dari kelas {saudara.kelas.nama}."
+    return jsonify(id=jk.id, pesan=pesan)
 
 
 @bp.delete("/jadwal/kelas/<int:id_jk>")
@@ -246,12 +260,36 @@ def _sesi(s, p):
 def rinci_kelas(id_jk):
     jk = db.session.get(JadwalKelas, id_jk) or _tidak_ada()
     p = Pengaturan.ambil()
+    j = jk.jadwal
     hari = JadwalHari.query.filter_by(jadwal_kelas_id=id_jk).order_by(JadwalHari.tanggal).all()
     terdaftar = {x.mahasiswa_id for x in jk.peserta}
+
+    # Rekap kehadiran per mahasiswa, dipakai kolom Masuk / Tidak Masuk pada
+    # daftar mahasiswa per kelas - sama seperti tampilan aplikasi PHP.
+    rekap = {}
+    try:
+        _, baris = susun(id_jk, p)
+        for b in baris:
+            masuk = sum(1 for x in b["sel"] if x["status"] == "H")
+            rekap[b["nim"]] = (masuk, len(b["sel"]) - masuk)
+    except ValueError:
+        pass
+
     return jsonify(
-        blok=jk.jadwal.mata_kuliah.nama if jk.jadwal.mata_kuliah else "Blok",
+        blok=j.mata_kuliah.nama if j.mata_kuliah else "Blok",
         jadwal_id=jk.jadwal_id,
         kelas=jk.kelas.nama if jk.kelas else "?",
+        semester=j.semester,
+        tahun_ajaran=j.tahun_ajaran,
+        koordinator=j.koordinator.nama if j.koordinator else None,
+        sekretaris=j.sekretaris.nama if j.sekretaris else None,
+        profil_jam=j.profil_jam.label if j.profil_jam else "—",
+        # Daftar kelas yang sudah dipilih pada blok ini, untuk pemilih kelas.
+        daftar_kelas=[
+            {"id": x.id, "nama": x.kelas.nama if x.kelas else "?",
+             "jumlah_peserta": len(x.peserta), "jumlah_hari": len(x.hari)}
+            for x in sorted(j.kelas_jadwal, key=lambda x: (x.kelas.nama if x.kelas else ""))
+        ],
         pengaturan={
             "toleransi_awal": p.toleransi_awal,
             "toleransi_akhir": p.toleransi_akhir,
@@ -273,6 +311,8 @@ def rinci_kelas(id_jk):
                 "nim": x.mahasiswa.nim,
                 "nama": x.mahasiswa.nama,
                 "id_finger": x.mahasiswa.id_finger,
+                "masuk": rekap.get(x.mahasiswa.nim, (0, 0))[0],
+                "tidak_masuk": rekap.get(x.mahasiswa.nim, (0, 0))[1],
             }
             for x in sorted(jk.peserta, key=lambda x: x.mahasiswa.nim)
         ],

@@ -1,11 +1,21 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessageBox } from 'element-plus'
 import { api, jalankan } from '@/api'
 
 const route = useRoute(); const router = useRouter()
-const id = route.params.id
+const id = computed(() => route.params.id)
+// Tab disimpan di query supaya pindah kelas tidak melemparkan admin
+// kembali ke tab jadwal saat sedang melihat daftar mahasiswa.
+const tab = computed({
+  get: () => route.query.tab || 'jadwal',
+  set: (v) => router.replace({ query: { ...route.query, tab: v } })
+})
+
+function pindahKelas(idJk) {
+  router.push({ path: `/jadwal/kelas/${idJk}`, query: { ...route.query } })
+}
 const d = ref(null); const pilihan = ref({})
 const rentang = ref([]); const pesertaBaru = ref([])
 const dialogSesi = ref(false); const sesiForm = ref({}); const hariAktif = ref(null)
@@ -14,12 +24,12 @@ const peserta = computed(() =>
   (d.value?.peserta || []).slice((hal.value - 1) * PER_HAL, hal.value * PER_HAL))
 
 async function muat() {
-  d.value = await api.get(`/jadwal/kelas/${id}`)
+  d.value = await api.get(`/jadwal/kelas/${id.value}`)
 }
 
 async function tambahHari() {
   if (!rentang.value?.length) return
-  await jalankan(() => api.post(`/jadwal/kelas/${id}/hari`,
+  await jalankan(() => api.post(`/jadwal/kelas/${id.value}/hari`,
     { tanggal: rentang.value[0], tanggal_akhir: rentang.value[1] }))
   rentang.value = []; await muat()
 }
@@ -54,7 +64,7 @@ async function hapusSesi(s) {
 
 async function tambahPeserta() {
   if (!pesertaBaru.value.length) return
-  await jalankan(() => api.post(`/jadwal/kelas/${id}/peserta`, { mahasiswa_id: pesertaBaru.value }))
+  await jalankan(() => api.post(`/jadwal/kelas/${id.value}/peserta`, { mahasiswa_id: pesertaBaru.value }))
   pesertaBaru.value = []; await muat()
 }
 
@@ -62,6 +72,7 @@ async function hapusPeserta(p) {
   await jalankan(() => api.del(`/jadwal/peserta/${p.id}`)); await muat()
 }
 
+watch(id, async () => { hal.value = 1; await muat() })
 onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') })
 </script>
 
@@ -74,6 +85,29 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
         <el-button type="primary" @click="router.push(`/laporan?kelas=${id}`)">Lihat laporan</el-button>
       </div>
 
+      <section class="kartu mb">
+        <div class="kartu__isi profil">
+          <div><span class="profil__nama">Semester</span> {{ d.semester || '—' }} · {{ d.tahun_ajaran || '—' }}</div>
+          <div><span class="profil__nama">Koordinator</span> {{ d.koordinator || '—' }}</div>
+          <div><span class="profil__nama">Sekretaris</span> {{ d.sekretaris || '—' }}</div>
+          <div><span class="profil__nama">Pengaturan</span> {{ d.profil_jam }}</div>
+          <div class="profil__kelas">
+            <span class="profil__nama">Kelas</span>
+            <el-select :model-value="Number(id)" style="width:230px" @change="pindahKelas">
+              <el-option v-for="o in d.daftar_kelas" :key="o.id"
+                         :label="`${o.nama} — ${o.jumlah_peserta} peserta, ${o.jumlah_hari} tanggal`"
+                         :value="o.id" />
+            </el-select>
+          </div>
+        </div>
+      </section>
+
+      <el-tabs v-model="tab" class="tab">
+        <el-tab-pane label="Jadwal kelas" name="jadwal" />
+        <el-tab-pane label="Mahasiswa kelas" name="mahasiswa" />
+      </el-tabs>
+
+      <template v-if="tab === 'jadwal'">
       <el-alert type="info" :closable="false" show-icon class="info"
         :title="`${d.pengaturan.profil_jam}. Toleransi ${d.pengaturan.toleransi_awal} menit datang awal dan ${d.pengaturan.toleransi_akhir} menit terlambat.`" />
 
@@ -133,10 +167,11 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
       </section>
 
       <el-empty v-if="!d.hari.length" description="Belum ada tanggal. Tambahkan lewat formulir di atas." />
+      </template>
 
-      <section class="kartu">
+      <section v-else class="kartu">
         <div class="kartu__kepala">
-          <h2 class="kartu__judul">Peserta</h2>
+          <h2 class="kartu__judul">Mahasiswa kelas {{ d.kelas }}</h2>
           <el-tag size="small" round>{{ d.peserta.length }} mahasiswa</el-tag>
         </div>
         <div class="kartu__isi">
@@ -158,6 +193,14 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
             <template #default="{ row }">
               <span v-if="row.id_finger" class="num">{{ row.id_finger }}</span>
               <el-tag v-else type="warning" size="small">belum diisi</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="Masuk" width="90" align="center">
+            <template #default="{ row }"><span class="num">{{ row.masuk }}</span></template>
+          </el-table-column>
+          <el-table-column label="Tidak Masuk" width="120" align="center">
+            <template #default="{ row }">
+              <span class="num" :class="{ merah: row.tidak_masuk }">{{ row.tidak_masuk }}</span>
             </template>
           </el-table-column>
           <el-table-column label="Aksi" width="150" align="right">
@@ -221,5 +264,10 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
 .mb { margin-bottom: 16px; }
 .sebaris { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .hal { display: flex; justify-content: center; padding: 12px; }
+.profil { display: grid; gap: 10px; font-size: var(--text-sm); }
+.profil__nama { display: inline-block; min-width: 108px; font-weight: 700; color: var(--ink-2); }
+.profil__kelas { display: flex; align-items: center; }
+.tab { margin-bottom: 4px; }
+.merah { color: var(--danger, #d9534f); font-weight: 700; }
 .kisi { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0 12px; }
 </style>
