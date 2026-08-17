@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from flask import jsonify, request
 
-from core.laporan import label_tanggal, susun
+from core.laporan import label_tanggal
 from core.models import (
     Dosen,
     ProfilJam,
@@ -148,17 +148,19 @@ def tambah_blok():
     hari = dilewati = 0
     kepenuhan = False
     for kid in dict.fromkeys(kelas_ids):
+        # Peserta sengaja tidak diisi otomatis, sama seperti add.php yang hanya
+        # membuat jadwal, kelas, dan tanggal. Mahasiswa didaftarkan sendiri lewat
+        # tab Mahasiswa kelas, karena yang mengikuti sebuah blok belum tentu
+        # seluruh isi kelas - ada yang mengulang, cuti, atau menyusul.
         jk = JadwalKelas(jadwal_id=j.id, kelas_id=kid)
         db.session.add(jk)
         db.session.flush()
-        for m in Mahasiswa.query.filter_by(kelas_id=kid).all():
-            db.session.add(JadwalMahasiswa(jadwal_kelas_id=jk.id, mahasiswa_id=m.id))
         n, lewat, penuh = _buat_hari(jk.id, awal, akhir)
         hari, dilewati, kepenuhan = hari + n, lewat, kepenuhan or penuh
     db.session.commit()
 
     pesan = (f"Blok tersimpan: {len(set(kelas_ids))} kelas, {hari} tanggal dibuat, "
-             f"{dilewati} akhir pekan dilewati.")
+             f"{dilewati} akhir pekan dilewati. Peserta masih kosong.")
     if kepenuhan:
         pesan += f" Berhenti di batas {BATAS_HARI} tanggal per kelas."
     return jsonify(baris=_blok(j), pesan=pesan)
@@ -209,8 +211,6 @@ def tambah_kelas(id_jadwal):
     jk = JadwalKelas(jadwal_id=j.id, kelas_id=int(kelas_id))
     db.session.add(jk)
     db.session.flush()
-    for m in Mahasiswa.query.filter_by(kelas_id=int(kelas_id)).all():
-        db.session.add(JadwalMahasiswa(jadwal_kelas_id=jk.id, mahasiswa_id=m.id))
 
     # Saat blok dibuat, seluruh kelas mendapat rentang tanggal yang sama. Kelas
     # yang menyusul harus ikut rentang itu juga, kalau tidak ia lahir kosong dan
@@ -223,7 +223,7 @@ def tambah_kelas(id_jadwal):
             disalin += 1
     db.session.commit()
 
-    pesan = "Kelas ditambahkan beserta seluruh mahasiswanya."
+    pesan = "Kelas ditambahkan. Pesertanya masih kosong, isi lewat tab Mahasiswa kelas."
     if disalin:
         pesan += f" {disalin} tanggal disalin dari kelas {saudara.kelas.nama}."
     return jsonify(id=jk.id, pesan=pesan)
@@ -264,17 +264,6 @@ def rinci_kelas(id_jk):
     hari = JadwalHari.query.filter_by(jadwal_kelas_id=id_jk).order_by(JadwalHari.tanggal).all()
     terdaftar = {x.mahasiswa_id for x in jk.peserta}
 
-    # Rekap kehadiran per mahasiswa, dipakai kolom Masuk / Tidak Masuk pada
-    # daftar mahasiswa per kelas - sama seperti tampilan aplikasi PHP.
-    rekap = {}
-    try:
-        _, baris = susun(id_jk, p)
-        for b in baris:
-            masuk = sum(1 for x in b["sel"] if x["status"] == "H")
-            rekap[b["nim"]] = (masuk, len(b["sel"]) - masuk)
-    except ValueError:
-        pass
-
     return jsonify(
         blok=j.mata_kuliah.nama if j.mata_kuliah else "Blok",
         jadwal_id=jk.jadwal_id,
@@ -309,9 +298,6 @@ def rinci_kelas(id_jk):
                 "id": x.id,
                 "nim": x.mahasiswa.nim,
                 "nama": x.mahasiswa.nama,
-                "id_finger": x.mahasiswa.id_finger,
-                "masuk": rekap.get(x.mahasiswa.nim, (0, 0))[0],
-                "tidak_masuk": rekap.get(x.mahasiswa.nim, (0, 0))[1],
             }
             for x in sorted(jk.peserta, key=lambda x: x.mahasiswa.nim)
         ],

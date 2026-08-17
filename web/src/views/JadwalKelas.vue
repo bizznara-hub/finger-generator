@@ -227,20 +227,6 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
             <template #default="{ row }"><span class="nim">{{ row.nim }}</span></template>
           </el-table-column>
           <el-table-column prop="nama" label="Nama" min-width="180" />
-          <el-table-column label="ID Finger" width="120">
-            <template #default="{ row }">
-              <span v-if="row.id_finger" class="num">{{ row.id_finger }}</span>
-              <el-tag v-else type="warning" size="small">belum diisi</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column label="Masuk" width="90" align="center">
-            <template #default="{ row }"><span class="num">{{ row.masuk }}</span></template>
-          </el-table-column>
-          <el-table-column label="Tidak Masuk" width="120" align="center">
-            <template #default="{ row }">
-              <span class="num" :class="{ merah: row.tidak_masuk }">{{ row.tidak_masuk }}</span>
-            </template>
-          </el-table-column>
           <el-table-column label="Aksi" width="150" align="right">
             <template #default="{ row }">
               <el-button link type="danger" @click="hapusPeserta(row)">Keluarkan</el-button>
@@ -306,7 +292,6 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
 .profil__nama { display: inline-block; min-width: 108px; font-weight: 700; color: var(--ink-2); }
 .profil__kelas { display: flex; align-items: center; }
 .tab { margin-bottom: 4px; }
-.merah { color: var(--danger, #d9534f); font-weight: 700; }
 .gulir { overflow-x: auto; }
 .jadwal { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
 .jadwal th {

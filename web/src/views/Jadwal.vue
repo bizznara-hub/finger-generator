@@ -185,7 +185,10 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
     </el-dialog>
 
     <el-dialog v-model="dialogKelas" title="Tambah kelas peserta" width="420">
-      <p class="petunjuk">Seluruh mahasiswa kelas itu otomatis terdaftar sebagai peserta.</p>
+      <p class="petunjuk">
+        Tanggalnya disalin dari kelas yang sudah ada pada blok ini. Pesertanya kosong,
+        daftarkan mahasiswa lewat tab Mahasiswa kelas.
+      </p>
       <el-select v-model="kelasBaru.kelas_id" placeholder="— pilih kelas —" style="width:100%">
         <el-option v-for="o in pilihan.kelas || []" :key="o.id" :label="o.label" :value="o.id" />
       </el-select>
