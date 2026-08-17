@@ -21,9 +21,11 @@ function buka(b) {
   sunting.value = b
   form.value = b
     ? { mata_kuliah_id: b.mata_kuliah_id, semester: b.semester, tahun_ajaran: b.tahun_ajaran,
-        koordinator_id: b.koordinator_id, sekretaris_id: b.sekretaris_id }
+        koordinator_id: b.koordinator_id, sekretaris_id: b.sekretaris_id,
+        profil_jam_id: b.profil_jam_id }
     : { mata_kuliah_id: null, semester: '', tahun_ajaran: '', koordinator_id: null,
-        sekretaris_id: null, kelas_id: [], rentang: [] }
+        sekretaris_id: null, kelas_id: [], rentang: [],
+        profil_jam_id: (pilihan.value.profil_jam || []).find((x) => x.bawaan)?.id ?? null }
   dialog.value = true
 }
 
@@ -82,6 +84,7 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
           <span class="petugas">
             <span><b>Koordinator</b> {{ b.koordinator || '—' }}</span>
             <span><b>Sekretaris</b> {{ b.sekretaris || '—' }}</span>
+            <span><b>Jam</b> {{ b.profil_jam || '—' }}</span>
           </span>
           <el-button size="small" @click="bukaKelas(b)">+ Kelas</el-button>
           <el-button size="small" @click="buka(b)">Ubah</el-button>
@@ -109,11 +112,6 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
 
     <el-dialog v-model="dialog" :title="sunting ? 'Ubah blok' : 'Tambah blok'" width="520">
       <el-form label-position="top">
-        <el-form-item label="Mata kuliah / blok" required>
-          <el-select v-model="form.mata_kuliah_id" filterable placeholder="— pilih —" style="width:100%">
-            <el-option v-for="o in pilihan.mata_kuliah || []" :key="o.id" :label="o.label" :value="o.id" />
-          </el-select>
-        </el-form-item>
         <div class="kisi2">
           <el-form-item label="Semester" required>
             <el-select v-model="form.semester" placeholder="— pilih —" style="width:100%">
@@ -125,6 +123,19 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
             <el-input v-model="form.tahun_ajaran" placeholder="2025/2026" />
           </el-form-item>
         </div>
+
+        <el-form-item v-if="!sunting" label="Tanggal" required>
+          <el-date-picker v-model="form.rentang" type="daterange" value-format="YYYY-MM-DD"
+                          start-placeholder="Tanggal mulai" range-separator="S/D"
+                          end-placeholder="Tanggal selesai" style="width:100%" />
+        </el-form-item>
+
+        <el-form-item label="Blok" required>
+          <el-select v-model="form.mata_kuliah_id" filterable placeholder="— pilih —" style="width:100%">
+            <el-option v-for="o in pilihan.mata_kuliah || []" :key="o.id" :label="o.label" :value="o.id" />
+          </el-select>
+        </el-form-item>
+
         <div class="kisi2">
           <el-form-item label="Koordinator" required>
             <el-select v-model="form.koordinator_id" filterable placeholder="— pilih dosen —" style="width:100%">
@@ -138,21 +149,22 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
           </el-form-item>
         </div>
 
-        <template v-if="!sunting">
-          <el-form-item label="Kelas peserta" required>
-            <el-select v-model="form.kelas_id" multiple filterable placeholder="— pilih satu atau lebih —" style="width:100%">
-              <el-option v-for="o in pilihan.kelas || []" :key="o.id" :label="o.label" :value="o.id" />
-            </el-select>
-          </el-form-item>
-          <el-form-item label="Rentang tanggal kuliah" required>
-            <el-date-picker v-model="form.rentang" type="daterange" value-format="YYYY-MM-DD"
-                            start-placeholder="Mulai" end-placeholder="Selesai" style="width:100%" />
-          </el-form-item>
-          <p class="petunjuk">
-            Seluruh mahasiswa kelas terpilih otomatis jadi peserta, dan tanggal kuliah
-            dibuat sepanjang rentang itu. Sabtu dan Minggu dilewati.
-          </p>
-        </template>
+        <el-form-item v-if="!sunting" label="Kelas" required>
+          <el-select v-model="form.kelas_id" multiple filterable placeholder="— pilih satu atau lebih —" style="width:100%">
+            <el-option v-for="o in pilihan.kelas || []" :key="o.id" :label="o.label" :value="o.id" />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="Pengaturan" required>
+          <el-select v-model="form.profil_jam_id" placeholder="— pilih —" style="width:100%">
+            <el-option v-for="o in pilihan.profil_jam || []" :key="o.id" :label="o.label" :value="o.id" />
+          </el-select>
+        </el-form-item>
+
+        <p v-if="!sunting" class="petunjuk">
+          Seluruh mahasiswa kelas terpilih otomatis jadi peserta, dan tanggal kuliah
+          dibuat sepanjang rentang itu. Sabtu dan Minggu dilewati.
+        </p>
       </el-form>
       <template #footer>
         <el-button @click="dialog = false">Batal</el-button>

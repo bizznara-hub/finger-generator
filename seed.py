@@ -38,6 +38,7 @@ from core.models import (
     MataKuliah,
     Mesin,
     Pengaturan,
+    ProfilJam,
     Ruangan,
     db,
 )
@@ -221,6 +222,31 @@ def kode_departemen(nama, dipakai):
     return k
 
 
+# Enam profil persis seperti daftar pilihan aplikasi PHP. Yang 55/5 dengan
+# istirahat 12:00-13:00 adalah bawaan, sesuai option bertanda selected di sana.
+PROFIL_JAM = [
+    (55, 5, "12:00", "13:00", True),
+    (50, 5, "12:00", "13:00", False),
+    (55, 5, "12:00", "12:55", False),
+    (55, 5, "11:55", "13:00", False),
+    (60, 0, "12:00", "13:00", False),
+    (30, 0, "12:00", "13:00", False),
+]
+
+
+def isi_profil_jam():
+    if ProfilJam.query.count():
+        return 0
+    for perjam, selisih, awal, akhir, bawaan in PROFIL_JAM:
+        db.session.add(ProfilJam(
+            menit_perjam=perjam, menit_pergantian=selisih, bawaan=bawaan,
+            istirahat_mulai=datetime.strptime(awal, "%H:%M").time(),
+            istirahat_selesai=datetime.strptime(akhir, "%H:%M").time(),
+        ))
+    db.session.commit()
+    return len(PROFIL_JAM)
+
+
 def isi_departemen():
     """Tambahkan departemen yang belum ada dan lengkapi kode yang masih kosong.
     Aman dijalankan berulang."""
@@ -367,6 +393,7 @@ def main():
             print("Tabel dikosongkan.")
 
         Pengaturan.ambil()
+        isi_profil_jam()
 
         baru_dep, berkode = isi_departemen()
         print(f"Departemen         : {baru_dep} baru, {berkode} diberi kode, "
@@ -447,7 +474,8 @@ def main():
 
         jadwal = Jadwal.query.filter_by(mata_kuliah_id=mk.id, tahun_ajaran=d["tahun"]).first()
         if not jadwal:
-            jadwal = Jadwal(mata_kuliah_id=mk.id, semester=d["semester"], tahun_ajaran=d["tahun"])
+            jadwal = Jadwal(mata_kuliah_id=mk.id, semester=d["semester"], tahun_ajaran=d["tahun"],
+                            profil_jam_id=ProfilJam.bawaan_atau_pertama().id)
             db.session.add(jadwal)
             db.session.flush()
 
@@ -473,9 +501,9 @@ def main():
                 db.session.flush()
             sesi = JadwalJam.query.filter_by(jadwal_hari_id=hari.id, kegiatan=s["nama"]).first()
             if not sesi:
-                # Jumlah jam diturunkan dari pengaturan yang berlaku, bukan angka
+                # Jumlah jam diturunkan dari profil jam blok ini, bukan angka
                 # tetap: menit = jml*perjam + (jml-1)*pergantian.
-                atur = Pengaturan.ambil()
+                atur = ProfilJam.bawaan_atau_pertama()
                 menit = (s["selesai"].hour * 60 + s["selesai"].minute) - (s["mulai"].hour * 60 + s["mulai"].minute)
                 jml = max(1, round((menit + atur.menit_pergantian)
                                    / (atur.menit_perjam + atur.menit_pergantian)))

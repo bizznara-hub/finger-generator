@@ -24,13 +24,9 @@ async function simpan() {
             jam selesai = jam masuk + (jumlah jam × menit per jam) + ((jumlah jam − 1) × menit pergantian)
           </p>
           <el-form label-position="top" class="kisi">
-            <el-form-item label="Menit per jam"><el-input-number v-model="p.menit_perjam" :min="1" :max="180" style="width:100%" /></el-form-item>
-            <el-form-item label="Menit pergantian"><el-input-number v-model="p.menit_pergantian" :min="0" :max="120" style="width:100%" /></el-form-item>
             <el-form-item label="Toleransi datang awal"><el-input-number v-model="p.toleransi_awal" :min="0" :max="180" style="width:100%" /></el-form-item>
             <el-form-item label="Toleransi terlambat"><el-input-number v-model="p.toleransi_akhir" :min="0" :max="180" style="width:100%" /></el-form-item>
             <el-form-item label="Jam masuk perkuliahan"><el-input v-model="p.jam_kuliah" placeholder="07:30" /></el-form-item>
-            <el-form-item label="Istirahat mulai"><el-input v-model="p.istirahat_mulai" placeholder="12:00" /></el-form-item>
-            <el-form-item label="Istirahat selesai"><el-input v-model="p.istirahat_selesai" placeholder="13:00" /></el-form-item>
           </el-form>
         </div>
       </section>

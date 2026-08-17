@@ -75,7 +75,7 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
       </div>
 
       <el-alert type="info" :closable="false" show-icon class="info"
-        :title="`Setiap jam berdurasi ${d.pengaturan.menit_perjam} menit dengan jeda pergantian ${d.pengaturan.menit_pergantian} menit${d.pengaturan.istirahat ? `, istirahat ${d.pengaturan.istirahat}` : ''}. Toleransi ${d.pengaturan.toleransi_awal} menit datang awal dan ${d.pengaturan.toleransi_akhir} menit terlambat.`" />
+        :title="`${d.pengaturan.profil_jam}. Toleransi ${d.pengaturan.toleransi_awal} menit datang awal dan ${d.pengaturan.toleransi_akhir} menit terlambat.`" />
 
       <section class="kartu mb">
         <div class="kartu__kepala"><h2 class="kartu__judul">Tambah tanggal</h2></div>

@@ -47,7 +47,9 @@ def ambil_sesi(jadwal_kelas_id, pengaturan):
     )
     hasil = []
     for sesi, hari in baris:
-        selesai = sesi.jam_selesai(pengaturan)
+        # Profil jam diambil dari blok pemilik sesi; pengaturan hanya dipakai
+        # untuk toleransi datang awal dan terlambat.
+        selesai = sesi.jam_selesai()
         hasil.append(
             {
                 "id": sesi.id,

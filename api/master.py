@@ -13,6 +13,7 @@ from core.models import (
     Mahasiswa,
     MataKuliah,
     Mesin,
+    ProfilJam,
     Ruangan,
     db,
 )
@@ -170,4 +171,6 @@ def pilihan():
         dosen=[{"id": x.id, "label": x.nama} for x in Dosen.query.order_by(Dosen.nama)],
         mata_kuliah=[{"id": x.id, "label": x.nama} for x in MataKuliah.query.order_by(MataKuliah.nama)],
         mahasiswa=[{"id": x.id, "label": f"{x.nim} — {x.nama}"} for x in Mahasiswa.query.order_by(Mahasiswa.nim)],
+        profil_jam=[{"id": x.id, "label": x.label, "bawaan": x.bawaan}
+                    for x in ProfilJam.query.order_by(ProfilJam.id)],
     )

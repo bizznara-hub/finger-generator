@@ -7,6 +7,7 @@ from flask import jsonify, request
 from core.laporan import label_tanggal
 from core.models import (
     Dosen,
+    ProfilJam,
     Jadwal,
     JadwalDosen,
     JadwalHari,
@@ -67,6 +68,8 @@ def _blok(j):
         "koordinator": j.koordinator.nama if j.koordinator else None,
         "sekretaris_id": j.sekretaris_id,
         "sekretaris": j.sekretaris.nama if j.sekretaris else None,
+        "profil_jam_id": j.profil_jam_id,
+        "profil_jam": j.profil_jam.label if j.profil_jam else None,
         "kelas": [
             {
                 "id": jk.id,
@@ -123,9 +126,13 @@ def tambah_blok():
     if awal >= akhir:
         raise GalatAPI("Tanggal selesai harus sesudah tanggal mulai.")
 
+    profil_id = d.get("profil_jam_id")
+    if not profil_id or db.session.get(ProfilJam, int(profil_id)) is None:
+        raise GalatAPI("Pengaturan jam wajib dipilih.")
+
     if Jadwal.query.filter_by(mata_kuliah_id=int(d["mata_kuliah_id"]),
                               semester=semester, tahun_ajaran=tahun).first():
-        raise GalatAPI("Blok itu sudah ada pada semester dan tahun ajaran tersebut.")
+        raise GalatAPI("Jadwal tersebut sudah ada.")
 
     j = Jadwal(
         mata_kuliah_id=int(d["mata_kuliah_id"]),
@@ -133,6 +140,7 @@ def tambah_blok():
         tahun_ajaran=tahun,
         koordinator_id=koordinator,
         sekretaris_id=sekretaris,
+        profil_jam_id=int(profil_id),
     )
     db.session.add(j)
     db.session.flush()
@@ -168,6 +176,10 @@ def ubah_blok(id_jadwal):
         j.koordinator_id = _dosen_ada(d.get("koordinator_id"), "Koordinator")
     if "sekretaris_id" in d:
         j.sekretaris_id = _dosen_ada(d.get("sekretaris_id"), "Sekretaris")
+    if d.get("profil_jam_id"):
+        if db.session.get(ProfilJam, int(d["profil_jam_id"])) is None:
+            raise GalatAPI("Pengaturan jam tidak ditemukan.")
+        j.profil_jam_id = int(d["profil_jam_id"])
     db.session.commit()
     return jsonify(baris=_blok(j), pesan="Blok diperbarui.")
 
@@ -218,9 +230,9 @@ def _sesi(s, p):
         "jam_masuk": s.jam_masuk.strftime("%H:%M"),
         "jml_jam": s.jml_jam,
         "jam_selesai_manual": s.jam_selesai_manual.strftime("%H:%M") if s.jam_selesai_manual else "",
-        "jam_selesai_hitung": s.jam_selesai(p).strftime("%H:%M"),
+        "jam_selesai_hitung": s.jam_selesai().strftime("%H:%M"),
         # Rentang per jam seperti tampilan PHP: 08:00-08:50, 09:00-09:50, ...
-        "slot": [f"{a.strftime('%H:%M')}-{b.strftime('%H:%M')}" for a, b in s.slot(p)],
+        "slot": [f"{a.strftime('%H:%M')}-{b.strftime('%H:%M')}" for a, b in s.slot()],
         "ruangan_id": s.ruangan_id,
         "ruangan": s.ruangan.nama if s.ruangan else None,
         "departemen_id": s.departemen_id,
@@ -241,13 +253,10 @@ def rinci_kelas(id_jk):
         jadwal_id=jk.jadwal_id,
         kelas=jk.kelas.nama if jk.kelas else "?",
         pengaturan={
-            "menit_perjam": p.menit_perjam,
-            "menit_pergantian": p.menit_pergantian,
             "toleransi_awal": p.toleransi_awal,
             "toleransi_akhir": p.toleransi_akhir,
             "jam_kuliah": p.jam_kuliah.strftime("%H:%M") if p.jam_kuliah else "07:30",
-            "istirahat": (f"{p.istirahat_mulai.strftime('%H:%M')}-{p.istirahat_selesai.strftime('%H:%M')}"
-                          if p.istirahat_mulai and p.istirahat_selesai else ""),
+            "profil_jam": jk.jadwal.profil_jam.label if jk.jadwal.profil_jam else "—",
         },
         hari=[
             {
@@ -339,8 +348,7 @@ def _terapkan_sesi(s, d):
     if s.jam_selesai_manual and s.jam_selesai_manual <= s.jam_masuk:
         raise GalatAPI("Jam selesai manual harus sesudah jam masuk.")
 
-    p = Pengaturan.ambil()
-    if not s.jam_selesai_manual and s.slot(p)[-1][1] <= s.jam_masuk:
+    if not s.jam_selesai_manual and s.slot()[-1][1] <= s.jam_masuk:
         raise GalatAPI("Sesi sepanjang itu melewati tengah malam. Kurangi jumlah jam.")
 
 
