@@ -221,8 +221,10 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
             <el-button type="primary" @click="tambahPeserta">Tambahkan</el-button>
           </div>
         </div>
-        <el-table :data="peserta" empty-text="Belum ada peserta.">
-          <el-table-column type="index" label="No" width="70" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
+        <el-table :data="peserta" empty-text="Belum ada peserta." class="tabel-peserta">
+          <!-- 96px, bukan 70px: padding kiri 46px menyisakan ruang terlalu
+               sempit sehingga judul "No" pecah menjadi dua baris. -->
+          <el-table-column type="index" label="No" width="96" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
           <el-table-column label="NIM" width="140">
             <template #default="{ row }"><span class="nim">{{ row.nim }}</span></template>
           </el-table-column>
@@ -292,6 +294,11 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
 .profil__nama { display: inline-block; min-width: 108px; font-weight: 700; color: var(--ink-2); }
 .profil__kelas { display: flex; align-items: center; }
 .tab { margin-bottom: 4px; }
+/* Kolom nomor pada daftar peserta digeser sedikit lagi ke kanan supaya tidak
+   terasa menempel ke tepi kartu. Hanya tabel ini, halaman lain tetap 34px. */
+.tabel-peserta :deep(th.el-table__cell:first-child > .cell),
+.tabel-peserta :deep(td.el-table__cell:first-child > .cell) { padding-left: 46px; }
+
 .gulir { overflow-x: auto; }
 .jadwal { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
 .jadwal th {
