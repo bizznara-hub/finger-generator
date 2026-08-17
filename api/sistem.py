@@ -62,7 +62,6 @@ def ambil_pengaturan():
         for x in ProfilJam.query.order_by(ProfilJam.id)
     ], pengaturan={
         "toleransi_awal": p.toleransi_awal, "toleransi_akhir": p.toleransi_akhir,
-        "jam_kuliah": p.jam_kuliah.strftime("%H:%M") if p.jam_kuliah else "",
         "nama_institusi": p.nama_institusi, "nama_universitas": p.nama_universitas,
         "attlog_host": p.attlog_host, "attlog_port": p.attlog_port,
         "attlog_nama_db": p.attlog_nama_db, "attlog_user": p.attlog_user,
@@ -93,7 +92,6 @@ def simpan_pengaturan():
                 continue
         return None
 
-    p.jam_kuliah = jam("jam_kuliah")
     p.nama_institusi = (d.get("nama_institusi") or "").strip() or None
     p.nama_universitas = (d.get("nama_universitas") or "").strip() or None
     p.attlog_host = (d.get("attlog_host") or "").strip() or None

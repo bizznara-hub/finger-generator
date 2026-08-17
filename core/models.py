@@ -129,8 +129,6 @@ class Pengaturan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     toleransi_awal = db.Column(db.Integer, default=15, nullable=False)
     toleransi_akhir = db.Column(db.Integer, default=15, nullable=False)
-    # Jam masuk perkuliahan - dipakai sebagai isian awal saat menambah sesi.
-    jam_kuliah = db.Column(db.Time, default=time(7, 0))
     nama_institusi = db.Column(db.String(150), default="FAKULTAS KEDOKTERAN")
     nama_universitas = db.Column(db.String(150), default="UNIVERSITAS MEGA BUANA PALOPO")
 

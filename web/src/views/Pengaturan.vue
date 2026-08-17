@@ -26,7 +26,6 @@ async function simpan() {
           <el-form label-position="top" class="kisi">
             <el-form-item label="Toleransi datang awal"><el-input-number v-model="p.toleransi_awal" :min="0" :max="180" style="width:100%" /></el-form-item>
             <el-form-item label="Toleransi terlambat"><el-input-number v-model="p.toleransi_akhir" :min="0" :max="180" style="width:100%" /></el-form-item>
-            <el-form-item label="Jam masuk perkuliahan"><el-input v-model="p.jam_kuliah" placeholder="07:00" /></el-form-item>
           </el-form>
         </div>
       </section>

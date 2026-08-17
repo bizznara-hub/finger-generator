@@ -64,8 +64,11 @@ function bukaSesi(h, s) {
   hariAktif.value = h
   sesiForm.value = s
     ? { ...s }
-    : { id: null, kegiatan: '', jam_masuk: d.value?.pengaturan?.jam_kuliah || '07:00',
-        jml_jam: 2, jam_selesai_manual: '', ruangan_id: null, departemen_id: null, dosen_id: [] }
+    // Jam masuk sengaja dibiarkan kosong. Satu hari memuat beberapa sesi dengan
+    // jam berbeda-beda, jadi nilai bawaan apa pun lebih sering salah daripada
+    // benar dan justru berisiko tersimpan tanpa sempat diperiksa.
+    : { id: null, kegiatan: '', jam_masuk: '', jml_jam: 2, jam_selesai_manual: '',
+        ruangan_id: null, departemen_id: null, dosen_id: [] }
   dialogSesi.value = true
 }
 
