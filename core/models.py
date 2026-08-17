@@ -164,6 +164,10 @@ class ProfilJam(db.Model):
     menit_pergantian = db.Column(db.Integer, default=0, nullable=False)
     istirahat_mulai = db.Column(db.Time)
     istirahat_selesai = db.Column(db.Time)
+    # Jam masuk perkuliahan dan jumlah jam per hari melekat pada profil, bukan
+    # pada aplikasi: tiap aturan punya jam mulai dan beban harian sendiri.
+    jam_kuliah = db.Column(db.Time)
+    jam_perhari = db.Column(db.Integer)
     bawaan = db.Column(db.Boolean, default=False, nullable=False)
 
     @property
