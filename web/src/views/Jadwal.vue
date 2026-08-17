@@ -75,19 +75,25 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
 
     <div v-loading="memuat" class="daftar">
       <section v-for="b in baris" :key="b.id" class="kartu">
+        <!-- Judul dan tombol di baris sendiri; keterangan blok turun ke bawah
+             sebagai pasangan label-nilai. Sebelumnya semuanya dijejalkan dalam
+             satu baris flex sehingga nama dosen dan label pengaturan yang
+             panjang saling menempel tanpa jarak. -->
         <div class="kartu__kepala">
           <h2 class="kartu__judul">{{ b.mata_kuliah || '—' }}</h2>
-          <span class="redup kecil">{{ b.semester || '—' }} · {{ b.tahun_ajaran || '—' }}</span>
-          <span class="petugas">
-            <span><b>Koordinator</b> {{ b.koordinator || '—' }}</span>
-            <span><b>Sekretaris</b> {{ b.sekretaris || '—' }}</span>
-            <span><b>Jam</b> {{ b.profil_jam || '—' }}</span>
-          </span>
+          <el-tag size="small" type="info" round>
+            Semester {{ b.semester || '—' }} · {{ b.tahun_ajaran || '—' }}
+          </el-tag>
           <el-button size="small" @click="bukaKelas(b)">+ Kelas</el-button>
           <el-button size="small" @click="buka(b)">Ubah</el-button>
           <el-button size="small" type="danger" plain @click="hapus(b)">Hapus</el-button>
         </div>
         <div class="kartu__isi">
+          <dl class="ket">
+            <div><dt>Koordinator</dt><dd>{{ b.koordinator || '—' }}</dd></div>
+            <div><dt>Sekretaris</dt><dd>{{ b.sekretaris || '—' }}</dd></div>
+            <div class="ket__lebar"><dt>Pengaturan jam</dt><dd>{{ b.profil_jam || '—' }}</dd></div>
+          </dl>
           <div v-if="b.kelas.length" class="kelas">
             <div v-for="k in b.kelas" :key="k.id" class="kelas__item">
               <div>
@@ -202,6 +208,15 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
 }
 .kelas__item:last-child { border-bottom: 0; }
 .kisi2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
-.petugas { display: flex; gap: 16px; flex-wrap: wrap; font-size: var(--text-xs); color: var(--ink-muted); }
-.petugas b { color: var(--ink-2); font-weight: 700; margin-right: 4px; }
+.ket {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 10px 24px; margin: 0 0 14px;
+  padding-bottom: 14px; border-bottom: 1px solid var(--primary-bg);
+}
+.ket__lebar { grid-column: 1 / -1; }
+.ket dt {
+  font-size: var(--text-xs); font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--ink-muted); margin-bottom: 2px;
+}
+.ket dd { margin: 0; font-size: var(--text-sm); color: var(--ink); overflow-wrap: anywhere; }
 </style>
