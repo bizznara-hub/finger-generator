@@ -293,7 +293,7 @@ def rinci_kelas(id_jk):
         pengaturan={
             "toleransi_awal": p.toleransi_awal,
             "toleransi_akhir": p.toleransi_akhir,
-            "jam_kuliah": p.jam_kuliah.strftime("%H:%M") if p.jam_kuliah else "07:30",
+            "jam_kuliah": p.jam_kuliah.strftime("%H:%M") if p.jam_kuliah else "07:00",
             "profil_jam": jk.jadwal.profil_jam.label if jk.jadwal.profil_jam else "—",
         },
         hari=[
@@ -369,7 +369,7 @@ def _terapkan_sesi(s, d):
     if not s.kegiatan:
         raise GalatAPI("Nama kegiatan wajib diisi.")
     if s.jam_masuk is None:
-        raise GalatAPI("Jam masuk tidak valid. Gunakan format 07:30.")
+        raise GalatAPI("Jam masuk tidak valid. Gunakan format 07:00.")
     # Ruangan wajib seperti pada aplikasi PHP: tanpa itu scan mesin tidak bisa
     # dicocokkan ke sesi mana pun.
     if not s.ruangan_id:

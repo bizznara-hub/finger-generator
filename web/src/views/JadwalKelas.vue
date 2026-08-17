@@ -64,7 +64,7 @@ function bukaSesi(h, s) {
   hariAktif.value = h
   sesiForm.value = s
     ? { ...s }
-    : { id: null, kegiatan: '', jam_masuk: d.value?.pengaturan?.jam_kuliah || '07:30',
+    : { id: null, kegiatan: '', jam_masuk: d.value?.pengaturan?.jam_kuliah || '07:00',
         jml_jam: 2, jam_selesai_manual: '', ruangan_id: null, departemen_id: null, dosen_id: [] }
   dialogSesi.value = true
 }
@@ -258,7 +258,7 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
           </el-form-item>
           <div class="kisi">
             <el-form-item label="Jam masuk" required>
-              <el-input v-model="sesiForm.jam_masuk" placeholder="07:30" />
+              <el-input v-model="sesiForm.jam_masuk" placeholder="07:00" />
             </el-form-item>
             <el-form-item label="Jumlah jam">
               <el-input-number v-model="sesiForm.jml_jam" :min="1" :max="12" style="width:100%" />
