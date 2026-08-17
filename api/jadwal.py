@@ -6,6 +6,7 @@ from flask import jsonify, request
 
 from core.laporan import label_tanggal
 from core.models import (
+    Dosen,
     Jadwal,
     JadwalDosen,
     JadwalHari,
@@ -18,6 +19,9 @@ from core.models import (
 )
 
 from . import GalatAPI, bp
+
+
+BATAS_HARI = 200
 
 
 def _tanggal(t):
@@ -36,6 +40,22 @@ def _jam(t):
     return None
 
 
+def _buat_hari(jk_id, awal, akhir, lewati_akhir_pekan=True):
+    """Buat tanggal sepanjang rentang. Sabtu dan Minggu dilewati, mengikuti
+    aplikasi PHP lama, kecuali admin memilih satu tanggal itu sendiri."""
+    ada = {h.tanggal for h in JadwalHari.query.filter_by(jadwal_kelas_id=jk_id).all()}
+    jumlah, dilewati, t = 0, 0, awal
+    while t <= akhir and jumlah < BATAS_HARI:
+        if lewati_akhir_pekan and t.weekday() >= 5:
+            dilewati += 1
+        elif t not in ada:
+            db.session.add(JadwalHari(jadwal_kelas_id=jk_id, tanggal=t))
+            ada.add(t)
+            jumlah += 1
+        t += timedelta(days=1)
+    return jumlah, dilewati, t <= akhir
+
+
 def _blok(j):
     return {
         "id": j.id,
@@ -43,6 +63,10 @@ def _blok(j):
         "mata_kuliah": j.mata_kuliah.nama if j.mata_kuliah else None,
         "semester": j.semester,
         "tahun_ajaran": j.tahun_ajaran,
+        "koordinator_id": j.koordinator_id,
+        "koordinator": j.koordinator.nama if j.koordinator else None,
+        "sekretaris_id": j.sekretaris_id,
+        "sekretaris": j.sekretaris.nama if j.sekretaris else None,
         "kelas": [
             {
                 "id": jk.id,
@@ -62,19 +86,74 @@ def daftar_blok():
     return jsonify(baris=[_blok(j) for j in Jadwal.query.order_by(Jadwal.id.desc())])
 
 
+def _dosen_ada(id_dosen, sebutan):
+    if not id_dosen:
+        raise GalatAPI(f"{sebutan} wajib dipilih.")
+    if db.session.get(Dosen, int(id_dosen)) is None:
+        raise GalatAPI(f"{sebutan} tidak ditemukan.")
+    return int(id_dosen)
+
+
 @bp.post("/jadwal")
 def tambah_blok():
+    """Satu formulir membuat blok, kelas pesertanya, dan seluruh tanggalnya
+    sekaligus - mengikuti alur aplikasi PHP lama."""
     d = request.get_json(silent=True) or {}
     if not d.get("mata_kuliah_id"):
         raise GalatAPI("Mata kuliah wajib dipilih.")
+    semester = (d.get("semester") or "").strip() or None
+    tahun = (d.get("tahun_ajaran") or "").strip() or None
+    # Hanya dua nilai, mengikuti daftar pilihan aplikasi PHP.
+    if semester not in ("Awal", "Akhir"):
+        raise GalatAPI("Semester harus Awal atau Akhir.")
+    if not tahun:
+        raise GalatAPI("Tahun ajaran wajib diisi.")
+
+    koordinator = _dosen_ada(d.get("koordinator_id"), "Koordinator")
+    sekretaris = _dosen_ada(d.get("sekretaris_id"), "Sekretaris")
+
+    kelas_ids = [int(x) for x in (d.get("kelas_id") or []) if x]
+    if not kelas_ids:
+        raise GalatAPI("Pilih sedikitnya satu kelas.")
+
+    awal = _tanggal(d.get("tanggal_mulai"))
+    akhir = _tanggal(d.get("tanggal_selesai"))
+    if awal is None or akhir is None:
+        raise GalatAPI("Tanggal mulai dan tanggal selesai wajib diisi.")
+    if awal >= akhir:
+        raise GalatAPI("Tanggal selesai harus sesudah tanggal mulai.")
+
+    if Jadwal.query.filter_by(mata_kuliah_id=int(d["mata_kuliah_id"]),
+                              semester=semester, tahun_ajaran=tahun).first():
+        raise GalatAPI("Blok itu sudah ada pada semester dan tahun ajaran tersebut.")
+
     j = Jadwal(
         mata_kuliah_id=int(d["mata_kuliah_id"]),
-        semester=(d.get("semester") or "").strip() or None,
-        tahun_ajaran=(d.get("tahun_ajaran") or "").strip() or None,
+        semester=semester,
+        tahun_ajaran=tahun,
+        koordinator_id=koordinator,
+        sekretaris_id=sekretaris,
     )
     db.session.add(j)
+    db.session.flush()
+
+    hari = dilewati = 0
+    kepenuhan = False
+    for kid in dict.fromkeys(kelas_ids):
+        jk = JadwalKelas(jadwal_id=j.id, kelas_id=kid)
+        db.session.add(jk)
+        db.session.flush()
+        for m in Mahasiswa.query.filter_by(kelas_id=kid).all():
+            db.session.add(JadwalMahasiswa(jadwal_kelas_id=jk.id, mahasiswa_id=m.id))
+        n, lewat, penuh = _buat_hari(jk.id, awal, akhir)
+        hari, dilewati, kepenuhan = hari + n, lewat, kepenuhan or penuh
     db.session.commit()
-    return jsonify(baris=_blok(j), pesan="Blok tersimpan.")
+
+    pesan = (f"Blok tersimpan: {len(set(kelas_ids))} kelas, {hari} tanggal dibuat, "
+             f"{dilewati} akhir pekan dilewati.")
+    if kepenuhan:
+        pesan += f" Berhenti di batas {BATAS_HARI} tanggal per kelas."
+    return jsonify(baris=_blok(j), pesan=pesan)
 
 
 @bp.put("/jadwal/<int:id_jadwal>")
@@ -85,6 +164,10 @@ def ubah_blok(id_jadwal):
         j.mata_kuliah_id = int(d["mata_kuliah_id"])
     j.semester = (d.get("semester") or "").strip() or None
     j.tahun_ajaran = (d.get("tahun_ajaran") or "").strip() or None
+    if "koordinator_id" in d:
+        j.koordinator_id = _dosen_ada(d.get("koordinator_id"), "Koordinator")
+    if "sekretaris_id" in d:
+        j.sekretaris_id = _dosen_ada(d.get("sekretaris_id"), "Sekretaris")
     db.session.commit()
     return jsonify(baris=_blok(j), pesan="Blok diperbarui.")
 
@@ -136,8 +219,14 @@ def _sesi(s, p):
         "jml_jam": s.jml_jam,
         "jam_selesai_manual": s.jam_selesai_manual.strftime("%H:%M") if s.jam_selesai_manual else "",
         "jam_selesai_hitung": s.jam_selesai(p).strftime("%H:%M"),
+        # Rentang per jam seperti tampilan PHP: 08:00-08:50, 09:00-09:50, ...
+        "slot": [f"{a.strftime('%H:%M')}-{b.strftime('%H:%M')}" for a, b in s.slot(p)],
         "ruangan_id": s.ruangan_id,
+        "ruangan": s.ruangan.nama if s.ruangan else None,
+        "departemen_id": s.departemen_id,
+        "departemen": s.departemen.nama if s.departemen else None,
         "dosen_id": [x.dosen_id for x in s.pengajar],
+        "dosen": [x.dosen.nama for x in s.pengajar if x.dosen],
     }
 
 
@@ -156,6 +245,9 @@ def rinci_kelas(id_jk):
             "menit_pergantian": p.menit_pergantian,
             "toleransi_awal": p.toleransi_awal,
             "toleransi_akhir": p.toleransi_akhir,
+            "jam_kuliah": p.jam_kuliah.strftime("%H:%M") if p.jam_kuliah else "07:30",
+            "istirahat": (f"{p.istirahat_mulai.strftime('%H:%M')}-{p.istirahat_selesai.strftime('%H:%M')}"
+                          if p.istirahat_mulai and p.istirahat_selesai else ""),
         },
         hari=[
             {
@@ -194,15 +286,20 @@ def tambah_hari(id_jk):
     if akhir < awal:
         awal, akhir = akhir, awal
 
-    ada = {h.tanggal for h in JadwalHari.query.filter_by(jadwal_kelas_id=jk.id).all()}
-    jumlah, t = 0, awal
-    while t <= akhir and jumlah < 200:
-        if t not in ada:
-            db.session.add(JadwalHari(jadwal_kelas_id=jk.id, tanggal=t))
-            jumlah += 1
-        t += timedelta(days=1)
+    # Satu tanggal yang dipilih sendiri tetap dibuat walau jatuh di akhir pekan;
+    # penyaringan akhir pekan hanya berlaku saat membuat serentetan tanggal.
+    satu_hari = awal == akhir
+    jumlah, dilewati, penuh = _buat_hari(jk.id, awal, akhir, lewati_akhir_pekan=not satu_hari)
     db.session.commit()
-    return jsonify(pesan=f"{jumlah} tanggal ditambahkan." if jumlah else "Tanggal itu sudah ada.")
+
+    if not jumlah:
+        return jsonify(pesan="Tidak ada tanggal baru: semuanya sudah ada atau jatuh di akhir pekan.")
+    pesan = f"{jumlah} tanggal ditambahkan."
+    if dilewati:
+        pesan += f" {dilewati} akhir pekan dilewati."
+    if penuh:
+        pesan += f" Berhenti di batas {BATAS_HARI} tanggal."
+    return jsonify(pesan=pesan)
 
 
 @bp.delete("/jadwal/hari/<int:id_hari>")
@@ -216,13 +313,35 @@ def hapus_hari(id_hari):
 def _terapkan_sesi(s, d):
     s.kegiatan = (d.get("kegiatan") or "").strip()
     s.jam_masuk = _jam(d.get("jam_masuk"))
-    s.jml_jam = int(d.get("jml_jam") or 2)
     s.jam_selesai_manual = _jam(d.get("jam_selesai_manual")) if d.get("jam_selesai_manual") else None
     s.ruangan_id = int(d["ruangan_id"]) if d.get("ruangan_id") else None
+    s.departemen_id = int(d["departemen_id"]) if d.get("departemen_id") else None
+
     if not s.kegiatan:
         raise GalatAPI("Nama kegiatan wajib diisi.")
     if s.jam_masuk is None:
         raise GalatAPI("Jam masuk tidak valid. Gunakan format 07:30.")
+    # Ruangan wajib seperti pada aplikasi PHP: tanpa itu scan mesin tidak bisa
+    # dicocokkan ke sesi mana pun.
+    if not s.ruangan_id:
+        raise GalatAPI("Ruangan wajib dipilih.")
+
+    # Dibedakan antara tidak dikirim (pakai bawaan 2) dan dikirim bernilai 0,
+    # supaya nol ditolak alih-alih diam-diam berubah jadi 2.
+    mentah = d.get("jml_jam")
+    try:
+        s.jml_jam = 2 if mentah in (None, "") else int(mentah)
+    except (TypeError, ValueError):
+        raise GalatAPI("Jumlah jam harus berupa angka.")
+    if not 1 <= s.jml_jam <= 12:
+        raise GalatAPI("Jumlah jam harus antara 1 dan 12.")
+
+    if s.jam_selesai_manual and s.jam_selesai_manual <= s.jam_masuk:
+        raise GalatAPI("Jam selesai manual harus sesudah jam masuk.")
+
+    p = Pengaturan.ambil()
+    if not s.jam_selesai_manual and s.slot(p)[-1][1] <= s.jam_masuk:
+        raise GalatAPI("Sesi sepanjang itu melewati tengah malam. Kurangi jumlah jam.")
 
 
 def _set_dosen(s, d):

@@ -473,15 +473,23 @@ def main():
                 db.session.flush()
             sesi = JadwalJam.query.filter_by(jadwal_hari_id=hari.id, kegiatan=s["nama"]).first()
             if not sesi:
+                # Jumlah jam diturunkan dari pengaturan yang berlaku, bukan angka
+                # tetap: menit = jml*perjam + (jml-1)*pergantian.
+                atur = Pengaturan.ambil()
                 menit = (s["selesai"].hour * 60 + s["selesai"].minute) - (s["mulai"].hour * 60 + s["mulai"].minute)
+                jml = max(1, round((menit + atur.menit_pergantian)
+                                   / (atur.menit_perjam + atur.menit_pergantian)))
                 sesi = JadwalJam(
                     jadwal_hari_id=hari.id,
                     kegiatan=s["nama"],
                     jam_masuk=s["mulai"],
-                    jml_jam=max(1, round(menit / 50)),
-                    jam_selesai_manual=s["selesai"],
+                    jml_jam=jml,
                     ruangan_id=ruang["Ruang Pleno"].id if "PLENO" in s["nama"].upper() else ruang["Ruang PBL 1"].id,
                 )
+                # Jam selesai manual hanya dipasang bila hitungan tidak sanggup
+                # menghasilkan angka dari berkas rujukan.
+                if sesi.slot(atur)[-1][1] != s["selesai"]:
+                    sesi.jam_selesai_manual = s["selesai"]
                 db.session.add(sesi)
                 db.session.flush()
             peta_sesi.append(sesi)

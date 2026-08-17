@@ -115,10 +115,19 @@ class Pengaturan(db.Model):
 
     __tablename__ = "pengaturan"
     id = db.Column(db.Integer, primary_key=True)
-    menit_perjam = db.Column(db.Integer, default=50, nullable=False)
-    menit_pergantian = db.Column(db.Integer, default=10, nullable=False)
+    # Bawaan mengikuti aplikasi PHP lama. 45 dan 5 diturunkan dari jadwal nyata
+    # di berkas rujukan: sesi 2 jam berdurasi 95 menit dan 3 jam 145 menit -
+    # hanya pasangan 45/5 yang memenuhi keduanya.
+    menit_perjam = db.Column(db.Integer, default=45, nullable=False)
+    menit_pergantian = db.Column(db.Integer, default=5, nullable=False)
     toleransi_awal = db.Column(db.Integer, default=15, nullable=False)
     toleransi_akhir = db.Column(db.Integer, default=15, nullable=False)
+    # Jam istirahat. Sesi yang menabraknya digeser mulai setelah istirahat usai,
+    # mengikuti perilaku aplikasi PHP lama.
+    istirahat_mulai = db.Column(db.Time, default=time(12, 0))
+    istirahat_selesai = db.Column(db.Time, default=time(13, 0))
+    # Jam masuk perkuliahan - dipakai sebagai isian awal saat menambah sesi.
+    jam_kuliah = db.Column(db.Time, default=time(7, 30))
     nama_institusi = db.Column(db.String(150), default="FAKULTAS KEDOKTERAN")
     nama_universitas = db.Column(db.String(150), default="UNIVERSITAS MEGA BUANA PALOPO")
 
@@ -147,8 +156,14 @@ class Jadwal(db.Model):
     mata_kuliah_id = db.Column(db.Integer, db.ForeignKey("mata_kuliah.id"), nullable=False)
     semester = db.Column(db.String(30))
     tahun_ajaran = db.Column(db.String(20))
+    koordinator_id = db.Column(db.Integer, db.ForeignKey("dosen.id"))
+    sekretaris_id = db.Column(db.Integer, db.ForeignKey("dosen.id"))
 
     mata_kuliah = db.relationship("MataKuliah")
+    # foreign_keys wajib disebut: dua kolom ini menunjuk tabel yang sama,
+    # sehingga SQLAlchemy tidak bisa menebak sendiri pasangannya.
+    koordinator = db.relationship("Dosen", foreign_keys=[koordinator_id])
+    sekretaris = db.relationship("Dosen", foreign_keys=[sekretaris_id])
     kelas_jadwal = db.relationship(
         "JadwalKelas", back_populates="jadwal", cascade="all, delete-orphan"
     )
@@ -215,15 +230,45 @@ class JadwalJam(db.Model):
         "JadwalDosen", back_populates="sesi", cascade="all, delete-orphan"
     )
 
+    def slot(self, pengaturan):
+        """Pecah sesi menjadi rentang per jam, seperti tampilan aplikasi PHP.
+
+        Sesi 2 jam dengan 50 menit per jam dan jeda 10 menit menghasilkan
+        08:00-08:50 lalu 09:00-09:50. Jam istirahat dilompati: slot yang akan
+        bertabrakan dengannya digeser mulai setelah istirahat selesai.
+        """
+
+        def ke_menit(t):
+            return t.hour * 60 + t.minute
+
+        def ke_jam(m):
+            return time((m // 60) % 24, m % 60)
+
+        ist_awal = ke_menit(pengaturan.istirahat_mulai) if pengaturan.istirahat_mulai else None
+        ist_akhir = ke_menit(pengaturan.istirahat_selesai) if pengaturan.istirahat_selesai else None
+        pakai_istirahat = ist_awal is not None and ist_akhir is not None and ist_akhir > ist_awal
+
+        hasil = []
+        for i in range(max(self.jml_jam, 1)):
+            if not i:
+                mulai = ke_menit(self.jam_masuk)
+            elif pakai_istirahat and hasil[-1][1] == ist_awal:
+                # Persis seperti PHP: hanya slot yang berhenti tepat saat
+                # istirahat dimulai yang dilompati, dan sambungannya mulai tepat
+                # saat istirahat usai tanpa jeda pergantian. Sesi yang kebetulan
+                # melintasi istirahat tanpa berhenti pas di angkanya dibiarkan -
+                # itulah sebabnya jadwal nyata memuat sesi 11:20-12:05.
+                mulai = ist_akhir
+            else:
+                mulai = hasil[-1][1] + pengaturan.menit_pergantian
+            hasil.append((mulai, mulai + pengaturan.menit_perjam))
+        return [(ke_jam(a), ke_jam(b)) for a, b in hasil]
+
     def jam_selesai(self, pengaturan):
-        """jam_masuk + (jml_jam x menit_perjam) + ((jml_jam - 1) x menit_pergantian)."""
+        """Akhir slot terakhir, kecuali admin mengisi jam selesai manual."""
         if self.jam_selesai_manual:
             return self.jam_selesai_manual
-        total = self.jml_jam * pengaturan.menit_perjam
-        if self.jml_jam > 1:
-            total += (self.jml_jam - 1) * pengaturan.menit_pergantian
-        menit = self.jam_masuk.hour * 60 + self.jam_masuk.minute + total
-        return time((menit // 60) % 24, menit % 60)
+        return self.slot(pengaturan)[-1][1]
 
 
 class JadwalDosen(db.Model):

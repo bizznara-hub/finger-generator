@@ -1,5 +1,7 @@
 """Beranda dan pengaturan."""
 
+from datetime import datetime
+
 from flask import jsonify, request
 from sqlalchemy import func
 
@@ -57,6 +59,9 @@ def ambil_pengaturan():
     return jsonify(pengaturan={
         "menit_perjam": p.menit_perjam, "menit_pergantian": p.menit_pergantian,
         "toleransi_awal": p.toleransi_awal, "toleransi_akhir": p.toleransi_akhir,
+        "istirahat_mulai": p.istirahat_mulai.strftime("%H:%M") if p.istirahat_mulai else "",
+        "istirahat_selesai": p.istirahat_selesai.strftime("%H:%M") if p.istirahat_selesai else "",
+        "jam_kuliah": p.jam_kuliah.strftime("%H:%M") if p.jam_kuliah else "",
         "nama_institusi": p.nama_institusi, "nama_universitas": p.nama_universitas,
         "attlog_host": p.attlog_host, "attlog_port": p.attlog_port,
         "attlog_nama_db": p.attlog_nama_db, "attlog_user": p.attlog_user,
@@ -75,10 +80,27 @@ def simpan_pengaturan():
         except (TypeError, ValueError):
             return baku
 
-    p.menit_perjam = angka("menit_perjam", 50)
-    p.menit_pergantian = angka("menit_pergantian", 10)
+    p.menit_perjam = angka("menit_perjam", 45)
+    p.menit_pergantian = angka("menit_pergantian", 5)
     p.toleransi_awal = angka("toleransi_awal", 15)
     p.toleransi_akhir = angka("toleransi_akhir", 15)
+
+    def jam(k):
+        t = (d.get(k) or "").strip()
+        for pola in ("%H:%M", "%H.%M"):
+            try:
+                return datetime.strptime(t, pola).time()
+            except ValueError:
+                continue
+        return None
+
+    p.jam_kuliah = jam("jam_kuliah")
+    p.istirahat_mulai = jam("istirahat_mulai")
+    p.istirahat_selesai = jam("istirahat_selesai")
+    # Istirahat hanya bermakna bila keduanya terisi dan urutannya benar;
+    # setengah terisi lebih baik dikosongkan daripada dipakai separuh.
+    if not (p.istirahat_mulai and p.istirahat_selesai and p.istirahat_selesai > p.istirahat_mulai):
+        p.istirahat_mulai = p.istirahat_selesai = None
     p.nama_institusi = (d.get("nama_institusi") or "").strip() or None
     p.nama_universitas = (d.get("nama_universitas") or "").strip() or None
     p.attlog_host = (d.get("attlog_host") or "").strip() or None

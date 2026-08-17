@@ -34,7 +34,8 @@ function bukaSesi(h, s) {
   hariAktif.value = h
   sesiForm.value = s
     ? { ...s }
-    : { id: null, kegiatan: '', jam_masuk: '07:30', jml_jam: 2, jam_selesai_manual: '', ruangan_id: null, dosen_id: [] }
+    : { id: null, kegiatan: '', jam_masuk: d.value?.pengaturan?.jam_kuliah || '07:30',
+        jml_jam: 2, jam_selesai_manual: '', ruangan_id: null, departemen_id: null, dosen_id: [] }
   dialogSesi.value = true
 }
 
@@ -74,7 +75,7 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
       </div>
 
       <el-alert type="info" :closable="false" show-icon class="info"
-        :title="`Jam selesai = jam masuk + (jumlah jam × ${d.pengaturan.menit_perjam} menit) + ((jumlah jam − 1) × ${d.pengaturan.menit_pergantian} menit), kecuali diisi manual. Toleransi ${d.pengaturan.toleransi_awal} menit awal dan ${d.pengaturan.toleransi_akhir} menit terlambat.`" />
+        :title="`Setiap jam berdurasi ${d.pengaturan.menit_perjam} menit dengan jeda pergantian ${d.pengaturan.menit_pergantian} menit${d.pengaturan.istirahat ? `, istirahat ${d.pengaturan.istirahat}` : ''}. Toleransi ${d.pengaturan.toleransi_awal} menit datang awal dan ${d.pengaturan.toleransi_akhir} menit terlambat.`" />
 
       <section class="kartu mb">
         <div class="kartu__kepala"><h2 class="kartu__judul">Tambah tanggal</h2></div>
@@ -96,16 +97,29 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
           <el-button size="small" type="danger" link @click="hapusHari(h)">Hapus tanggal</el-button>
         </div>
         <el-table :data="h.sesi" empty-text="Belum ada sesi pada tanggal ini.">
-          <el-table-column prop="kegiatan" label="Kegiatan" min-width="170" />
-          <el-table-column label="Jam masuk" width="110">
-            <template #default="{ row }"><span class="num">{{ row.jam_masuk }}</span></template>
-          </el-table-column>
-          <el-table-column prop="jml_jam" label="Jml jam" width="90" />
-          <el-table-column label="Selesai" width="110">
+          <el-table-column label="Waktu" width="150">
             <template #default="{ row }">
-              <span class="num">{{ row.jam_selesai_manual || row.jam_selesai_hitung }}</span>
-              <span v-if="!row.jam_selesai_manual" class="redup kecil"> otomatis</span>
+              <div v-if="row.jam_selesai_manual" class="num">
+                {{ row.jam_masuk }}-{{ row.jam_selesai_manual }}
+                <div class="redup kecil">manual</div>
+              </div>
+              <div v-else>
+                <div v-for="(w, i) in row.slot" :key="i" class="num">{{ w }}</div>
+              </div>
             </template>
+          </el-table-column>
+          <el-table-column prop="kegiatan" label="Kegiatan" min-width="160" />
+          <el-table-column label="Dosen" min-width="170">
+            <template #default="{ row }">
+              <span v-if="!row.dosen.length" class="redup">—</span>
+              <div v-for="(n, i) in row.dosen" :key="i" class="kecil">{{ n }}</div>
+            </template>
+          </el-table-column>
+          <el-table-column label="Departemen" min-width="130">
+            <template #default="{ row }"><span :class="{ redup: !row.departemen }">{{ row.departemen || '—' }}</span></template>
+          </el-table-column>
+          <el-table-column label="Ruangan" min-width="120">
+            <template #default="{ row }"><span :class="{ redup: !row.ruangan }">{{ row.ruangan || '—' }}</span></template>
           </el-table-column>
           <el-table-column label="Aksi" width="200" align="right">
             <template #default="{ row }">
@@ -175,9 +189,14 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
               <el-input v-model="sesiForm.jam_selesai_manual" placeholder="otomatis" />
             </el-form-item>
           </div>
-          <el-form-item label="Ruangan">
-            <el-select v-model="sesiForm.ruangan_id" clearable placeholder="—" style="width:100%">
+          <el-form-item label="Ruangan" required>
+            <el-select v-model="sesiForm.ruangan_id" placeholder="— pilih —" style="width:100%">
               <el-option v-for="o in pilihan.ruangan || []" :key="o.id" :label="o.label" :value="o.id" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="Departemen">
+            <el-select v-model="sesiForm.departemen_id" clearable filterable placeholder="—" style="width:100%">
+              <el-option v-for="o in pilihan.departemen || []" :key="o.id" :label="o.label" :value="o.id" />
             </el-select>
           </el-form-item>
           <el-form-item label="Pengajar">
