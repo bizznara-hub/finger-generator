@@ -166,6 +166,11 @@ h3 { font-size: var(--text-h3); }
 .kartu::before {
   content: ""; position: absolute; inset-block: 0; inset-inline-start: 0;
   width: 3px; background: var(--primary-light);
+  /* z-index perlu disebut: el-table memakai position relative sehingga
+     tergambar di atas lis ini dan menutupinya sepanjang tabel. Kartu tanpa
+     tabel tidak terpengaruh, itu sebabnya lisnya tampak hanya di sebagian
+     kartu saja. */
+  z-index: 2;
 }
 .kartu--emas::before { background: var(--accent); }
 .kartu--emas { box-shadow: var(--glow-accent); background: linear-gradient(180deg, #FFFDF5, #fff); }
