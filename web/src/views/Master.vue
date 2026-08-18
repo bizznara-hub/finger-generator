@@ -109,9 +109,9 @@ muatPilihan()
     <div class="kartu">
       <el-table :data="halaman" v-loading="memuat" stripe style="width:100%"
                 empty-text="Belum ada data." class="tabel-master">
-        <!-- 96px, bukan 70px. Dengan padding kiri 34px, sisa ruangnya hanya
-             sekitar 24px sehingga nomor tiga digit seperti 128 pecah ke bawah. -->
-        <el-table-column type="index" label="No" width="96" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
+        <!-- 80px dengan padding kiri 24px menyisakan 56px: cukup lapang untuk
+             nomor tiga digit seperti 128, tanpa kolom terasa melebar. -->
+        <el-table-column type="index" label="No" width="80" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
         <el-table-column v-for="[k, l] in spek.kolom" :key="k" :prop="k" :label="l"
                          :width="LEBAR_TETAP[k]"
                          :min-width="LEBAR_TETAP[k] ? undefined : (k === 'nama' ? 220 : 140)">
@@ -153,8 +153,13 @@ muatPilihan()
 </template>
 
 <style scoped>
+/* Nomor dirapatkan ke kiri: 24px, bukan 34px seperti bawaan tema, supaya
+   kolomnya tidak terasa melebar. */
+.tabel-master :deep(th.el-table__cell:first-child > .cell),
+.tabel-master :deep(td.el-table__cell:first-child > .cell) { padding-left: 24px; }
+
 /* Kolom isi digeser sedikit ke kanan agar tidak menempel ke nomor. Kolom
-   pertama dan kolom aksi sudah punya aturannya sendiri di tema.css. */
+   aksi sudah punya aturannya sendiri di tema.css. */
 .tabel-master :deep(th.el-table__cell:not(:first-child):not(:last-child) > .cell),
 .tabel-master :deep(td.el-table__cell:not(:first-child):not(:last-child) > .cell) { padding-left: 30px; }
 
