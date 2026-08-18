@@ -153,15 +153,15 @@ muatPilihan()
 </template>
 
 <style scoped>
-/* Nomor dirapatkan ke kiri: 24px, bukan 34px seperti bawaan tema, supaya
-   kolomnya tidak terasa melebar. */
+/* Nomor diberi jarak 30px dari tepi kiri tabel supaya tidak mepet ke bingkai,
+   masih menyisakan 50px untuk nomor tiga digit. */
 .tabel-master :deep(th.el-table__cell:first-child > .cell),
-.tabel-master :deep(td.el-table__cell:first-child > .cell) { padding-left: 24px; }
+.tabel-master :deep(td.el-table__cell:first-child > .cell) { padding-left: 30px; }
 
-/* Kolom isi digeser sedikit ke kanan agar tidak menempel ke nomor. Kolom
-   aksi sudah punya aturannya sendiri di tema.css. */
+/* Kolom isi justru dirapatkan ke kiri, 14px, supaya NIM sampai Nama tidak
+   terlempar jauh dari nomor. Kolom aksi punya aturannya sendiri di tema.css. */
 .tabel-master :deep(th.el-table__cell:not(:first-child):not(:last-child) > .cell),
-.tabel-master :deep(td.el-table__cell:not(:first-child):not(:last-child) > .cell) { padding-left: 30px; }
+.tabel-master :deep(td.el-table__cell:not(:first-child):not(:last-child) > .cell) { padding-left: 14px; }
 
 .alat { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
 .tajuk { flex: 1; min-width: 160px; font-size: 20px; font-weight: 700; }
