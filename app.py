@@ -46,6 +46,19 @@ def buat_aplikasi():
     @app.route("/<path:jalur>")
     def spa(jalur):
         """Kirim berkas statis bila ada; selebihnya index.html agar router Vue bekerja."""
+        # Jalur /api yang tidak dikenal harus menjawab 404 JSON, bukan ikut
+        # ditelan penangkap-semua ini. Tanpa penjaga ini, antarmuka menerima
+        # index.html berstatus 200 saat memanggil rute yang belum ada -
+        # misalnya ketika server lama masih berjalan setelah kode diperbarui -
+        # lalu menampilkan halaman kosong tanpa pesan galat sama sekali.
+        if jalur.startswith("api/"):
+            return (
+                jsonify(
+                    error=f"Rute /{jalur} tidak dikenal.",
+                    petunjuk="Bila kode baru saja diperbarui, hentikan lalu jalankan ulang aplikasi.",
+                ),
+                404,
+            )
         if not os.path.isdir(DIST):
             return (
                 jsonify(
