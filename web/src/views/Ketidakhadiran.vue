@@ -7,8 +7,8 @@ import { api, jalankan } from '@/api'
 const route = useRoute()
 const jenis = computed(() => route.params.jenis)
 const judul = ref(''); const baris = ref([]); const memuat = ref(false)
-const hal = ref(1); const PER_HAL = 30
-const halaman = computed(() => baris.value.slice((hal.value - 1) * PER_HAL, hal.value * PER_HAL))
+const hal = ref(1); const perHal = ref(30)
+const halaman = computed(() => baris.value.slice((hal.value - 1) * perHal.value, hal.value * perHal.value))
 const kata = ref(''); const pilihan = ref({}); const sesi = ref([])
 const dialog = ref(false)
 const form = ref({ mahasiswa_id: null, tanggal: '', jadwal_jam_id: null, keterangan: '' })
@@ -62,7 +62,7 @@ api.get('/pilihan').then((d) => (pilihan.value = d))
 
     <div class="kartu">
       <el-table :data="halaman" v-loading="memuat" stripe empty-text="Belum ada catatan.">
-        <el-table-column type="index" label="No" width="70" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
+        <el-table-column type="index" label="No" width="70" :index="(i) => (hal - 1) * perHal + i + 1" />
         <el-table-column label="NIM" width="140">
           <template #default="{ row }"><span class="nim">{{ row.nim }}</span></template>
         </el-table-column>
@@ -79,9 +79,12 @@ api.get('/pilihan').then((d) => (pilihan.value = d))
         </el-table-column>
       </el-table>
 
-      <div v-if="baris.length > PER_HAL" class="hal">
-        <el-pagination layout="prev, pager, next, total" :total="baris.length"
-                       :page-size="PER_HAL" :current-page="hal" @current-change="hal = $event" />
+      <div v-if="baris.length > 30" class="hal">
+        <el-pagination layout="total, sizes, prev, pager, next, jumper"
+                       :page-sizes="[30, 50, 100, 200]" :total="baris.length"
+                       :page-size="perHal" :current-page="hal"
+                       @current-change="hal = $event"
+                       @size-change="perHal = $event; hal = 1" />
       </div>
     </div>
 

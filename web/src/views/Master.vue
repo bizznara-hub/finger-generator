@@ -45,8 +45,10 @@ const LEBAR_TETAP = {
 }
 
 const judul = ref(''); const baris = ref([]); const memuat = ref(false)
-const hal = ref(1); const PER_HAL = 30
-const halaman = computed(() => baris.value.slice((hal.value - 1) * PER_HAL, hal.value * PER_HAL))
+// Jumlah baris per halaman bisa diubah admin. Dengan seribu mahasiswa,
+// 30 baris berarti 34 halaman - terlalu banyak untuk ditelusuri satu per satu.
+const hal = ref(1); const perHal = ref(30)
+const halaman = computed(() => baris.value.slice((hal.value - 1) * perHal.value, hal.value * perHal.value))
 const kata = ref(''); const pilihan = ref({})
 const dialog = ref(false); const form = ref({}); const sunting = ref(null); const sibuk = ref(false)
 
@@ -111,7 +113,7 @@ muatPilihan()
                 empty-text="Belum ada data." class="tabel-master">
         <!-- 80px dengan padding kiri 24px menyisakan 56px: cukup lapang untuk
              nomor tiga digit seperti 128, tanpa kolom terasa melebar. -->
-        <el-table-column type="index" label="No" width="80" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
+        <el-table-column type="index" label="No" width="80" :index="(i) => (hal - 1) * perHal + i + 1" />
         <el-table-column v-for="[k, l] in spek.kolom" :key="k" :prop="k" :label="l"
                          :width="LEBAR_TETAP[k]"
                          :min-width="LEBAR_TETAP[k] ? undefined : (k === 'nama' ? 220 : 140)">
@@ -129,9 +131,12 @@ muatPilihan()
         </el-table-column>
       </el-table>
 
-      <div v-if="baris.length > PER_HAL" class="hal">
-        <el-pagination layout="prev, pager, next, total" :total="baris.length"
-                       :page-size="PER_HAL" :current-page="hal" @current-change="hal = $event" />
+      <div v-if="baris.length > 30" class="hal">
+        <el-pagination layout="total, sizes, prev, pager, next, jumper"
+                       :page-sizes="[30, 50, 100, 200]" :total="baris.length"
+                       :page-size="perHal" :current-page="hal"
+                       @current-change="hal = $event"
+                       @size-change="perHal = $event; hal = 1" />
       </div>
     </div>
 

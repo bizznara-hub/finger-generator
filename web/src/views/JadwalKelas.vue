@@ -19,9 +19,9 @@ function pindahKelas(idJk) {
 const d = ref(null); const pilihan = ref({})
 const tanggalBaru = ref(''); const pesertaBaru = ref([])
 const dialogSesi = ref(false); const sesiForm = ref({}); const hariAktif = ref(null)
-const hal = ref(1); const PER_HAL = 30
+const hal = ref(1); const perHal = ref(30)
 const peserta = computed(() =>
-  (d.value?.peserta || []).slice((hal.value - 1) * PER_HAL, hal.value * PER_HAL))
+  (d.value?.peserta || []).slice((hal.value - 1) * perHal.value, hal.value * perHal.value))
 
 // Satu tabel untuk seluruh tanggal, seperti Jadwal Perkelas di aplikasi PHP.
 // Tiap sesi memakan satu baris per jam, sedangkan kolom tanggal dan kolom
@@ -224,7 +224,7 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
         <el-table :data="peserta" empty-text="Belum ada peserta." class="tabel-peserta">
           <!-- 96px, bukan 70px: padding kiri 46px menyisakan ruang terlalu
                sempit sehingga judul "No" pecah menjadi dua baris. -->
-          <el-table-column type="index" label="No" width="96" :index="(i) => (hal - 1) * PER_HAL + i + 1" />
+          <el-table-column type="index" label="No" width="96" :index="(i) => (hal - 1) * perHal + i + 1" />
           <el-table-column label="NIM" width="140">
             <template #default="{ row }"><span class="nim">{{ row.nim }}</span></template>
           </el-table-column>
@@ -236,9 +236,12 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
           </el-table-column>
         </el-table>
 
-        <div v-if="d.peserta.length > PER_HAL" class="hal">
-          <el-pagination layout="prev, pager, next, total" :total="d.peserta.length"
-                         :page-size="PER_HAL" :current-page="hal" @current-change="hal = $event" />
+        <div v-if="d.peserta.length > 30" class="hal">
+          <el-pagination layout="total, sizes, prev, pager, next, jumper"
+                       :page-sizes="[30, 50, 100, 200]" :total="d.peserta.length"
+                       :page-size="perHal" :current-page="hal"
+                       @current-change="hal = $event"
+                       @size-change="perHal = $event; hal = 1" />
         </div>
       </section>
 

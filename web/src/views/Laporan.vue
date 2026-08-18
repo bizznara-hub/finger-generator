@@ -9,9 +9,11 @@ const route = useRoute()
 const pilihan = ref([]); const kelas = ref(null)
 const bentuk = ref('ringkas'); const cocokkan = ref('0')
 const hasil = ref(null); const memuat = ref(false); const konfeti = ref(null)
-const hal = ref(1); const PER_HAL = 30
+// Pratinjau dipotong per halaman; tanpa kontrol di bawah tabel, baris ke-31
+// dan seterusnya dulu tidak bisa dilihat sama sekali.
+const hal = ref(1); const perHal = ref(30)
 const halaman = computed(() =>
-  (hasil.value?.baris || []).slice((hal.value - 1) * PER_HAL, hal.value * PER_HAL))
+  (hasil.value?.baris || []).slice((hal.value - 1) * perHal.value, hal.value * perHal.value))
 
 async function muat() {
   if (!kelas.value) { hasil.value = null; return }
@@ -112,6 +114,13 @@ onMounted(async () => {
             </tr>
           </tbody>
         </table>
+      </div>
+      <div v-if="(hasil?.baris || []).length > 30" class="hal">
+        <el-pagination layout="total, sizes, prev, pager, next, jumper"
+                       :page-sizes="[30, 50, 100, 200]" :total="hasil.baris.length"
+                       :page-size="perHal" :current-page="hal"
+                       @current-change="hal = $event"
+                       @size-change="perHal = $event; hal = 1" />
       </div>
     </section>
 

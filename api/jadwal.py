@@ -264,6 +264,25 @@ def rinci_kelas(id_jk):
     hari = JadwalHari.query.filter_by(jadwal_kelas_id=id_jk).order_by(JadwalHari.tanggal).all()
     terdaftar = {x.mahasiswa_id for x in jk.peserta}
 
+    # Dua query gabungan, bukan satu query per peserta. Dengan seribu mahasiswa
+    # pola lama memicu seribu query tambahan hanya untuk membaca NIM dan nama.
+    peserta = (
+        db.session.query(JadwalMahasiswa.id, Mahasiswa.nim, Mahasiswa.nama)
+        .join(Mahasiswa, JadwalMahasiswa.mahasiswa_id == Mahasiswa.id)
+        .filter(JadwalMahasiswa.jadwal_kelas_id == id_jk)
+        .order_by(Mahasiswa.nim)
+        .all()
+    )
+    belum = (
+        db.session.query(Mahasiswa.id, Mahasiswa.nim, Mahasiswa.nama)
+        .filter(~Mahasiswa.id.in_(
+            db.session.query(JadwalMahasiswa.mahasiswa_id)
+            .filter(JadwalMahasiswa.jadwal_kelas_id == id_jk)
+        ))
+        .order_by(Mahasiswa.nim)
+        .all()
+    )
+
     return jsonify(
         blok=j.mata_kuliah.nama if j.mata_kuliah else "Blok",
         jadwal_id=jk.jadwal_id,
@@ -294,17 +313,12 @@ def rinci_kelas(id_jk):
             for h in hari
         ],
         peserta=[
-            {
-                "id": x.id,
-                "nim": x.mahasiswa.nim,
-                "nama": x.mahasiswa.nama,
-            }
-            for x in sorted(jk.peserta, key=lambda x: x.mahasiswa.nim)
+            {"id": jm_id, "nim": nim, "nama": nama}
+            for jm_id, nim, nama in peserta
         ],
         belum_terdaftar=[
-            {"id": m.id, "label": f"{m.nim} — {m.nama}"}
-            for m in Mahasiswa.query.order_by(Mahasiswa.nim).all()
-            if m.id not in terdaftar
+            {"id": mid, "label": f"{nim} — {nama}"}
+            for mid, nim, nama in belum
         ],
     )
 
