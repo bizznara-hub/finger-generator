@@ -82,7 +82,7 @@ async function simpan() {
           </p>
         </div>
         <el-table :data="profil" empty-text="Belum ada pengaturan jam.">
-          <el-table-column type="index" label="No." width="70" />
+          <el-table-column type="index" label="No." width="80" />
           <!-- Lebar tetap ditekan sehingga jumlahnya muat di layar biasa. Bila
                melebihi, kolom teks yang terdesak dan isinya membungkus ke bawah.
                Judul pun dipendekkan agar tidak ada yang terpotong. -->
@@ -191,10 +191,10 @@ async function simpan() {
 .satu-baris { white-space: nowrap; }
 :deep(.el-table th.el-table__cell > .cell) { white-space: nowrap; }
 
-/* Nomor dirapatkan: tema memberi 34px, terlalu lega untuk tabel selebar ini
-   sehingga kolom paling kanan terdorong keluar layar. */
+/* 30px: 34px bawaan tema membuat kolom paling kanan terdorong keluar layar,
+   tetapi 20px terlalu mepet ke tepi kiri. */
 :deep(th.el-table__cell:first-child > .cell),
-:deep(td.el-table__cell:first-child > .cell) { padding-left: 20px; }
+:deep(td.el-table__cell:first-child > .cell) { padding-left: 30px; }
 :deep(th.el-table__cell:last-child > .cell),
 :deep(td.el-table__cell:last-child > .cell) { padding-right: 16px; }
 
