@@ -82,7 +82,7 @@ async function simpan() {
           </p>
         </div>
         <el-table :data="profil" empty-text="Belum ada pengaturan jam.">
-          <el-table-column type="index" label="No." width="80" />
+          <el-table-column type="index" label="No." width="100" />
           <!-- Lebar tetap ditekan sehingga jumlahnya muat di layar biasa. Bila
                melebihi, kolom teks yang terdesak dan isinya membungkus ke bawah.
                Judul pun dipendekkan agar tidak ada yang terpotong. -->
@@ -105,11 +105,19 @@ async function simpan() {
           </el-table-column>
           <!-- 340px: tiga tombol sekaligus, dan "Jadikan bawaan" tidak boleh
                terpotong karena .aksi memang sengaja tidak membungkus baris. -->
-          <el-table-column label="Pilihan" width="300" align="right">
+          <el-table-column label="Pilihan" width="235" align="right">
             <template #default="{ row }">
               <div class="aksi">
+                <!-- Ikon bintang, bukan tombol "Jadikan bawaan" sepanjang 110px.
+                     Label sepanjang itu memaksa kolom Pilihan selebar 300px dan
+                     menyisakan terlalu sedikit ruang untuk kolom Jumlah Menit
+                     pada layar 1280px. -->
                 <el-tag v-if="row.bawaan" size="small" type="success">bawaan</el-tag>
-                <el-button v-else link @click="jadikanBawaan(row)">Jadikan bawaan</el-button>
+                <el-tooltip v-else content="Jadikan bawaan" placement="top">
+                  <el-button link @click="jadikanBawaan(row)">
+                    <iconify-icon icon="lucide:star" width="17" />
+                  </el-button>
+                </el-tooltip>
                 <el-button link @click="bukaProfil(row)">Ubah</el-button>
                 <el-button link type="danger" @click="hapusProfil(row)">Hapus</el-button>
               </div>
@@ -191,10 +199,11 @@ async function simpan() {
 .satu-baris { white-space: nowrap; }
 :deep(.el-table th.el-table__cell > .cell) { white-space: nowrap; }
 
-/* 30px: 34px bawaan tema membuat kolom paling kanan terdorong keluar layar,
-   tetapi 20px terlalu mepet ke tepi kiri. */
+/* Nomor digeser 42px supaya lis teal kartu di sebelah kirinya terlihat jelas.
+   Kolomnya dilebarkan seiring itu, dan kolom Jumlah Menit ikut terdorong ke
+   kanan dengan sendirinya. */
 :deep(th.el-table__cell:first-child > .cell),
-:deep(td.el-table__cell:first-child > .cell) { padding-left: 30px; }
+:deep(td.el-table__cell:first-child > .cell) { padding-left: 42px; }
 :deep(th.el-table__cell:last-child > .cell),
 :deep(td.el-table__cell:last-child > .cell) { padding-right: 16px; }
 
