@@ -82,27 +82,30 @@ async function simpan() {
           </p>
         </div>
         <el-table :data="profil" empty-text="Belum ada pengaturan jam.">
-          <el-table-column type="index" label="No." width="80" />
-          <el-table-column label="Jumlah Menit" min-width="210">
+          <el-table-column type="index" label="No." width="70" />
+          <!-- Lebar tetap ditekan sehingga jumlahnya muat di layar biasa. Bila
+               melebihi, kolom teks yang terdesak dan isinya membungkus ke bawah.
+               Judul pun dipendekkan agar tidak ada yang terpotong. -->
+          <el-table-column label="Jumlah Menit" min-width="190">
             <template #default="{ row }">
-              Perjam = {{ row.menit_perjam }} | Pergantian = {{ row.menit_pergantian }}
+              <span class="satu-baris">Perjam = {{ row.menit_perjam }} | Pergantian = {{ row.menit_pergantian }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="Jam Masuk Perkuliahan" width="200" align="center">
+          <el-table-column label="Jam Masuk" width="140" align="center">
             <template #default="{ row }"><span class="num">{{ row.jam_kuliah || '—' }}</span></template>
           </el-table-column>
-          <el-table-column label="Jam Istirahat" width="160" align="center">
+          <el-table-column label="Jam Istirahat" width="140" align="center">
             <template #default="{ row }">
-              <span v-if="row.istirahat_mulai" class="num">{{ row.istirahat_mulai }} - {{ row.istirahat_selesai }}</span>
+              <span v-if="row.istirahat_mulai" class="num satu-baris">{{ row.istirahat_mulai }} - {{ row.istirahat_selesai }}</span>
               <span v-else class="redup">—</span>
             </template>
           </el-table-column>
-          <el-table-column label="Jumlah Jam Perhari" width="170" align="center">
+          <el-table-column label="Jam / Hari" width="125" align="center">
             <template #default="{ row }"><span class="num">{{ row.jam_perhari ?? '—' }}</span></template>
           </el-table-column>
           <!-- 340px: tiga tombol sekaligus, dan "Jadikan bawaan" tidak boleh
                terpotong karena .aksi memang sengaja tidak membungkus baris. -->
-          <el-table-column label="Pilihan" width="340" align="right">
+          <el-table-column label="Pilihan" width="300" align="right">
             <template #default="{ row }">
               <div class="aksi">
                 <el-tag v-if="row.bawaan" size="small" type="success">bawaan</el-tag>
@@ -184,6 +187,17 @@ async function simpan() {
 </template>
 
 <style scoped>
+/* Isi kolom ini tidak boleh pecah ke bawah; lebarnya sudah dijamin cukup. */
+.satu-baris { white-space: nowrap; }
+:deep(.el-table th.el-table__cell > .cell) { white-space: nowrap; }
+
+/* Nomor dirapatkan: tema memberi 34px, terlalu lega untuk tabel selebar ini
+   sehingga kolom paling kanan terdorong keluar layar. */
+:deep(th.el-table__cell:first-child > .cell),
+:deep(td.el-table__cell:first-child > .cell) { padding-left: 20px; }
+:deep(th.el-table__cell:last-child > .cell),
+:deep(td.el-table__cell:last-child > .cell) { padding-right: 16px; }
+
 .tajuk { font-size: 20px; font-weight: 700; margin-bottom: 16px; }
 .mb { margin-bottom: 16px; }
 .kisi { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%,200px),1fr)); gap: 0 16px; }
