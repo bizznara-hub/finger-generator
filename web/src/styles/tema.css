@@ -356,3 +356,9 @@ h3 { font-size: var(--text-h3); }
   .berdenyut, .boom, .mahkota { animation: none; }
   .el-button { transition: none !important; }
 }
+
+/* Daftar NIM yang gagal dicocokkan di dalam kotak pesan impor. */
+.daftar-galat {
+  font-family: var(--font-mono); font-size: var(--text-sm);
+  max-height: 180px; overflow-y: auto; margin: 8px 0;
+}

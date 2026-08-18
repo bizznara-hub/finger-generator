@@ -17,7 +17,7 @@ function pindahKelas(idJk) {
   router.push({ path: `/jadwal/kelas/${idJk}`, query: { ...route.query } })
 }
 const d = ref(null); const pilihan = ref({})
-const tanggalBaru = ref(''); const pesertaBaru = ref([])
+const tanggalBaru = ref(''); const pesertaBaru = ref([]); const sibukImpor = ref(false)
 const dialogSesi = ref(false); const sesiForm = ref({}); const hariAktif = ref(null)
 const hal = ref(1); const perHal = ref(30)
 const peserta = computed(() =>
@@ -83,6 +83,29 @@ async function hapusSesi(s) {
   await ElMessageBox.confirm('Hapus sesi ini?', 'Konfirmasi',
     { confirmButtonText: 'Hapus', cancelButtonText: 'Batal', type: 'warning' })
   await jalankan(() => api.del(`/jadwal/sesi/${s.id}`)); await muat()
+}
+
+// Berkas hanya dibaca di server lalu dibuang; yang tersimpan cuma keanggotaan.
+async function imporPeserta(e) {
+  const f = e.target.files?.[0]
+  if (!f) return
+  const fd = new FormData()
+  fd.append('berkas', f)
+  sibukImpor.value = true
+  try {
+    const d = await jalankan(() => api.unggah(`/jadwal/kelas/${id.value}/impor-peserta`, fd))
+    if (d?.tidak_ditemukan?.length) {
+      await ElMessageBox.alert(
+        `<p>${d.ditambah} didaftarkan, ${d.sudah_terdaftar} sudah ada.</p>
+         <p><b>${d.tidak_ditemukan.length} tidak ditemukan di data mahasiswa:</b></p>
+         <p class="daftar-galat">${d.tidak_ditemukan.join('<br>')}</p>
+         <p>Tambahkan dulu di menu Mahasiswa, lalu impor ulang.</p>`,
+        'Sebagian tidak dikenali',
+        { dangerouslyUseHTMLString: true, confirmButtonText: 'Mengerti' }
+      )
+    }
+    await muat()
+  } finally { sibukImpor.value = false; e.target.value = '' }
 }
 
 async function tambahPeserta() {
@@ -219,7 +242,15 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
               <el-option v-for="o in d.belum_terdaftar" :key="o.id" :label="o.label" :value="o.id" />
             </el-select>
             <el-button type="primary" @click="tambahPeserta">Tambahkan</el-button>
+            <input ref="berkasPeserta" type="file" accept=".xls,.xlsx,.csv" hidden @change="imporPeserta">
+            <el-button :loading="sibukImpor" @click="$refs.berkasPeserta.click()">
+              <iconify-icon icon="lucide:upload" width="15" style="margin-right:6px" /> Impor daftar
+            </el-button>
           </div>
+          <p class="petunjuk">
+            Berkas .xls, .xlsx, atau .csv berisi NIM atau nama. Susunan kolomnya bebas.
+            Berkasnya hanya dibaca lalu dibuang — yang tersimpan cuma keanggotaannya.
+          </p>
         </div>
         <el-table :data="peserta" empty-text="Belum ada peserta." class="tabel-peserta">
           <!-- 96px, bukan 70px: padding kiri 46px menyisakan ruang terlalu

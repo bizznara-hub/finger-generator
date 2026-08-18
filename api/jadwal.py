@@ -1,9 +1,11 @@
 """API jadwal: blok -> kelas -> tanggal -> sesi, dan peserta."""
 
+import io
 from datetime import datetime, timedelta
 
 from flask import jsonify, request
 
+from core import impor
 from core.laporan import label_tanggal
 from core.models import (
     Dosen,
@@ -438,6 +440,55 @@ def tambah_peserta(id_jk):
             ditambah += 1
     db.session.commit()
     return jsonify(pesan=f"{ditambah} mahasiswa ditambahkan.")
+
+
+@bp.post("/jadwal/kelas/<int:id_jk>/impor-peserta")
+def impor_peserta(id_jk):
+    """Daftarkan peserta dari berkas daftar nama.
+
+    Berkas hanya lewat: dibaca dari memori, dicocokkan, lalu dibuang. Tidak ada
+    yang ditulis ke disk, dan tidak ada mahasiswa baru yang dibuat - berkas ini
+    menunjuk siapa yang ikut, bukan menambah data induk.
+    """
+    jk = db.session.get(JadwalKelas, id_jk) or _tidak_ada()
+    berkas = request.files.get("berkas")
+    if berkas is None or not (berkas.filename or "").strip():
+        raise GalatAPI("Belum ada berkas yang dipilih.")
+
+    try:
+        sel = impor.baca_sel(io.BytesIO(berkas.read()), berkas.filename)
+    except impor.FormatTidakDidukung as e:
+        raise GalatAPI(str(e))
+    except Exception:  # noqa: BLE001
+        raise GalatAPI(
+            f"Berkas {berkas.filename} tidak bisa dibaca. Pastikan benar-benar "
+            "berkas Excel atau CSV, bukan sekadar berganti nama."
+        )
+
+    cocok, tidak_dikenali = impor.cocokkan(sel, Mahasiswa.query.all())
+    if not cocok and not tidak_dikenali:
+        raise GalatAPI("Tidak ada NIM atau nama yang bisa dikenali di berkas itu.")
+
+    terdaftar = {x.mahasiswa_id for x in jk.peserta}
+    ditambah = 0
+    for m in cocok:
+        if m.id not in terdaftar:
+            db.session.add(JadwalMahasiswa(jadwal_kelas_id=jk.id, mahasiswa_id=m.id))
+            ditambah += 1
+    db.session.commit()
+
+    sudah = len(cocok) - ditambah
+    pesan = f"{ditambah} mahasiswa didaftarkan."
+    if sudah:
+        pesan += f" {sudah} sudah terdaftar sebelumnya."
+    if tidak_dikenali:
+        pesan += f" {len(tidak_dikenali)} tidak ditemukan di data mahasiswa."
+    return jsonify(
+        pesan=pesan,
+        ditambah=ditambah,
+        sudah_terdaftar=sudah,
+        tidak_ditemukan=tidak_dikenali[:50],
+    )
 
 
 @bp.delete("/jadwal/peserta/<int:id_peserta>")
