@@ -89,6 +89,36 @@ asal, dan titik masuk wadah membereskan kepemilikan `/data` saat start. Tanpa
 langkah itu aplikasi tetap bisa membaca sehingga tampak sehat, tetapi setiap
 penyimpanan gagal dengan *attempt to write a readonly database*.
 
+### Memasang di server lokal kampus (Windows atau Linux)
+
+Jalur `att_log` membuka koneksi MySQL langsung ke basis data software
+Fingerspot, sehingga aplikasi harus berada di jaringan yang sama dengan mesin.
+Jalur impor `.xls` tidak menuntut itu dan tetap bisa dipakai dari mana saja.
+
+Di Windows, Docker bukan sekadar pilihan yang lebih rapi - gunicorn tidak
+berjalan di Windows karena bergantung pada `fork`, jadi tanpa Docker peladennya
+harus diganti waitress dan susunannya menyimpang dari yang sudah teruji di sini.
+
+**Menghubungkan ke Fingerspot di komputer yang sama.** Isi Host att_log dengan
+`host.docker.internal`, bukan `127.0.0.1`. Dari dalam wadah, `127.0.0.1`
+menunjuk wadah itu sendiri, bukan Windows-nya.
+
+**Bila Fingerspot ada di komputer lain**, isi alamat IP-nya, lalu di komputer
+tersebut: buka `bind-address` MySQL, buat pengguna yang hanya boleh
+`SELECT` pada `att_log`, dan batasi firewall ke satu IP peladen aplikasi.
+
+**Menyala sendiri setelah komputer dinyalakan ulang.** `restart: unless-stopped`
+hanya bekerja bila mesin Docker sudah hidup. Pada Docker Desktop, mesin itu baru
+hidup setelah ada pengguna yang login, jadi aktifkan *Start Docker Desktop when
+you log in* sekaligus login otomatis Windows - atau pakai Linux, yang
+menjalankan Docker sebagai layanan tanpa perlu login.
+
+**Cadangan.** Basis data ada di volume `basisdata`, di luar citra:
+
+```bash
+docker compose cp aplikasi:/data/data.db ./cadangan-$(date +%F).db
+```
+
 ### Di belakang Nginx atau Caddy
 
 Ubah pemetaan porta menjadi `127.0.0.1:5057:5057` supaya aplikasi tidak terbuka

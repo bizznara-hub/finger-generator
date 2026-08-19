@@ -17,6 +17,12 @@ services:
       DATABASE_URL: "${DATABASE_URL:-sqlite:////data/data.db}"
     volumes:
       - basisdata:/data
+    # Bila software Fingerspot berjalan di komputer yang sama, MySQL-nya tidak
+    # bisa dipanggil dengan 127.0.0.1 dari dalam wadah - alamat itu menunjuk
+    # wadah itu sendiri. Isi Host att_log dengan host.docker.internal.
+    # Docker Desktop menyediakannya otomatis; di Linux dipetakan di sini.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:5057/api/status', timeout=4).status < 500 else 1)"]
       interval: 30s
