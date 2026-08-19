@@ -81,10 +81,27 @@ class Mahasiswa(db.Model):
 
     @staticmethod
     def angkatan_dari_nim(nim):
-        """C011241006 -> 2024. Dua digit sesudah kode prodi menandai angkatan,
-        jadi NIM sendiri sudah cukup menentukannya tanpa admin mengetik ulang."""
-        m = re.search(r"[A-Za-z]\d{3}(\d{2})", nim or "")
-        return "20" + m.group(1) if m else None
+        """Dua digit angkatan diambil dari NIM, letaknya mengikuti kode prodi.
+
+        Fakultas memakai dua bentuk, dan panjang huruf di depan yang menentukan:
+
+            C011241006  ->  C + 011 kode prodi, lalu 24  ->  2024
+            KD2513001   ->  KD kode prodi, lalu 25       ->  2025
+
+        Dikembalikan None bila polanya tidak dikenali atau tahunnya janggal,
+        supaya admin mengisinya sendiri alih-alih menerima tebakan yang salah.
+        """
+        m = re.match(r"([A-Za-z]+)(\d+)", (nim or "").strip())
+        if not m:
+            return None
+        huruf, angka = m.group(1), m.group(2)
+        # Satu huruf: kode prodi masih memakai tiga angka berikutnya.
+        awal = 3 if len(huruf) == 1 else 0
+        dua = angka[awal:awal + 2]
+        if len(dua) < 2:
+            return None
+        tahun = "20" + dua
+        return tahun if "2000" <= tahun <= "2099" else None
 
 
 class Ruangan(db.Model):
