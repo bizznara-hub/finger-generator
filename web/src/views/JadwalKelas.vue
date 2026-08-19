@@ -36,9 +36,6 @@ const barisJadwal = computed(() => {
       waktu.forEach((w, i) => baris.push({ sesi: s, waktu: w, awalSesi: i === 0, tinggiSesi: waktu.length }))
     }
     if (!baris.length) baris.push({ kosong: true })
-    // Baris terakhir tiap tanggal memuat tindakan milik tanggal itu, supaya
-    // kolom Hari / Tanggal cukup berisi satu tombol Ubah.
-    baris.push({ aksiHari: true })
     baris.forEach((r, i) => keluar.push({ ...r, hari: h, awalHari: i === 0, tinggiHari: baris.length }))
   }
   return keluar
@@ -212,39 +209,36 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
               <tr v-for="(r, i) in barisJadwal" :key="i" :class="{ 'awal-hari': r.awalHari }">
                 <td v-if="r.awalHari" :rowspan="r.tinggiHari" class="kol-tgl">
                   <div class="tgl">{{ r.hari.label }}</div>
+                  <!-- Nama tombol menyebut sasarannya. Sebelumnya kolom ini dan
+                       kolom Pilihan sama-sama berisi "Ubah" dan "Hapus" pada baris
+                       yang sama, sehingga tidak jelas mana yang mengenai tanggal
+                       dan mana yang mengenai sesi. -->
                   <div class="tgl__aksi">
-                    <el-button link @click="bukaUbahHari(r.hari)">Ubah</el-button>
+                    <el-button link type="primary" @click="bukaSesi(r.hari, null)">+ Sesi</el-button>
+                    <el-button link @click="bukaUbahHari(r.hari)">Ubah tanggal</el-button>
+                    <el-button link type="danger" @click="hapusHari(r.hari)">Hapus tanggal</el-button>
                   </div>
                 </td>
-                <template v-if="r.aksiHari">
-                  <td colspan="5" class="kosong"></td>
-                  <td class="kol-aksi">
-                    <div class="aksi">
-                      <el-button link type="primary" @click="bukaSesi(r.hari, null)">+ Sesi</el-button>
-                      <el-button link type="danger" @click="hapusHari(r.hari)">Hapus tanggal</el-button>
-                    </div>
-                  </td>
-                </template>
-                <td v-if="!r.aksiHari && r.kosong" colspan="6" class="kosong">Belum ada sesi pada tanggal ini.</td>
-                <td v-if="!r.aksiHari && !r.kosong" class="kol-waktu num">{{ r.waktu }}</td>
-                <td v-if="!r.aksiHari && !r.kosong && r.awalSesi" :rowspan="r.tinggiSesi">
+                <td v-if="r.kosong" colspan="6" class="kosong">Belum ada sesi pada tanggal ini.</td>
+                <td v-if="!r.kosong" class="kol-waktu num">{{ r.waktu }}</td>
+                <td v-if="!r.kosong && r.awalSesi" :rowspan="r.tinggiSesi">
                   {{ r.sesi.kegiatan }}
                   <span v-if="r.sesi.jam_selesai_manual" class="redup kecil">manual</span>
                 </td>
-                <td v-if="!r.aksiHari && !r.kosong && r.awalSesi" :rowspan="r.tinggiSesi">
+                <td v-if="!r.kosong && r.awalSesi" :rowspan="r.tinggiSesi">
                   <span v-if="!r.sesi.dosen.length" class="redup">—</span>
                   <div v-for="(n, j) in r.sesi.dosen" :key="j" class="kecil">{{ n }}</div>
                 </td>
-                <td v-if="!r.aksiHari && !r.kosong && r.awalSesi" :rowspan="r.tinggiSesi">
+                <td v-if="!r.kosong && r.awalSesi" :rowspan="r.tinggiSesi">
                   <span :class="{ redup: !r.sesi.departemen }">{{ r.sesi.departemen || '—' }}</span>
                 </td>
-                <td v-if="!r.aksiHari && !r.kosong && r.awalSesi" :rowspan="r.tinggiSesi">
+                <td v-if="!r.kosong && r.awalSesi" :rowspan="r.tinggiSesi">
                   <span :class="{ redup: !r.sesi.ruangan }">{{ r.sesi.ruangan || '—' }}</span>
                 </td>
-                <td v-if="!r.aksiHari && !r.kosong && r.awalSesi" :rowspan="r.tinggiSesi" class="kol-aksi">
+                <td v-if="!r.kosong && r.awalSesi" :rowspan="r.tinggiSesi" class="kol-aksi">
                   <div class="aksi">
-                    <el-button link @click="bukaSesi(r.hari, r.sesi)">Ubah</el-button>
-                    <el-button link type="danger" @click="hapusSesi(r.sesi)">Hapus</el-button>
+                    <el-button link @click="bukaSesi(r.hari, r.sesi)">Ubah sesi</el-button>
+                    <el-button link type="danger" @click="hapusSesi(r.sesi)">Hapus sesi</el-button>
                   </div>
                 </td>
               </tr>
@@ -385,11 +379,11 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
 }
 .jadwal td { padding: 10px 14px; vertical-align: top; border-bottom: 1px solid var(--primary-bg); }
 .jadwal tr.awal-hari > td { border-top: 2px solid var(--primary-bg); }
-.kol-tgl { width: 210px; }
+.kol-tgl { width: 250px; }
 .kol-waktu { width: 120px; white-space: nowrap; }
-.kol-aksi { width: 210px; }
+.kol-aksi { width: 240px; }
 .tgl { font-weight: 700; color: var(--ink); }
-.tgl__aksi { display: flex; gap: 10px; margin-top: 2px; }
+.tgl__aksi { display: flex; gap: 10px; margin-top: 2px; flex-wrap: wrap; }
 .kosong { color: var(--ink-muted); font-style: italic; }
 .kisi { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0 12px; }
 </style>
