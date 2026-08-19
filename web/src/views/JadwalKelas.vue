@@ -350,7 +350,9 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
 .kol-waktu { width: 120px; white-space: nowrap; }
 .kol-aksi { width: 240px; }
 .tgl { font-weight: 700; color: var(--ink); }
-.tgl__aksi { display: flex; gap: 10px; margin-top: 2px; }
+/* 10px, bukan 2px: tombol perlu terlihat terpisah dari tanggalnya, bukan
+   menempel seolah bagian dari tulisan tanggal. */
+.tgl__aksi { display: flex; gap: 10px; margin-top: 10px; }
 .kosong { color: var(--ink-muted); font-style: italic; }
 .kisi { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0 12px; }
 </style>
