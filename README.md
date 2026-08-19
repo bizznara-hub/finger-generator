@@ -20,7 +20,8 @@ Menggantikan aplikasi PHP lama (`absensi/`) yang tidak lagi bisa berjalan di PHP
 | Sumber att_log | PyMySQL, koneksi baca-saja ke MySQL Fingerspot |
 | Baca berkas mesin | pandas + xlrd |
 | Tulis laporan | openpyxl |
-| Antarmuka | Jinja2 + HTML/CSS/JS biasa, tanpa proses build |
+| Antarmuka | Vue 3 + Vite + Element Plus + Pinia |
+| Peladen produksi | gunicorn di dalam Docker |
 
 Alasan pemilihan dan alternatif yang ditolak: lihat [bagian 4 PRD](docs/PRD.md#4-tech-stack).
 
@@ -30,8 +31,12 @@ Alasan pemilihan dan alternatif yang ditolak: lihat [bagian 4 PRD](docs/PRD.md#4
 ./jalankan.sh
 ```
 
-Buka <http://127.0.0.1:5057>. Perintah pertama menyiapkan lingkungan Python sendiri
-(butuh `python3`). Akun awal: **admin / admin** — segera ganti lewat menu Akun.
+Buka <http://127.0.0.1:5057>. Perintah pertama menyiapkan lingkungan Python dan
+membangun antarmuka sendiri (butuh `python3` dan `npm`). Akun awal:
+**admin / admin** — segera ganti lewat menu Akun.
+
+> Skrip ini memakai peladen pengembangan bawaan Flask dan **hanya untuk bekerja
+> di komputer sendiri**. Untuk dipasang sungguhan, lihat bagian Docker di bawah.
 
 Data tersimpan di `data.db`. Untuk memakai PostgreSQL:
 
@@ -119,6 +124,90 @@ menjalankan Docker sebagai layanan tanpa perlu login.
 docker compose cp aplikasi:/data/data.db ./cadangan-$(date +%F).db
 ```
 
+### Pemasangan di Proxmox + Ubuntu Server
+
+Susunan yang disarankan untuk server kampus. Keempat lapisannya menyala sendiri
+setelah listrik kembali, tanpa perlu ada yang login:
+
+```
+Proxmox        nyala saat komputer dihidupkan
+└─ VM Ubuntu   "Start at boot" dicentang
+   └─ Docker   layanan systemd
+      └─ wadah restart: unless-stopped
+```
+
+**1. Buat VM di Proxmox.** Virtualisasi (VT-x atau AMD-V) harus aktif di BIOS.
+
+| Setelan | Nilai |
+|---|---|
+| ISO | Ubuntu Server LTS |
+| CPU · RAM · Disk | 2 vCPU · 4 GB · 32 GB |
+| Jaringan | Bridge `vmbr0` — VM harus sejaringan dengan PC Fingerspot |
+| Options | **Start at boot: Yes** |
+
+Pakai VM, bukan LXC. Docker di dalam LXC menuntut `nesting=1`, `keyctl`, dan
+kadang penyesuaian AppArmor — terlalu banyak kejutan untuk mesin produksi.
+
+Ukuran di atas berasal dari pengukuran nyata: aplikasi memakai 152 MB saat diam
+dan 304 MB pada puncak 20 unduhan laporan berbarengan.
+
+**2. Beri VM alamat IP tetap** lewat `/etc/netplan/`, atau reservasi DHCP di
+router. Alamat aplikasi tidak boleh berubah-ubah.
+
+**3. Pasang Docker Engine** (bukan Docker Desktop):
+
+```bash
+curl -fsSL https://get.docker.com | sudo sh
+sudo usermod -aG docker $USER      # keluar lalu masuk lagi
+docker compose version             # pastikan plugin compose ikut terpasang
+```
+
+**4. Jalankan aplikasi:**
+
+```bash
+git clone https://github.com/bizznara-hub/finger-generator.git
+cd finger-generator/app
+cp .env.contoh .env
+openssl rand -hex 32               # salin ke SECRET_KEY di dalam .env
+docker compose up -d --build
+```
+
+Periksa dengan `docker compose ps` — statusnya harus `healthy` dalam sekitar
+10 detik. Buka `http://IP-VM:5057`, masuk dengan **admin / admin**, lalu segera
+ganti sandinya.
+
+**5. Siapkan pengguna MySQL read-only di PC Fingerspot.**
+
+Aplikasi hanya membaca `att_log`, jadi haknya dibatasi persis sesempit itu.
+Jalankan di PC Fingerspot, ganti `IP_VM` dan nama basis datanya:
+
+```sql
+CREATE USER 'finger_baca'@'IP_VM' IDENTIFIED BY 'sandi-yang-kuat';
+GRANT SELECT ON nama_db_fingerspot.att_log TO 'finger_baca'@'IP_VM';
+FLUSH PRIVILEGES;
+```
+
+Lalu izinkan koneksi dari luar: pada `my.ini` ubah `bind-address` menjadi
+`0.0.0.0`, restart layanan MySQL, dan buka porta 3306 di Windows Firewall
+**hanya untuk IP VM** — bukan untuk semua alamat.
+
+Isi kredensialnya di menu **Pengaturan → Koneksi att_log**, lalu tekan Uji
+Koneksi. Host diisi alamat IP PC Fingerspot; `host.docker.internal` hanya
+berlaku bila Fingerspot berada di komputer yang sama dengan Docker.
+
+**6. Cadangan berlapis.** Harian untuk basis datanya saja:
+
+```bash
+docker compose cp aplikasi:/data/data.db /cadangan/finger-harian.db
+```
+
+Ditambah `vzdump` mingguan di Proxmox untuk seluruh VM. Lapis pertama penting:
+memulihkan satu VM utuh hanya demi satu berkas basis data itu merepotkan.
+
+**Sebelum dianggap selesai**, pastikan ID Finger tiap mahasiswa sama dengan User
+ID yang terdaftar di mesin. Bila mesin memakai nomor urut sedangkan ID Finger
+berisi NIM, `att_log` tersambung dengan baik tetapi seluruh laporan tetap 0%.
+
 ### Di belakang Nginx atau Caddy
 
 Ubah pemetaan porta menjadi `127.0.0.1:5057:5057` supaya aplikasi tidak terbuka
@@ -193,16 +282,26 @@ Dua bentuk kolom saat mencetak:
 
 ```
 .
-├── app.py              Titik masuk aplikasi
-├── core/
+├── app.py              Titik masuk; menyajikan API dan hasil build antarmuka
+├── core/               Logika domain, tidak menyentuh lapisan web
 │   ├── models.py       Skema basis data
 │   ├── parser.py       Pembaca 3 format ekspor mesin
 │   ├── attlog.py       Penarik data dari MySQL Fingerspot
+│   ├── impor.py        Pembaca daftar peserta dari berkas unggahan
 │   ├── laporan.py      Penentuan status H/A/S/I
 │   └── rekap.py        Penulis .xlsx
-├── views/              Rute per menu
-├── templates/          Halaman
-├── static/             Tema Ace (Bootstrap 3 + Font Awesome) dan gaya tambahan
+├── api/                46 rute JSON
+│   ├── auth.py         Masuk, keluar, akun
+│   ├── master.py       CRUD data master
+│   ├── jadwal.py       Blok, kelas, tanggal, sesi, peserta
+│   ├── mentah.py       Impor berkas mesin dan tarik att_log
+│   ├── laporan.py      Pratinjau dan unduh .xlsx
+│   └── sistem.py       Beranda, pengaturan, profil jam
+├── web/                Antarmuka Vue 3 + Vite + Element Plus
+│   ├── src/views/      Satu berkas per halaman
+│   └── dist/           Hasil build yang disajikan Flask
+├── Dockerfile          Citra dua tahap: Node membangun, Python menjalankan
+├── docker-compose.yml  Layanan aplikasi dan profil postgres
 └── docs/PRD.md         Rancangan lengkap
 ```
 
