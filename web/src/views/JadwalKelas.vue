@@ -213,10 +213,13 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
                        kolom Pilihan sama-sama berisi "Ubah" dan "Hapus" pada baris
                        yang sama, sehingga tidak jelas mana yang mengenai tanggal
                        dan mana yang mengenai sesi. -->
+                  <!-- Tombol di sini mengenai tanggalnya. Kolom Pilihan memakai
+                       nama "Ubah sesi" dan "Hapus sesi" supaya tetap kelihatan
+                       bedanya walau kedua kolom sama-sama punya tombol Ubah. -->
                   <div class="tgl__aksi">
                     <el-button link type="primary" @click="bukaSesi(r.hari, null)">+ Sesi</el-button>
-                    <el-button link @click="bukaUbahHari(r.hari)">Ubah tanggal</el-button>
-                    <el-button link type="danger" @click="hapusHari(r.hari)">Hapus tanggal</el-button>
+                    <el-button link @click="bukaUbahHari(r.hari)">Ubah</el-button>
+                    <el-button link type="danger" @click="hapusHari(r.hari)">Hapus</el-button>
                   </div>
                 </td>
                 <td v-if="r.kosong" colspan="6" class="kosong">Belum ada sesi pada tanggal ini.</td>
@@ -379,14 +382,11 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
 }
 .jadwal td { padding: 10px 14px; vertical-align: top; border-bottom: 1px solid var(--primary-bg); }
 .jadwal tr.awal-hari > td { border-top: 2px solid var(--primary-bg); }
-.kol-tgl { width: 200px; }
+.kol-tgl { width: 230px; }
 .kol-waktu { width: 120px; white-space: nowrap; }
 .kol-aksi { width: 240px; }
 .tgl { font-weight: 700; color: var(--ink); }
-/* Bertumpuk ke bawah, bukan menyamping: ketiganya jadi terbaca sebagai satu
-   kelompok milik tanggal di atasnya, dan kolomnya bisa lebih ramping. */
-.tgl__aksi { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; }
-.tgl__aksi .el-button { margin: 0; }
+.tgl__aksi { display: flex; gap: 10px; margin-top: 2px; }
 .kosong { color: var(--ink-muted); font-style: italic; }
 .kisi { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0 12px; }
 </style>
