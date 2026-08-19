@@ -379,11 +379,14 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
 }
 .jadwal td { padding: 10px 14px; vertical-align: top; border-bottom: 1px solid var(--primary-bg); }
 .jadwal tr.awal-hari > td { border-top: 2px solid var(--primary-bg); }
-.kol-tgl { width: 250px; }
+.kol-tgl { width: 200px; }
 .kol-waktu { width: 120px; white-space: nowrap; }
 .kol-aksi { width: 240px; }
 .tgl { font-weight: 700; color: var(--ink); }
-.tgl__aksi { display: flex; gap: 10px; margin-top: 2px; flex-wrap: wrap; }
+/* Bertumpuk ke bawah, bukan menyamping: ketiganya jadi terbaca sebagai satu
+   kelompok milik tanggal di atasnya, dan kolomnya bisa lebih ramping. */
+.tgl__aksi { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; margin-top: 4px; }
+.tgl__aksi .el-button { margin: 0; }
 .kosong { color: var(--ink-muted); font-style: italic; }
 .kisi { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0 12px; }
 </style>
