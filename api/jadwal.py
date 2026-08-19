@@ -16,6 +16,7 @@ from core.models import (
     JadwalJam,
     JadwalKelas,
     JadwalMahasiswa,
+    Ketidakhadiran,
     Mahasiswa,
     Pengaturan,
     db,
@@ -350,6 +351,48 @@ def tambah_hari(id_jk):
     if penuh:
         pesan += f" Berhenti di batas {BATAS_HARI} tanggal."
     return jsonify(pesan=pesan)
+
+
+@bp.put("/jadwal/hari/<int:id_hari>")
+def ubah_hari(id_hari):
+    """Pindahkan satu tanggal beserta seluruh sesinya.
+
+    Sesi ikut pindah dengan sendirinya karena melekat pada hari ini. Catatan
+    sakit dan izin TIDAK ikut dipindahkan: sebagiannya berlaku sehari penuh dan
+    bisa dipakai blok lain pada tanggal yang sama, jadi memindahkannya diam-diam
+    berisiko merusak laporan blok lain. Jumlahnya dilaporkan balik supaya admin
+    memutuskan sendiri.
+    """
+    h = db.session.get(JadwalHari, id_hari) or _tidak_ada()
+    baru = _tanggal((request.get_json(silent=True) or {}).get("tanggal"))
+    if baru is None:
+        raise GalatAPI("Tanggal tidak valid.")
+    if baru == h.tanggal:
+        return jsonify(pesan="Tanggal tidak berubah.")
+
+    bentrok = JadwalHari.query.filter_by(
+        jadwal_kelas_id=h.jadwal_kelas_id, tanggal=baru
+    ).first()
+    if bentrok:
+        raise GalatAPI(f"{label_tanggal(baru)} sudah ada pada kelas ini.")
+
+    lama = h.tanggal
+    peserta = [x.mahasiswa_id for x in h.jadwal_kelas.peserta]
+    absen = (
+        Ketidakhadiran.query
+        .filter(Ketidakhadiran.tanggal == lama,
+                Ketidakhadiran.mahasiswa_id.in_(peserta))
+        .count() if peserta else 0
+    )
+
+    h.tanggal = baru
+    db.session.commit()
+
+    pesan = f"Tanggal dipindah ke {label_tanggal(baru)} beserta {len(h.sesi)} sesinya."
+    if absen:
+        pesan += (f" Perhatikan: {absen} catatan sakit/izin masih tercatat pada "
+                  f"{label_tanggal(lama)} dan tidak ikut pindah.")
+    return jsonify(pesan=pesan, tanggal=baru.strftime("%Y-%m-%d"), catatan_tertinggal=absen)
 
 
 @bp.delete("/jadwal/hari/<int:id_hari>")

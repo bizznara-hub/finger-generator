@@ -54,6 +54,21 @@ async function tambahHari() {
   tanggalBaru.value = ''; await muat()
 }
 
+const dialogHari = ref(false); const hariUbah = ref(null); const tanggalUbah = ref('')
+
+function bukaUbahHari(h) {
+  hariUbah.value = h
+  tanggalUbah.value = h.tanggal
+  dialogHari.value = true
+}
+
+async function simpanUbahHari() {
+  if (!tanggalUbah.value) return
+  await jalankan(() => api.put(`/jadwal/hari/${hariUbah.value.id}`, { tanggal: tanggalUbah.value }))
+  dialogHari.value = false
+  await muat()
+}
+
 async function hapusHari(h) {
   await ElMessageBox.confirm('Hapus tanggal ini beserta seluruh sesinya?', 'Konfirmasi',
     { confirmButtonText: 'Hapus', cancelButtonText: 'Batal', type: 'warning' })
@@ -196,6 +211,7 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
                   <div class="tgl">{{ r.hari.label }}</div>
                   <div class="tgl__aksi">
                     <el-button link type="primary" @click="bukaSesi(r.hari, null)">+ Sesi</el-button>
+                    <el-button link @click="bukaUbahHari(r.hari)">Ubah</el-button>
                     <el-button link type="danger" @click="hapusHari(r.hari)">Hapus</el-button>
                   </div>
                 </td>
@@ -275,6 +291,23 @@ onMounted(async () => { await muat(); pilihan.value = await api.get('/pilihan') 
                        @size-change="perHal = $event; hal = 1" />
         </div>
       </section>
+
+      <el-dialog v-model="dialogHari" title="Ubah tanggal" width="380">
+        <el-form label-position="top">
+          <el-form-item label="Tanggal" required>
+            <el-date-picker v-model="tanggalUbah" type="date" value-format="YYYY-MM-DD"
+                            placeholder="Pilih tanggal" style="width:100%" />
+          </el-form-item>
+        </el-form>
+        <p class="petunjuk">
+          Seluruh sesi pada tanggal ini ikut pindah. Catatan sakit dan izin tidak ikut,
+          karena sebagiannya berlaku sehari penuh dan bisa dipakai blok lain.
+        </p>
+        <template #footer>
+          <el-button @click="dialogHari = false">Batal</el-button>
+          <el-button type="primary" @click="simpanUbahHari">Simpan</el-button>
+        </template>
+      </el-dialog>
 
       <el-dialog v-model="dialogSesi" :title="sesiForm.id ? 'Ubah sesi' : 'Tambah sesi'" width="460">
         <el-form label-position="top">
