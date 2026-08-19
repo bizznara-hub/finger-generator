@@ -12,10 +12,25 @@ async function muat(hal = 1) {
   finally { memuat.value = false }
 }
 
+// Menghapus seluruh log tidak bisa dibatalkan dan memulihkannya berarti mengimpor
+// ulang berkas mesin - yang belum tentu masih ada. Karena itu tidak cukup menekan
+// tombol: jumlah barisnya harus diketik ulang, supaya tidak terhapus karena
+// tangan tergelincir saat menjelajah halaman.
 async function kosongkan() {
-  await ElMessageBox.confirm(
-    `Hapus SEMUA ${d.value.total} baris log scan? Tindakan ini tidak bisa dibatalkan.`,
-    'Konfirmasi', { confirmButtonText: 'Hapus semua', cancelButtonText: 'Batal', type: 'error' })
+  const total = d.value.total
+  if (!total) return
+  const { value } = await ElMessageBox.prompt(
+    `Tindakan ini menghapus SEMUA ${total} baris log scan dan tidak bisa dibatalkan. ` +
+    `Memulihkannya berarti mengimpor ulang berkas mesin.\n\n` +
+    `Ketik ${total} untuk melanjutkan.`,
+    'Hapus seluruh log scan',
+    {
+      confirmButtonText: 'Hapus semua', cancelButtonText: 'Batal', type: 'error',
+      inputPattern: new RegExp(`^\\s*${total}\\s*$`),
+      inputErrorMessage: `Ketik tepat ${total} untuk melanjutkan.`,
+      inputPlaceholder: String(total),
+    })
+  if (String(value).trim() !== String(total)) return
   await jalankan(() => api.del('/mentah/log'))
   await muat()
 }
